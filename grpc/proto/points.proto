@@ -1,0 +1,22 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+
+message Point3 {
+    float x=1;
+    float y=2;
+    float z=3;
+    optional float r=4;
+    optional float g=5;
+    optional float b=6;
+}
+
+message PointCloud3 { 
+    repeated Point3 points=1;
+    optional string entity_name=2;
+}
+
+
+service addToScene {
+    rpc addPoint(Point3) returns (google.protobuf.Empty){}
+    rpc addPointCloud(PointCloud3) returns (google.protobuf.Empty){}
+}
