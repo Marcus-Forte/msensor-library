@@ -1,7 +1,5 @@
 #include <iostream>
-#include "sl_lidar.h"
 #include "sl_lidar_driver.h"
-#include <thread>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "converter.hh"
@@ -72,7 +70,7 @@ int main(int argc, char **argv)
     while (1)
     {
       sl_lidar_response_measurement_node_hq_t nodes[8192];
-      size_t count = _countof(nodes);
+      size_t count = sizeof(nodes) / sizeof(nodes[0]);
 
       op_result = drv->grabScanDataHq(nodes, count, 1000);
       // std::cout << "Actual count: " << count;
