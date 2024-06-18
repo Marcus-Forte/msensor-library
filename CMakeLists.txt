@@ -7,12 +7,21 @@ option(USE_GRPC "Publish to default gRPC port" OFF)
 
 add_subdirectory(third_party/rplidar_sdk)
 
-add_executable(app src/app.cc)
+add_executable(rplidar_publisher src/main.cc)
 
-target_link_libraries(app rplidar_sdk::rplidar_sdk)
+add_subdirectory(grpc)
+target_link_libraries(rplidar_publisher rplidar_sdk::rplidar_sdk grpc_publisher)
+add_definitions(-DUSE_GRPC=1)
 
-# if(USE_GRPC)
-#   add_subdirectory(grpc)
-#   target_link_libraries(app grpc_publisher)
-#   add_definitions(-DUSE_GRPC=1)
-# endif()
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR} CACHE PATH "default Install prefix" FORCE)
+endif()
+
+install(TARGETS rplidar_publisher
+# RUNTIME_DEPENDENCIES
+LIBRARY DESTINATION lib
+RUNTIME DESTINATION bin)
+
+set(CPACK_PACKAGE_NAME "rplidar")
+set(CPACK_GENERATOR "RPM")
+include(CPack)

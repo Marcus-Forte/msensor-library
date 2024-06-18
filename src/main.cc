@@ -4,9 +4,7 @@
 #include <math.h>
 #include "converter.hh"
 
-#ifdef USE_GRPC
 #include "grpc_publisher.hh"
-#endif
 
 using namespace sl;
 int main(int argc, char **argv)
@@ -31,7 +29,13 @@ int main(int argc, char **argv)
     exit(-2);
   }
 
-  _channel = (*createSerialPortChannel("COM5", 115200));
+  std::string port = "/dev/tty.usbserial-0001";
+  if(argc > 1)
+    port = argv[1];
+
+  std::cout << "Using Port: " << port << std::endl;
+
+  _channel = (*createSerialPortChannel(port, 115200));
   sl_lidar_response_device_info_t devinfo;
   bool connectSuccess = false;
   if (SL_IS_OK((drv)->connect(_channel)))
@@ -58,14 +62,12 @@ int main(int argc, char **argv)
       std::cout << "Unable to connect to LIDAR!" << std::endl;
       exit(0);
     }
-
+    
     drv->setMotorSpeed(0);
     // start scan...
     drv->startScan(0, 1);
 
-#ifdef USE_GRPC
     gRPCPublisher publisher("localhost:50051");
-#endif
 
     while (1)
     {
@@ -91,9 +93,7 @@ int main(int argc, char **argv)
 
         auto pointcloud = toPointCloud(nodes, count);
         // toFile(pointcloud);
-#ifdef USE_GRPC
         publisher.send<Point2>(pointcloud);
-#endif
       }
       else
       {
@@ -101,9 +101,6 @@ int main(int argc, char **argv)
       }
     }
   }
-
-  // printf("Ultra simple LIDAR data grabber for SLAMTEC LIDAR.\n"
-  //        "Version: %s\n", SL_LIDAR_SDK_VERSION);
 
   return 0;
 }

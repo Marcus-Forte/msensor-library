@@ -19,7 +19,7 @@ using PointCloud2 = std::vector<Point2>;
 /// @param nodes
 /// @param count
 /// @return
-PointCloud2 toPointCloud(const sl_lidar_response_measurement_node_hq_t *nodes, int count)
+inline PointCloud2 toPointCloud(const sl_lidar_response_measurement_node_hq_t *nodes, int count)
 {
     std::vector<Point2> points;
     points.reserve(count);
@@ -33,7 +33,10 @@ PointCloud2 toPointCloud(const sl_lidar_response_measurement_node_hq_t *nodes, i
         const float dist_m = nodes[pos].dist_mm_q2 / 4000.0f;
         float x = -cos(angle_in_pi)*dist_m;
         float y = sin(angle_in_pi)*dist_m;
-        points.push_back({x,y});
+        Point2 pt;
+        pt.x = x;
+        pt.y = y;
+        points.push_back(pt);
         // printf("%s theta: %03.2f Dist: %08.2f Q: %d \n",
         //        (nodes[pos].flag & SL_LIDAR_RESP_HQ_FLAG_SYNCBIT) ? "S " : "  ",
         //        angle_in_pi,
@@ -44,7 +47,7 @@ PointCloud2 toPointCloud(const sl_lidar_response_measurement_node_hq_t *nodes, i
     return points;
 }
 
-void toFile(const PointCloud2 &pointcloud2, const std::string &filename = "points.txt")
+inline void toFile(const PointCloud2 &pointcloud2, const std::string &filename = "points.txt")
 {
     std::ofstream file(filename);
     for (const auto &pt : pointcloud2)
