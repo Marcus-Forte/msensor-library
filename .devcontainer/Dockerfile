@@ -1,6 +1,6 @@
-FROM arm64v8/ubuntu
+FROM --platform=linux/arm64 ubuntu:noble
 
-RUN apt-get update && apt-get install -y git build-essential cmake clangd
+RUN apt-get update && apt-get install -y git build-essential cmake clangd clang-format rpm
 
 WORKDIR /deps
 

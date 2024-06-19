@@ -7,6 +7,11 @@
 #include "grpc_publisher.hh"
 
 using namespace sl;
+
+void print_usage() {
+  std::cout << "Usage: rplidar_publisher [usb device] [grpc server address]" << std::endl;
+}
+
 int main(int argc, char **argv)
 {
 
@@ -29,13 +34,18 @@ int main(int argc, char **argv)
     exit(-2);
   }
 
-  std::string port = "/dev/tty.usbserial-0001";
-  if(argc > 1)
-    port = argv[1];
+  if(argc < 3)
+    {
+      print_usage();
+      exit(0);
+    }
 
-  std::cout << "Using Port: " << port << std::endl;
+  const std::string usb_port (argv[1]);
+  const std::string grpc_server (argv[2]);
 
-  _channel = (*createSerialPortChannel(port, 115200));
+  std::cout << "Using Port: " << usb_port << std::endl;
+
+  _channel = (*createSerialPortChannel(usb_port, 115200));
   sl_lidar_response_device_info_t devinfo;
   bool connectSuccess = false;
   if (SL_IS_OK((drv)->connect(_channel)))
@@ -67,7 +77,9 @@ int main(int argc, char **argv)
     // start scan...
     drv->startScan(0, 1);
 
-    gRPCPublisher publisher("localhost:50051");
+    const auto publish_address = grpc_server + ":50051";
+    std::cout << "Publishing to: " + publish_address << std::endl;
+    gRPCPublisher publisher(publish_address);
 
     while (1)
     {

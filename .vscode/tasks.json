@@ -1,0 +1,11 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "deploy",
+			"command": "scp ${workspaceFolder}/build/rplidar-0.1.1-Linux.rpm root@${config:target_ip}:",
+			"problemMatcher": []
+		}
+	]
+}
