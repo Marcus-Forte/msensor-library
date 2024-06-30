@@ -90,21 +90,8 @@ int main(int argc, char **argv)
       // std::cout << "Actual count: " << count;
       if (SL_IS_OK(op_result))
       {
-        std::cout << "OK!\n";
-        // TODO convert to pointcloud!
-        // AKA Reorder
-        drv->ascendScanData(nodes, count);
-        // for (int pos = 0; pos < (int)count; ++pos)
-        // {
-        //     printf("%s theta: %03.2f Dist: %08.2f Q: %d \n",
-        //            (nodes[pos].flag & SL_LIDAR_RESP_HQ_FLAG_SYNCBIT) ? "S " : " N ",
-        //            (nodes[pos].angle_z_q14 * M_PI_4)  / 16384.f,
-        //            nodes[pos].dist_mm_q2 / 4.0f,
-        //            nodes[pos].quality >> SL_LIDAR_RESP_MEASUREMENT_QUALITY_SHIFT);
-        // }
-
+        drv->ascendScanData(nodes, count); // AKA Reorder
         auto pointcloud = toPointCloud(nodes, count);
-        // toFile(pointcloud);
         publisher.send<Point2>(pointcloud);
       }
       else
