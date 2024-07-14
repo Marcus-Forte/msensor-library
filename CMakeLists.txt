@@ -3,15 +3,27 @@ project(rplidar_app)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-option(USE_GRPC "Publish to default gRPC port" OFF)
-
 add_subdirectory(third_party/rplidar_sdk)
 add_subdirectory(grpc)
 
-add_executable(rplidar_publisher src/main.cc)
+add_library(lidar src/RPLidar.cc)
+target_include_directories(lidar PUBLIC include)
+target_link_libraries(lidar rplidar_sdk::rplidar_sdk)
+add_executable(rplidar_publisher src/rplidar_publisher.cc)
+target_link_libraries(rplidar_publisher lidar grpc_publisher)
 
-target_link_libraries(rplidar_publisher rplidar_sdk::rplidar_sdk grpc_publisher)
-add_definitions(-DUSE_GRPC=1)
+
+add_executable(main_test src/main_test.cc)
+target_link_libraries(main_test rplidar_sdk::rplidar_sdk)
+
+# Format
+file(GLOB_RECURSE sourcefiles
+  "include/*.hh"
+  "src/*.cc")
+string (REPLACE ";" " " sourcefiles "${sourcefiles}")
+add_custom_target(format ALL
+COMMAND sh -c "clang-format -i ${sourcefiles}"
+VERBATIM)
 
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR} CACHE PATH "default Install prefix" FORCE)
