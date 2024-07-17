@@ -1,7 +1,7 @@
 #pragma once
 
-#include "proto/points.grpc.pb.h"
-#include "proto/points.pb.h"
+#include "points.grpc.pb.h"
+#include "points.pb.h"
 #include <grpcpp/grpcpp.h>
 
 class gRPCPublisher {

@@ -1,6 +1,9 @@
 #include "RPLidar.hh"
 #include "ILidar.hh"
+#include "sl_lidar_driver.h"
 #include <cmath>
+#include <format>
+#include <iostream>
 #include <stdexcept>
 
 constexpr uint32_t g_baudRate = 115200;
@@ -51,12 +54,21 @@ void RPLidar::init() {
     for (int pos = 0; pos < 16; ++pos) {
       printf("%02X", devinfo.serialnum[pos]);
     }
-    printf("\n"
-           "Firmware Ver: %d.%02d\n"
-           "Hardware Rev: %d\n",
-           devinfo.firmware_version >> 8, devinfo.firmware_version & 0xFF,
-           (int)devinfo.hardware_version);
+    std::cout << std::format("Firmware Ver: {}.{}"
+                             "Hardware Rev: {}",
+                             devinfo.firmware_version >> 8,
+                             devinfo.firmware_version & 0xFF,
+                             (int)devinfo.hardware_version)
+              << std::endl;
   }
+
+  sl::LidarMotorInfo motorinfo;
+  drv_->getMotorInfo(motorinfo);
+  std::cout << std::format("Motor info: desired speed: {}, min_speed: {}, "
+                           "max_speed: {}, ctrl_support: {}",
+                           motorinfo.desired_speed, motorinfo.min_speed,
+                           motorinfo.max_speed,
+                           static_cast<int>(motorinfo.motorCtrlSupport));
 
   drv_->setMotorSpeed(0);
   drv_->startScan(0, 1);
@@ -75,3 +87,5 @@ ILidar::Point2Scan RPLidar::getScan() {
     return {};
   }
 }
+
+void RPLidar::setMotorRPM(unsigned int rpm) { drv_->setMotorSpeed(rpm); }

@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
 
   RPLidar lidar(argv[1]);
   lidar.init();
-
+  lidar.setMotorRPM(360);
   const std::string grpc_server = argv[2];
   const auto publish_address = grpc_server + ":50051";
   std::cout << "Publishing to: " + publish_address << std::endl;

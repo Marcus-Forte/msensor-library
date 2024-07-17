@@ -11,6 +11,7 @@ public:
 
   void init() override;
   Point2Scan getScan() override;
+  void setMotorRPM(unsigned int rpm) override;
 
 private:
   sl::IChannel *channel_;

@@ -12,4 +12,5 @@ public:
 
   virtual void init() = 0;
   virtual Point2Scan getScan() = 0;
+  virtual void setMotorRPM(unsigned int) = 0;
 };
