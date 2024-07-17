@@ -6,7 +6,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_subdirectory(third_party/rplidar_sdk)
 add_subdirectory(grpc)
 
-add_library(lidar src/RPLidar.cc)
+add_library(lidar 
+  src/RPLidar.cc
+  src/simLidar.cc)
 target_include_directories(lidar PUBLIC include)
 target_link_libraries(lidar rplidar_sdk::rplidar_sdk)
 add_executable(rplidar_publisher src/rplidar_publisher.cc)

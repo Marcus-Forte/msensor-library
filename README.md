@@ -1,11 +1,7 @@
 # RPLIdar publisher app.
 
-Small wrapper to allow publishing LiDAR data over gRPC.
+Small app to allow publishing LiDAR data from RPLidar sensor over gRPC.
 
 ## Packaging
 
 - `make package`
-
-## TODO 
-- Separate gRPC app from app.
-
