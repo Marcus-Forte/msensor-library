@@ -44,6 +44,7 @@ install(TARGETS rplidar_publisher
 # LIBRARY DESTINATION lib
 RUNTIME DESTINATION bin)
 
+
 set(CPACK_PACKAGE_NAME "rplidar")
 set(CPACK_GENERATOR "RPM")
 include(CPack)
