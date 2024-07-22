@@ -1,19 +1,18 @@
 #include "ILidar.hh"
 #include "RPLidar.hh"
-#include "grpc_publisher.hh"
+#include "grpc_server.hh"
 #include "simLidar.hh"
 #include <filesystem>
 #include <iostream>
 
 void print_usage() {
   std::cout << "Usage: rplidar_publisher [serial device path || \"sim\" ] "
-               "[grpc server address]"
             << std::endl;
 }
 
 int main(int argc, char **argv) {
 
-  if (argc < 3) {
+  if (argc < 2) {
     print_usage();
     exit(0);
   }
@@ -31,14 +30,14 @@ int main(int argc, char **argv) {
 
   lidar->init();
   lidar->setMotorRPM(360);
-  const std::string grpc_server = argv[2];
-  const auto publish_address = grpc_server + ":50051";
-  std::cout << "Publishing to: " + publish_address << std::endl;
-  gRPCPublisher publisher(publish_address);
+  gRPCServer server;
+  server.start();
 
   while (true) {
     const auto scan = lidar->getScan();
     std::cout << "Scans pts: " << scan.size() << std::endl;
-    publisher.send(scan);
+    server.put_scan(scan);
   }
+
+  server.stop();
 }

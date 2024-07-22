@@ -15,8 +15,6 @@ message PointCloud3 {
     optional string entity_name=2;
 }
 
-
-service addToScene {
-    rpc addPoint(Point3) returns (google.protobuf.Empty){}
-    rpc addPointCloud(PointCloud3) returns (google.protobuf.Empty){}
+service LidarService {
+    rpc getScan(google.protobuf.Empty) returns (stream PointCloud3);
 }

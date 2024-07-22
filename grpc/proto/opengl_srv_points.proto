@@ -1,0 +1,35 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+package opengl;
+
+message Point3 {
+    float x=1;
+    float y=2;
+    float z=3;
+    optional float r=4;
+    optional float g=5;
+    optional float b=6;
+}
+
+// Named & Sized point 
+message NamedPoint3 { 
+    Point3 point=1;
+    float size = 2;
+    optional string name=3;
+}
+
+message PointCloud3 { 
+    repeated Point3 points=1;
+    optional string entity_name=2;
+    optional float point_size=3;
+}
+
+
+service addToScene {
+    rpc addPoint(Point3) returns (google.protobuf.Empty);
+    rpc addPointCloud(PointCloud3) returns (google.protobuf.Empty);
+    rpc steamPointClouds(stream PointCloud3) returns (google.protobuf.Empty);
+    rpc streamNamedPoints(stream NamedPoint3) returns (google.protobuf.Empty);
+
+    rpc resetScene(google.protobuf.Empty) returns (google.protobuf.Empty);
+}

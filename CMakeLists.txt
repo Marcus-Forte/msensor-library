@@ -12,7 +12,7 @@ add_library(lidar
 target_include_directories(lidar PUBLIC include)
 target_link_libraries(lidar rplidar_sdk::rplidar_sdk)
 add_executable(rplidar_publisher src/rplidar_publisher.cc)
-target_link_libraries(rplidar_publisher lidar grpc_publisher)
+target_link_libraries(rplidar_publisher lidar grpc_server)
 
 
 add_executable(main_test src/main_test.cc)
@@ -23,7 +23,9 @@ find_program(formatter clang-format)
 if(formatter)
   file(GLOB_RECURSE sourcefiles
     "include/*.hh"
-    "src/*.cc")
+    "src/*.cc"
+    "grpc/*.cc"
+    "grpc/*.hh")
   string (REPLACE ";" " " sourcefiles "${sourcefiles}")
   add_custom_target(format ALL
   COMMAND sh -c "clang-format -i ${sourcefiles}"
