@@ -9,6 +9,7 @@
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/security/credentials.h>
 #include <grpcpp/server_builder.h>
+#include <memory>
 #include <thread>
 // Simple application that subscribes to lidar service and publishes to opengl
 // service: https://github.com/Marcus-Forte/learning-opengl
@@ -33,21 +34,22 @@ int main(int argc, char **argv) {
   auto channel_opengl =
       grpc::CreateChannel(openGlSrvIp, grpc::InsecureChannelCredentials());
   auto opengl_stub = gl::addToScene::NewStub(channel_opengl);
-
   google::protobuf::Empty empty_response;
   grpc::ClientContext lidar_context;
   auto reader = lidar_stub->getScan(&lidar_context, empty_response);
 
-  grpc::ClientContext opengl_context;
+  std::unique_ptr<grpc::ClientContext> opengl_context =
+      std::make_unique<grpc::ClientContext>();
 
   auto writer =
-      opengl_stub->streamPointClouds(&opengl_context, &empty_response);
+      opengl_stub->streamPointClouds(opengl_context.get(), &empty_response);
   lidar::PointCloud3 msg;
   while (true) {
 
     if (!reader->Read(&msg)) {
+      auto state = channel_opengl->GetState(true);
       std::cerr << "Error reading from lidar server " << lidarSrvIp
-                << std::endl;
+                << " code: " << state << std::endl;
       std::this_thread::sleep_for(std::chrono::milliseconds(1000));
       continue;
     }
@@ -56,8 +58,18 @@ int main(int argc, char **argv) {
     gl_cloud->set_entity_name("rplidar");
     if (!writer->Write(*gl_cloud)) {
       auto state = channel_opengl->GetState(true);
-      std::cerr << "Error writing to gl server " << openGlSrvIp << std::endl;
-      std::cout << "state: " << state << std::endl;
+      std::cerr << "Error writing to opengl server " << openGlSrvIp
+                << " code: " << state << std::endl;
+      if (state == GRPC_CHANNEL_READY) {
+        // Reconnect
+        std::cout << "Reconnecting..." << std::endl;
+        channel_opengl = grpc::CreateChannel(
+            openGlSrvIp, grpc::InsecureChannelCredentials());
+        opengl_context = std::make_unique<grpc::ClientContext>();
+        opengl_stub = gl::addToScene::NewStub(channel_opengl);
+        writer = opengl_stub->streamPointClouds(opengl_context.get(),
+                                                &empty_response);
+      }
     }
   }
 }

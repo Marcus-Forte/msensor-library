@@ -36,7 +36,7 @@ if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR} CACHE PATH "default Install prefix" FORCE)
 endif()
 
-install(TARGETS rplidar_publisher
+install(TARGETS rplidar_publisher gl_proxy
 # RUNTIME_DEPENDENCIES
 # POST_EXCLUDE_REGEXES ".*ld-linux.*"  # Linux dynamic linker
 #                     "libc.so"      # Common C libraries
