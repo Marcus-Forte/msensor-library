@@ -35,8 +35,9 @@ int main(int argc, char **argv) {
       grpc::CreateChannel(openGlSrvIp, grpc::InsecureChannelCredentials());
   auto opengl_stub = gl::addToScene::NewStub(channel_opengl);
   google::protobuf::Empty empty_response;
-  grpc::ClientContext lidar_context;
-  auto reader = lidar_stub->getScan(&lidar_context, empty_response);
+  std::unique_ptr<grpc::ClientContext> lidar_context =
+      std::make_unique<grpc::ClientContext>();
+  auto reader = lidar_stub->getScan(lidar_context.get(), empty_response);
 
   std::unique_ptr<grpc::ClientContext> opengl_context =
       std::make_unique<grpc::ClientContext>();
@@ -50,6 +51,14 @@ int main(int argc, char **argv) {
       auto state = channel_opengl->GetState(true);
       std::cerr << "Error reading from lidar server " << lidarSrvIp
                 << " code: " << state << std::endl;
+      if (state == GRPC_CHANNEL_READY) {
+        std::cout << "Reconnecting..." << std::endl;
+        channel =
+            grpc::CreateChannel(lidarSrvIp, grpc::InsecureChannelCredentials());
+        lidar_context = std::make_unique<grpc::ClientContext>();
+        lidar_stub = lidar::LidarService::NewStub(channel);
+        reader = lidar_stub->getScan(lidar_context.get(), empty_response);
+      }
       std::this_thread::sleep_for(std::chrono::milliseconds(1000));
       continue;
     }
