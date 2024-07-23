@@ -10,9 +10,10 @@ struct Point2 {
 
 ScanService::ScanService() = default;
 
-grpc::Status ScanService::getScan(::grpc::ServerContext *context,
-                                  const ::google::protobuf::Empty * /*request*/,
-                                  ::grpc::ServerWriter<::PointCloud3> *writer) {
+grpc::Status
+ScanService::getScan(::grpc::ServerContext *context,
+                     const ::google::protobuf::Empty * /*request*/,
+                     ::grpc::ServerWriter<lidar::PointCloud3> *writer) {
   static bool s_client_connected = false;
   if (s_client_connected)
     return grpc::Status(grpc::StatusCode::RESOURCE_EXHAUSTED,
@@ -24,7 +25,7 @@ grpc::Status ScanService::getScan(::grpc::ServerContext *context,
 
     while (!scan_queue_.empty()) {
       auto scan = scan_queue_.front();
-      PointCloud3 point_cloud;
+      lidar::PointCloud3 point_cloud;
 
       for (const auto &point : scan) {
         auto pt = point_cloud.add_points();

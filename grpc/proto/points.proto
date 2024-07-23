@@ -1,6 +1,6 @@
 syntax = "proto3";
 import "google/protobuf/empty.proto";
-
+package lidar;
 message Point3 {
     float x=1;
     float y=2;

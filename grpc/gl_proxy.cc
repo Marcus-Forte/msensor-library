@@ -2,6 +2,7 @@
 #include "opengl_srv_points.grpc.pb.h"
 #include "points.grpc.pb.h"
 #include <chrono>
+#include <google/protobuf/empty.pb.h>
 #include <grpcpp/channel.h>
 #include <grpcpp/client_context.h>
 #include <grpcpp/create_channel.h>
@@ -10,7 +11,7 @@
 #include <grpcpp/server_builder.h>
 #include <thread>
 // Simple application that subscribes to lidar service and publishes to opengl
-// service
+// service: https://github.com/Marcus-Forte/learning-opengl
 
 void printUsage() {
   std::cout << "gl_proxy [lidar server ip:port] [opengl server ip:port]"
@@ -27,32 +28,36 @@ int main(int argc, char **argv) {
 
   auto channel =
       grpc::CreateChannel(lidarSrvIp, grpc::InsecureChannelCredentials());
-  auto lidar_stub = LidarService::NewStub(channel);
+  auto lidar_stub = lidar::LidarService::NewStub(channel);
 
   auto channel_opengl =
       grpc::CreateChannel(openGlSrvIp, grpc::InsecureChannelCredentials());
-  auto opengl_stub = opengl::addToScene::NewStub(channel_opengl);
+  auto opengl_stub = gl::addToScene::NewStub(channel_opengl);
 
+  google::protobuf::Empty empty_response;
   grpc::ClientContext lidar_context;
-  auto reader = lidar_stub->getScan(&lidar_context, {});
+  auto reader = lidar_stub->getScan(&lidar_context, empty_response);
 
   grpc::ClientContext opengl_context;
-  auto writer = opengl_stub->steamPointClouds(&opengl_context, {});
-  PointCloud3 msg;
-  opengl::PointCloud3 gl_pt;
-  auto pt = gl_pt.add_points();
-  pt->set_x(1);
-  pt->set_y(2);
-  pt->set_z(0);
-  pt->set_r(1.0);
 
+  auto writer =
+      opengl_stub->streamPointClouds(&opengl_context, &empty_response);
+  lidar::PointCloud3 msg;
   while (true) {
-    reader->Read(&msg);
-    std::cout << "read: " << msg.points_size() << std::endl;
 
-    // auto gl_msg = reinterpret_cast<opengl::PointCloud3 *>(&msg);
+    if (!reader->Read(&msg)) {
+      std::cerr << "Error reading from lidar server " << lidarSrvIp
+                << std::endl;
+      std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+      continue;
+    }
 
-    writer->Write(gl_pt);
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    auto gl_cloud = reinterpret_cast<gl::PointCloud3 *>(&msg);
+    gl_cloud->set_entity_name("rplidar");
+    if (!writer->Write(*gl_cloud)) {
+      auto state = channel_opengl->GetState(true);
+      std::cerr << "Error writing to gl server " << openGlSrvIp << std::endl;
+      std::cout << "state: " << state << std::endl;
+    }
   }
 }

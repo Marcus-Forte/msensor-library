@@ -16,7 +16,7 @@ if(gRPC_FOUND)
 
     add_library(grpc_server
     grpc_server.cc
-    get_points.service.cc)
+    get_points_service.cc)
     target_link_libraries(grpc_server protolib)
     target_include_directories(grpc_server PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

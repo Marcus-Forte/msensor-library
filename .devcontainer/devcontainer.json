@@ -14,5 +14,9 @@
 				"llvm-vs-code-extensions.vscode-clangd"
 			]
 		}
-	}
+	},
+
+	"mounts": [
+		"source=rplidar-publishera-app-cache,target=${containerWorkspaceFolder}/build,type=volume"
+	]
 }

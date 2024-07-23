@@ -9,6 +9,7 @@ struct Point2 {
 class ILidar {
 public:
   using Point2Scan = std::vector<Point2>;
+  virtual ~ILidar() = default;
 
   virtual void init() = 0;
   virtual Point2Scan getScan() = 0;
