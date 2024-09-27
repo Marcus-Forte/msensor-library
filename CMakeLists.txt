@@ -14,7 +14,6 @@ target_link_libraries(lidar rplidar_sdk::rplidar_sdk)
 add_executable(rplidar_publisher src/rplidar_publisher.cc)
 target_link_libraries(rplidar_publisher lidar grpc_server)
 
-
 add_executable(main_test src/main_test.cc)
 target_link_libraries(main_test rplidar_sdk::rplidar_sdk)
 
@@ -33,7 +32,7 @@ if(formatter)
 endif()
 
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR} CACHE PATH "default Install prefix" FORCE)
+    set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install CACHE PATH "default Install prefix" FORCE)
 endif()
 
 install(TARGETS rplidar_publisher gl_proxy

@@ -4,7 +4,7 @@
 		{
 			"type": "shell",
 			"label": "deploy",
-			"command": "scp ${workspaceFolder}/build/rplidar-0.1.1-Linux.rpm root@${config:target_ip}:",
+			"command": "scp -r ${workspaceFolder}/build/install/* root@${config:target_ip}:/usr/local/",
 			"problemMatcher": []
 		}
 	]
