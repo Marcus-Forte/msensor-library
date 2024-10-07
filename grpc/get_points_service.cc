@@ -8,6 +8,8 @@ struct Point2 {
   float y;
 };
 
+const size_t g_maxSamples = 10;
+
 ScanService::ScanService() = default;
 
 grpc::Status
@@ -32,10 +34,6 @@ ScanService::getScan(::grpc::ServerContext *context,
         pt->set_x(point.x);
         pt->set_y(point.y);
         // 2D Lidar
-        pt->set_z(0.0);
-        pt->set_r(0.0);
-        pt->set_g(1.0);
-        pt->set_b(0.0);
       }
       writer->Write(point_cloud);
       scan_queue_.pop_front();
@@ -49,8 +47,7 @@ ScanService::getScan(::grpc::ServerContext *context,
 
 void ScanService::putScan(const std::vector<Point2> &scan) {
   scan_queue_.push_front(scan);
-  // Limit to 100 samples
-  if (scan_queue_.size() > 100) {
+  if (scan_queue_.size() > g_maxSamples) {
     scan_queue_.pop_back();
   }
 }

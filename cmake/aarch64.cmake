@@ -11,4 +11,4 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
-set(CMAKE_INSTALL_PREFIX /usr/local/aarch64-linux-gnu)
+set(CMAKE_INSTALL_PREFIX /workspaces/rplidar_publisher_app/build/install/aarch64)

@@ -31,21 +31,10 @@ if(formatter)
   VERBATIM)
 endif()
 
-if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install CACHE PATH "default Install prefix" FORCE)
-endif()
+
+set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install/${CMAKE_SYSTEM_PROCESSOR} CACHE PATH "default Install prefix" FORCE)
+
+message(STATUS "installing to: " ${CMAKE_INSTALL_PREFIX})
 
 install(TARGETS rplidar_publisher gl_proxy
-# RUNTIME_DEPENDENCIES
-# POST_EXCLUDE_REGEXES ".*ld-linux.*"  # Linux dynamic linker
-#                     "libc.so"      # Common C libraries
-#                     "libgcc_"
-#                     "libstdc"
-#                     "libm.*"      # Math library
-# LIBRARY DESTINATION lib
 RUNTIME DESTINATION bin)
-
-
-set(CPACK_PACKAGE_NAME "rplidar")
-set(CPACK_GENERATOR "RPM")
-include(CPack)

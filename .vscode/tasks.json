@@ -4,7 +4,7 @@
 		{
 			"type": "shell",
 			"label": "deploy",
-			"command": "scp -r ${workspaceFolder}/build/install/* root@${config:target_ip}:/usr/local/",
+			"command": "rsync -r ${workspaceFolder}/build/install/arm/ root@${config:target_ip}:/usr/local/",
 			"problemMatcher": []
 		}
 	]
