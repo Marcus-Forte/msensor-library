@@ -2,10 +2,16 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
+			"type": "cmake",
+			"command": "install",
+			"label": "install"
+		},
+		{
 			"type": "shell",
 			"label": "deploy",
-			"command": "rsync -r ${workspaceFolder}/build/install/arm/ root@${config:target_ip}:/usr/local/",
-			"problemMatcher": []
+			"command": ".vscode/deploy.sh ${workspaceFolder}/build/install/arm/ root@${config:target_ip}:/usr/local/",
+			"problemMatcher": [],
+			"dependsOn": "install"
 		}
 	]
 }
