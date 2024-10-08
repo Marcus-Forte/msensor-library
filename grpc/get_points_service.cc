@@ -28,7 +28,10 @@ ScanService::getScan(::grpc::ServerContext *context,
     while (!scan_queue_.empty()) {
       auto scan = scan_queue_.front();
       lidar::PointCloud3 point_cloud;
-
+      auto timestamp = std::chrono::duration_cast<std::chrono::microseconds>(
+                           std::chrono::steady_clock::now().time_since_epoch())
+                           .count();
+      point_cloud.set_timestamp(timestamp);
       for (const auto &point : scan) {
         auto pt = point_cloud.add_points();
         pt->set_x(point.x);

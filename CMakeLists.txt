@@ -6,17 +6,26 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_subdirectory(third_party/rplidar_sdk)
 add_subdirectory(grpc)
 
+
 add_library(lidar 
   src/RPLidar.cc
   src/simLidar.cc)
 target_include_directories(lidar PUBLIC include)
 target_link_libraries(lidar rplidar_sdk::rplidar_sdk)
+
+add_library(scan_recorder
+src/ScanRecorder.cc)
+target_link_libraries(scan_recorder protolib)
+target_include_directories(scan_recorder PUBLIC include)
+
 add_executable(rplidar_publisher src/rplidar_publisher.cc)
-target_link_libraries(rplidar_publisher lidar grpc_server)
+target_link_libraries(rplidar_publisher lidar grpc_server scan_recorder)
 
 add_executable(main_test src/main_test.cc)
 target_link_libraries(main_test rplidar_sdk::rplidar_sdk)
 
+add_executable(scan_parser src/scan_parser.cc)
+target_link_libraries(scan_parser lidar protolib)
 # Format
 find_program(formatter clang-format)
 if(formatter)
@@ -36,5 +45,5 @@ set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install/${CMAKE_SYSTEM_PROCESSOR} C
 
 message(STATUS "installing to: " ${CMAKE_INSTALL_PREFIX})
 
-install(TARGETS rplidar_publisher gl_proxy
+install(TARGETS rplidar_publisher gl_proxy scan_parser
 RUNTIME DESTINATION bin)

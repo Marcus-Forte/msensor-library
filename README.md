@@ -2,6 +2,9 @@
 
 Small app to allow publishing LiDAR data from RPLidar sensor over gRPC.
 
+## Scan files
+
+Scan files are generates using protobuf. The convention is that the number of bytes to follow come before the serialized data.
 
 ### Systemd examples
 Useful hints for systemd installation for services.
@@ -41,3 +44,6 @@ ExecStart=/usr/local/bin/gl_proxy localhost:50051 192.168.1.50:50051
 [Install]
 WantedBy=multi-user.target
 ```
+
+## TODO
+- Implement timestamp at lidar struct.
