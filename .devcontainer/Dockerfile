@@ -3,7 +3,7 @@ FROM ubuntu:noble
 
 ARG TARGETARCH
 
-RUN apt-get update && apt-get install -y git build-essential cmake clangd clang-format g++-aarch64-linux-gnu rsync && \
+RUN apt-get update && apt-get install -y git build-essential libi2c-dev cmake clangd clang-format g++-aarch64-linux-gnu rsync && \
   rm -rf /var/lib/apt/lists/*
 
 WORKDIR /deps

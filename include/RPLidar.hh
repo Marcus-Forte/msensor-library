@@ -10,7 +10,7 @@ public:
   virtual ~RPLidar();
 
   void init() override;
-  Point2Scan getScan() override;
+  Scan2D getScan() override;
   void setMotorRPM(unsigned int rpm) override;
 
 private:

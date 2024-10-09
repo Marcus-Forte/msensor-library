@@ -5,6 +5,8 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(generate_proto)
 include(findGRPC)
 
+include_directories(${CMAKE_SOURCE_DIR}/include)
+
 if(gRPC_FOUND)
     message(STATUS "gRPC detected.")
     generate_proto(${CMAKE_CURRENT_SOURCE_DIR}/proto/points.proto)

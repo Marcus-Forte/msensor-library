@@ -9,11 +9,10 @@ public:
   ScanRecorder();
   ~ScanRecorder();
   void start();
-  void record(const ILidar::Point2Scan &scan);
+  void record(const Scan2D &scan);
   void stop();
 
 private:
   std::ofstream record_file_;
-  lidar::PointCloud3Series series_;
   bool has_started_;
 };

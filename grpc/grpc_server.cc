@@ -1,14 +1,10 @@
 #include "grpc_server.hh"
+#include "SensorData.hh"
 
 #include <future>
 #include <grpcpp/security/server_credentials.h>
 #include <grpcpp/server_builder.h>
 #include <memory>
-
-struct Point2 {
-  float x;
-  float y;
-};
 
 gRPCServer::gRPCServer() = default;
 
@@ -31,6 +27,7 @@ void gRPCServer::stop() {
   task_.get();
 }
 
-void gRPCServer::put_scan(const std::vector<Point2> &scan) {
-  scan_service_.putScan(scan);
+void gRPCServer::put_scan(const Scan2D &scan) { scan_service_.putScan(scan); }
+void gRPCServer::put_imu(const IMUData &imu_data) {
+  scan_service_.putImuData(imu_data);
 }

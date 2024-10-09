@@ -1,3 +1,6 @@
 [submodule "third_party/rplidar_sdk"]
 	path = third_party/rplidar_sdk
 	url = https://github.com/Marcus-Forte/rplidar_sdk.git
+[submodule "third_party/icm-20948"]
+	path = third_party/icm-20948
+	url = git@github.com:Marcus-Forte/icm-20948.git

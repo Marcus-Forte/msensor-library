@@ -6,6 +6,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_subdirectory(third_party/rplidar_sdk)
 add_subdirectory(grpc)
 
+option(BUILD_ICM_DRIVER "Build ICM-20948 IMU driver" OFF)
+
 
 add_library(lidar 
   src/RPLidar.cc
@@ -18,8 +20,8 @@ src/ScanRecorder.cc)
 target_link_libraries(scan_recorder protolib)
 target_include_directories(scan_recorder PUBLIC include)
 
-add_executable(rplidar_publisher src/rplidar_publisher.cc)
-target_link_libraries(rplidar_publisher lidar grpc_server scan_recorder)
+add_executable(sensor_publisher src/sensor_publisher.cc)
+target_link_libraries(sensor_publisher lidar grpc_server scan_recorder)
 
 add_executable(main_test src/main_test.cc)
 target_link_libraries(main_test rplidar_sdk::rplidar_sdk)
@@ -45,5 +47,11 @@ set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install/${CMAKE_SYSTEM_PROCESSOR} C
 
 message(STATUS "installing to: " ${CMAKE_INSTALL_PREFIX})
 
-install(TARGETS rplidar_publisher gl_proxy scan_parser
+install(TARGETS sensor_publisher gl_proxy scan_parser
 RUNTIME DESTINATION bin)
+
+if(BUILD_ICM_DRIVER)
+add_subdirectory(third_party/icm-20948)
+target_link_libraries(sensor_publisher icm-20948-driver)
+install(TARGETS test_icm20948 DESTINATION bin)
+endif()

@@ -1,10 +1,10 @@
 #pragma once
 
+#include "SensorData.hh"
 #include "get_points_service.hh"
 #include <future>
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/server_builder.h>
-struct Point2;
 
 class gRPCServer {
 public:
@@ -13,7 +13,8 @@ public:
   void start();
   void stop();
 
-  void put_scan(const std::vector<Point2> &scan);
+  void put_scan(const Scan2D &scan);
+  void put_imu(const IMUData &data);
 
 private:
   ScanService scan_service_;

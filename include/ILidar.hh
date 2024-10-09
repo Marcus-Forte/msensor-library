@@ -1,17 +1,11 @@
 #pragma once
-#include <vector>
-
-struct Point2 {
-  float x;
-  float y;
-};
+#include "SensorData.hh"
 
 class ILidar {
 public:
-  using Point2Scan = std::vector<Point2>;
   virtual ~ILidar() = default;
 
   virtual void init() = 0;
-  virtual Point2Scan getScan() = 0;
+  virtual Scan2D getScan() = 0;
   virtual void setMotorRPM(unsigned int) = 0;
 };
