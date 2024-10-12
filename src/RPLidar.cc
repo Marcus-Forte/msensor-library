@@ -1,5 +1,4 @@
 #include "RPLidar.hh"
-#include "ILidar.hh"
 #include "SensorData.hh"
 #include "sl_lidar_driver.h"
 #include <chrono>
@@ -12,6 +11,7 @@ constexpr uint32_t g_baudRate = 115200;
 
 Scan2D to2DScan(const sl_lidar_response_measurement_node_hq_t *nodes,
                 int count) {
+
   Scan2D scan;
   scan.points.reserve(count);
   int idx = 0;

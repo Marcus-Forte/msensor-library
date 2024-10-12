@@ -1,4 +1,0 @@
-[{
-    "name": "aarch64-linux-g++",
-    "toolchainFile": "/workspaces/rplidar_publisher_app/cmake/aarch64.cmake",
-}]

@@ -3,7 +3,7 @@
 #include <grpcpp/support/status.h>
 #include <thread>
 
-constexpr size_t g_maxSamples = 10;
+constexpr size_t g_maxSamples = 1;
 constexpr size_t g_maxImuSamples = 400;
 
 ScanService::ScanService() = default;

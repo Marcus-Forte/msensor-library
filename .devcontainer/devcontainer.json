@@ -4,8 +4,7 @@
 	"name": "Dev Container",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"build": {
-		"dockerfile": "Dockerfile",
-		"context": ".."
+		"dockerfile": "Dockerfile"
 	},
 
 	"customizations": {
@@ -13,12 +12,7 @@
 			"extensions": [
 				"ms-vscode.cpptools-extension-pack",
 				"llvm-vs-code-extensions.vscode-clangd"
-			],
-			"settings": {
-				"cmake.additionalKits": [
-					"/workspaces/rplidar_publisher_app/cmake/toolchains.json"
-				]
-			}
+			]
 		}
 	},
 
