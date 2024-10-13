@@ -1,5 +1,4 @@
-include(generate_proto)
-include(findGRPC)
+# Sensor data proto lib.
 
 generate_proto(${CMAKE_CURRENT_SOURCE_DIR}/sensors.proto)
 

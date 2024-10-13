@@ -1,6 +1,6 @@
 
 #include "opengl_srv_points.grpc.pb.h"
-#include "points.grpc.pb.h"
+#include "sensors.grpc.pb.h"
 #include <chrono>
 #include <google/protobuf/empty.pb.h>
 #include <grpcpp/channel.h>
@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
 
   auto channel =
       grpc::CreateChannel(lidarSrvIp, grpc::InsecureChannelCredentials());
-  auto lidar_stub = lidar::LidarService::NewStub(channel);
+  auto lidar_stub = sensors::SensorService::NewStub(channel);
 
   auto channel_opengl =
       grpc::CreateChannel(openGlSrvIp, grpc::InsecureChannelCredentials());
@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
 
   auto writer =
       opengl_stub->streamPointClouds(opengl_context.get(), &empty_response);
-  lidar::PointCloud3 msg;
+  sensors::PointCloud3 msg;
   while (true) {
 
     if (!reader->Read(&msg)) {
@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
         channel =
             grpc::CreateChannel(lidarSrvIp, grpc::InsecureChannelCredentials());
         lidar_context = std::make_unique<grpc::ClientContext>();
-        lidar_stub = lidar::LidarService::NewStub(channel);
+        lidar_stub = sensors::SensorService::NewStub(channel);
         reader = lidar_stub->getScan(lidar_context.get(), empty_response);
       }
       std::this_thread::sleep_for(std::chrono::milliseconds(1000));

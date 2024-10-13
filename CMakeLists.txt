@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 3.20)
-project(rplidar_app)
+project(msensor_library)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(format)
+include(findGRPC)
+include(generate_proto)
 
 include_directories(include)
 
@@ -19,10 +21,10 @@ add_subdirectory(grpc)
 add_executable(sensor_publisher src/sensor_publisher.cc)
 target_link_libraries(sensor_publisher lidar grpc_sensor_server scan_recorder icm-20948)
 
-set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install/${CMAKE_SYSTEM_PROCESSOR} CACHE PATH "default Install prefix" FORCE)
+set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install/ CACHE PATH "default Install prefix" FORCE)
 
 message(STATUS "installing to: " ${CMAKE_INSTALL_PREFIX})
 
-install(TARGETS sensor_publisher gl_proxy
-RUNTIME DESTINATION bin)
+install(TARGETS sensor_publisher
+DESTINATION bin)
 

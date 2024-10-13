@@ -6,8 +6,16 @@
 #include <iostream>
 #include <thread>
 
-int main(int argc, char **argv) {
+static void printUsage() {
+  std::cerr << "Usage: scan_parser [-f file] [-t sim time] [-p publish]"
+            << std::endl;
+}
 
+int main(int argc, char **argv) {
+  if (argc < 2) {
+    printUsage();
+    exit(0);
+  }
   bool simulate_time = false;
   bool publish_scan = false;
   std::string file;
@@ -28,8 +36,7 @@ int main(int argc, char **argv) {
       break;
 
     default:
-      std::cerr << "Usage: scan_parser [-f file] [-t sim time] [-p publish]"
-                << std::endl;
+      printUsage();
       exit(0);
     }
   }
