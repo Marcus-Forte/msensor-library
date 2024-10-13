@@ -1,7 +1,6 @@
 
-#include "opengl_srv_points.grpc.pb.h"
+#include "gl_server.grpc.pb.h"
 #include "sensors.grpc.pb.h"
-#include <chrono>
 #include <google/protobuf/empty.pb.h>
 #include <grpcpp/channel.h>
 #include <grpcpp/client_context.h>

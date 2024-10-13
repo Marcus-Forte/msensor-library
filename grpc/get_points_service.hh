@@ -11,9 +11,10 @@ public:
           const ::google::protobuf::Empty *request,
           ::grpc::ServerWriter<sensors::PointCloud3> *writer) override;
 
-  ::grpc::Status getImu(::grpc::ServerContext *context,
-                        const ::google::protobuf::Empty *request,
-                        ::grpc::ServerWriter<sensors::IMUData> *writer) override;
+  ::grpc::Status
+  getImu(::grpc::ServerContext *context,
+         const ::google::protobuf::Empty *request,
+         ::grpc::ServerWriter<sensors::IMUData> *writer) override;
 
   void putScan(const Scan2D &scan);
   void putImuData(const IMUData &imu_data);

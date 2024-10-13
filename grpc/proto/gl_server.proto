@@ -1,5 +1,6 @@
 syntax = "proto3";
 import "google/protobuf/empty.proto";
+
 package gl;
 
 message Point3 {
@@ -30,6 +31,5 @@ service addToScene {
     rpc addPointCloud(PointCloud3) returns (google.protobuf.Empty);
     rpc streamPointClouds(stream PointCloud3) returns (google.protobuf.Empty);
     rpc streamNamedPoints(stream NamedPoint3) returns (google.protobuf.Empty);
-
     rpc resetScene(google.protobuf.Empty) returns (google.protobuf.Empty);
 }

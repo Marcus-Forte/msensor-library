@@ -4,9 +4,13 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-include(format)
 include(findGRPC)
 include(generate_proto)
+
+option (FORMAT_CODE "Format code" OFF)
+if(FORMAT_CODE)
+include(format)
+endif()
 
 include_directories(include)
 
