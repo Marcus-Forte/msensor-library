@@ -1,5 +1,4 @@
-#include "RPLidar.hh"
-#include "SensorData.hh"
+#include "lidar/RPLidar.hh"
 #include "sl_lidar_driver.h"
 #include <chrono>
 #include <cmath>

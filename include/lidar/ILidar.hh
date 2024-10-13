@@ -1,4 +1,5 @@
 #pragma once
+
 #include <stdint.h>
 #include <vector>
 
@@ -12,12 +13,11 @@ struct Scan2D {
   std::vector<Point2> points;
 };
 
-struct IMUData {
-  uint64_t timestamp;
-  float ax;
-  float ay;
-  float az;
-  float gx;
-  float gy;
-  float gz;
+class ILidar {
+public:
+  virtual ~ILidar() = default;
+
+  virtual void init() = 0;
+  virtual Scan2D getScan() = 0;
+  virtual void setMotorRPM(unsigned int) = 0;
 };

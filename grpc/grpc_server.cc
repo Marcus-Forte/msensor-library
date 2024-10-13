@@ -1,5 +1,4 @@
 #include "grpc_server.hh"
-#include "SensorData.hh"
 
 #include <future>
 #include <grpcpp/security/server_credentials.h>

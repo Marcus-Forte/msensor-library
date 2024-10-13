@@ -11,7 +11,7 @@ ScanService::ScanService() = default;
 grpc::Status
 ScanService::getScan(::grpc::ServerContext *context,
                      const ::google::protobuf::Empty * /*request*/,
-                     ::grpc::ServerWriter<lidar::PointCloud3> *writer) {
+                     ::grpc::ServerWriter<sensors::PointCloud3> *writer) {
   static bool s_client_connected = false;
   if (s_client_connected)
     return grpc::Status(grpc::StatusCode::RESOURCE_EXHAUSTED,
@@ -23,7 +23,7 @@ ScanService::getScan(::grpc::ServerContext *context,
 
     while (!scan_queue_.empty()) {
       auto scan = scan_queue_.front();
-      lidar::PointCloud3 point_cloud;
+      sensors::PointCloud3 point_cloud;
       point_cloud.set_timestamp(scan.timestamp);
       for (const auto &point : scan.points) {
         auto pt = point_cloud.add_points();
@@ -57,7 +57,7 @@ void ScanService::putImuData(const IMUData &imu_data) {
 ::grpc::Status
 ScanService::getImu(::grpc::ServerContext *context,
                     const ::google::protobuf::Empty *request,
-                    ::grpc::ServerWriter<lidar::IMUData> *writer) {
+                    ::grpc::ServerWriter<sensors::IMUData> *writer) {
   static bool s_client_connected = false;
   if (s_client_connected)
     return grpc::Status(grpc::StatusCode::RESOURCE_EXHAUSTED,
@@ -69,7 +69,7 @@ ScanService::getImu(::grpc::ServerContext *context,
     while (!imu_queue_.empty()) {
       const auto imu_data = imu_queue_.front();
 
-      lidar::IMUData grpc_data;
+      sensors::IMUData grpc_data;
       grpc_data.set_ax(imu_data.ax);
       grpc_data.set_ay(imu_data.ay);
       grpc_data.set_az(imu_data.az);

@@ -1,12 +1,12 @@
-#include "ScanRecorder.hh"
-#include "points.pb.h"
+#include "recorder/ScanRecorder.hh"
+#include "sensors.pb.h"
 #include <chrono>
 #include <ostream>
 #include <string>
 
 namespace {
-lidar::PointCloud3 toProtobuf(const Scan2D &scan) {
-  lidar::PointCloud3 proto;
+sensors::PointCloud3 toProtobuf(const Scan2D &scan) {
+  sensors::PointCloud3 proto;
   for (const auto &pt : scan.points) {
     auto *proto_pt = proto.add_points();
     proto_pt->set_x(pt.x);

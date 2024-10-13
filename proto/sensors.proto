@@ -1,7 +1,7 @@
 syntax = "proto3";
 import "google/protobuf/empty.proto";
 
-package lidar;
+package sensors;
 
 message Point3 {
     float x=1;
@@ -28,8 +28,7 @@ message IMUData {
     optional uint64 timestamp = 7;
 }
 
-// TODO RENAME!
-service LidarService {
+service SensorService {
     rpc getScan(google.protobuf.Empty) returns (stream PointCloud3);
     rpc getImu(google.protobuf.Empty) returns (stream IMUData);
 }

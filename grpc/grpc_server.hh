@@ -1,6 +1,5 @@
 #pragma once
 
-#include "SensorData.hh"
 #include "get_points_service.hh"
 #include <future>
 #include <grpcpp/grpcpp.h>

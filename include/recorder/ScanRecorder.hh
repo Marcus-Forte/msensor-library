@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ILidar.hh"
-#include "points.pb.h"
+#include "lidar/ILidar.hh"
+#include "sensors.pb.h"
 #include <fstream>
 
 class ScanRecorder {

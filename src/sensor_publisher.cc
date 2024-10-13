@@ -1,10 +1,9 @@
-#include "ILidar.hh"
-#include "RPLidar.hh"
-#include "ScanRecorder.hh"
-#include "SensorData.hh"
+#include "recorder/ScanRecorder.hh"
 #include "grpc_server.hh"
-#include "icm-20948.h"
-#include "simLidar.hh"
+#include "imu/icm-20948.h"
+#include "imu/icm-20948_defs.h"
+#include "lidar/RPLidar.hh"
+#include "lidar/simLidar.hh"
 #include <chrono>
 #include <filesystem>
 #include <future>

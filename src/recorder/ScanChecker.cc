@@ -1,4 +1,4 @@
-#include "points.pb.h"
+#include "sensors.pb.h"
 #include <chrono>
 #include <filesystem>
 #include <fstream>
@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
 
   std::ifstream pbscan(file, std::ios::in | std::ios::binary);
   size_t bytes;
-  lidar::PointCloud3 scan;
+  sensors::PointCloud3 scan;
 
   uint64_t time;
   int count = 0;
