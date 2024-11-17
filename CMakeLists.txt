@@ -5,12 +5,17 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 find_package(PCL 1.14 REQUIRED) # for point types
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-include(format)
 include(findGRPC)
 include(generate_proto)
 
 add_subdirectory(include)
 add_subdirectory(third_party)
+option (FORMAT_CODE "Format code" OFF)
+if(FORMAT_CODE)
+include(format)
+endif()
+
+include_directories(include)
 
 add_subdirectory(src/lidar)
 add_subdirectory(src/imu)
