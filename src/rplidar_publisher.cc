@@ -87,7 +87,8 @@ int main(int argc, char **argv) {
   }
 
   lidar->init();
-  lidar->setMotorRPM(360);
+
+  dynamic_cast<RPLidar*>(lidar.get())->setMotorRPM(360);
   gRPCServer server;
   server.start();
 

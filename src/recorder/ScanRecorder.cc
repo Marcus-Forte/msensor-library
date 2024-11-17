@@ -5,13 +5,13 @@
 #include <string>
 
 namespace {
-sensors::PointCloud3 toProtobuf(const Scan2D &scan) {
+sensors::PointCloud3 toProtobuf(const Scan3D &scan) {
   sensors::PointCloud3 proto;
   for (const auto &pt : scan.points) {
     auto *proto_pt = proto.add_points();
     proto_pt->set_x(pt.x);
     proto_pt->set_y(pt.y);
-    proto_pt->set_z(0);
+    proto_pt->set_z(pt.z);
   }
   proto.set_timestamp(scan.timestamp);
   return proto;
@@ -32,7 +32,7 @@ void ScanRecorder::start() {
   has_started_ = true;
 }
 
-void ScanRecorder::record(const Scan2D &scan) {
+void ScanRecorder::record(const Scan3D &scan) {
   if (!has_started_)
     return;
   auto proto_binary = toProtobuf(scan);

@@ -4,6 +4,7 @@
 class SimLidar : public ILidar {
 public:
   void init() override;
-  Scan2D getScan() override;
-  void setMotorRPM(unsigned int) override;
+  void startSampling() override;
+  void stopSampling() override;
+  Scan3D getScan() override;
 };

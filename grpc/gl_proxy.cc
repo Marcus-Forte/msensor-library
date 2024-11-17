@@ -11,9 +11,36 @@
 #include <grpcpp/server_builder.h>
 #include <memory>
 #include <thread>
+
+#include "colormap.hh"
+
 // Simple application that subscribes to lidar service and publishes to opengl
 // service: https://github.com/Marcus-Forte/learning-opengl
 
+static gl::PointCloud3 fromLidarService( sensors::PointCloud3& scan_data) {
+
+  // Zero only works if .proto are the same.
+  // return reinterpret_cast<gl::PointCloud3 *>(&scan_data);
+
+  gl::PointCloud3 ret;
+  ret.mutable_points()->Reserve(scan_data.points_size());
+
+  for (size_t i = 0; i < scan_data.points_size(); ++i) {
+    auto *point = ret.add_points();
+    point->set_x(scan_data.points(i).x());
+    point->set_y(scan_data.points(i).y());
+    point->set_z(scan_data.points(i).z());
+    float pt_r;
+    float pt_g;
+    float pt_b;
+    Int2RGB(scan_data.points(i).intensity(), pt_r, pt_g, pt_b);
+    point->set_r(pt_r);
+    point->set_g(pt_g);
+    point->set_b(pt_b);
+  }
+  return ret;
+
+}
 void printUsage() {
   std::cout << "gl_proxy [lidar server ip:port] [opengl server ip:port]"
             << std::endl;
@@ -63,9 +90,9 @@ int main(int argc, char **argv) {
       continue;
     }
 
-    auto gl_cloud = reinterpret_cast<gl::PointCloud3 *>(&msg);
-    gl_cloud->set_entity_name("rplidar");
-    if (!writer->Write(*gl_cloud)) {
+    auto gl_cloud = fromLidarService(msg);
+    gl_cloud.set_entity_name("lidar_scan");
+    if (!writer->Write(gl_cloud)) {
       auto state = channel_opengl->GetState(true);
       std::cerr << "Error writing to opengl server " << openGlSrvIp
                 << " code: " << state << std::endl;

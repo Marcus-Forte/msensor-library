@@ -1,7 +1,6 @@
 #pragma once
 
 #include "lidar/ILidar.hh"
-#include "sensors.pb.h"
 #include <fstream>
 
 class ScanRecorder {
@@ -9,7 +8,7 @@ public:
   ScanRecorder();
   ~ScanRecorder();
   void start();
-  void record(const Scan2D &scan);
+  void record(const Scan3D &scan);
   void stop();
 
 private:

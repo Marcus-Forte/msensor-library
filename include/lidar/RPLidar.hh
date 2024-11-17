@@ -10,8 +10,10 @@ public:
   virtual ~RPLidar();
 
   void init() override;
-  Scan2D getScan() override;
-  void setMotorRPM(unsigned int rpm) override;
+  inline void startSampling() override {}
+  inline void stopSampling() override {}
+  Scan3D getScan() override;
+  void setMotorRPM(unsigned int rpm);
 
 private:
   sl::IChannel *channel_;

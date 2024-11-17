@@ -12,7 +12,8 @@
 				"llvm-vs-code-extensions.vscode-clangd"
 			],
 			"settings": {
-				"clangd.arguments": ["-header-insertion=never"]
+				"clangd.arguments": ["-header-insertion=never"],
+				"C_Cpp.intelliSenseEngine": "disabled"
 			}
 		}
 	},

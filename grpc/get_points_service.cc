@@ -3,6 +3,8 @@
 #include <grpcpp/support/status.h>
 #include <thread>
 
+#include "colormap.hh" // intensity -> RGB
+
 constexpr size_t g_maxSamples = 1;
 constexpr size_t g_maxImuSamples = 400;
 
@@ -29,7 +31,8 @@ ScanService::getScan(::grpc::ServerContext *context,
         auto pt = point_cloud.add_points();
         pt->set_x(point.x);
         pt->set_y(point.y);
-        // 2D Lidar
+        pt->set_z(point.z);
+        pt->set_intensity(point.intensity);
       }
       writer->Write(point_cloud);
       scan_queue_.pop_front();
@@ -40,7 +43,7 @@ ScanService::getScan(::grpc::ServerContext *context,
   return ::grpc::Status::OK;
 }
 
-void ScanService::putScan(const Scan2D &scan) {
+void ScanService::putScan(const Scan3D &scan) {
   scan_queue_.push_front(scan);
   if (scan_queue_.size() > g_maxSamples) {
     scan_queue_.pop_back();

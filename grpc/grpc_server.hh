@@ -12,7 +12,7 @@ public:
   void start();
   void stop();
 
-  void put_scan(const Scan2D &scan);
+  void put_scan(const Scan3D &scan);
   void put_imu(const IMUData &data);
 
 private:

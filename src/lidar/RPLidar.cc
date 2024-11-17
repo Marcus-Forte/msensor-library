@@ -1,5 +1,4 @@
 #include "lidar/RPLidar.hh"
-#include "sl_lidar_driver.h"
 #include <chrono>
 #include <cmath>
 #include <format>
@@ -8,10 +7,10 @@
 
 constexpr uint32_t g_baudRate = 115200;
 
-Scan2D to2DScan(const sl_lidar_response_measurement_node_hq_t *nodes,
+Scan3D toScan3D(const sl_lidar_response_measurement_node_hq_t *nodes,
                 int count) {
 
-  Scan2D scan;
+  Scan3D scan;
   scan.points.reserve(count);
   int idx = 0;
   for (int pos = 0; pos < (int)count; ++pos) {
@@ -22,10 +21,7 @@ Scan2D to2DScan(const sl_lidar_response_measurement_node_hq_t *nodes,
     const float dist_m = nodes[pos].dist_mm_q2 / 4000.0f;
     float x = -cos(angle_in_pi) * dist_m;
     float y = sin(angle_in_pi) * dist_m;
-    Point2 pt;
-    pt.x = x;
-    pt.y = y;
-    scan.points.push_back(pt);
+    scan.points.emplace_back(x, y, 0);
   }
   scan.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
                        std::chrono::steady_clock::now().time_since_epoch())
@@ -78,7 +74,7 @@ void RPLidar::init() {
   drv_->startScan(0, 1);
 }
 
-Scan2D RPLidar::getScan() {
+Scan3D RPLidar::getScan() {
 
   sl_lidar_response_measurement_node_hq_t nodes[8192];
   size_t count = sizeof(nodes) / sizeof(nodes[0]);
@@ -86,7 +82,7 @@ Scan2D RPLidar::getScan() {
   auto result = drv_->grabScanDataHq(nodes, count, 1000);
   if (SL_IS_OK(result)) {
     drv_->ascendScanData(nodes, count); // AKA Reorder
-    return to2DScan(nodes, count);
+    return toScan3D(nodes, count);
   } else {
     return {};
   }
