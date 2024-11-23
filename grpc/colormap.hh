@@ -11,7 +11,8 @@ static inline void getRainbowColor(float value, float &r, float &g, float &b) {
   float h = value * 5.0f + 1.0f;
   int i = floor(h);
   float f = h - i;
-  if (!(i & 1)) f = 1 - f;  // if i is even
+  if (!(i & 1))
+    f = 1 - f; // if i is even
   float n = 1 - f;
 
   if (i <= 1)

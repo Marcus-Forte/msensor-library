@@ -70,6 +70,7 @@ int main(int argc, char **argv) {
       exit(-1);
     }
     lidar = std::make_unique<RPLidar>(argv[1]);
+    dynamic_cast<RPLidar *>(lidar.get())->setMotorRPM(360);
   }
 
   ScanRecorder recorder;
@@ -88,12 +89,12 @@ int main(int argc, char **argv) {
 
   lidar->init();
 
-  dynamic_cast<RPLidar*>(lidar.get())->setMotorRPM(360);
   gRPCServer server;
   server.start();
 
   auto imu_loop =
       std::async(std::launch::async, [&server]() { ImuLoop(server); });
+
   while (true) {
     const auto scan = lidar->getScan();
     std::cout << "Scans pts: " << scan.points.size() << std::endl;

@@ -9,22 +9,16 @@ gRPCServer::gRPCServer() = default;
 
 void gRPCServer::start() {
 
-  task_ = std::async(std::launch::async, [this] {
-    grpc::ServerBuilder builder;
-    builder.AddListeningPort("0.0.0.0:50051",
-                             ::grpc::InsecureServerCredentials());
-    builder.RegisterService(&scan_service_);
+  grpc::ServerBuilder builder;
+  builder.AddListeningPort("0.0.0.0:50051",
+                           ::grpc::InsecureServerCredentials());
+  builder.RegisterService(&scan_service_);
 
-    server_ = builder.BuildAndStart();
-    std::cout << "Listening..." << std::endl;
-    server_->Wait();
-  });
+  server_ = builder.BuildAndStart();
+  std::cout << "Listening..." << std::endl;
 }
 
-void gRPCServer::stop() {
-  server_->Shutdown();
-  task_.get();
-}
+void gRPCServer::stop() { server_->Shutdown(); }
 
 void gRPCServer::put_scan(const Scan3D &scan) { scan_service_.putScan(scan); }
 void gRPCServer::put_imu(const IMUData &imu_data) {

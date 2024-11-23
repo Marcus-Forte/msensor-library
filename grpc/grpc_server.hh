@@ -1,7 +1,6 @@
 #pragma once
 
 #include "get_points_service.hh"
-#include <future>
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/server_builder.h>
 
@@ -18,5 +17,4 @@ public:
 private:
   ScanService scan_service_;
   std::unique_ptr<grpc::Server> server_;
-  std::future<void> task_;
 };

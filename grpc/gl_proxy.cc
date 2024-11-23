@@ -16,7 +16,7 @@
 // Simple application that subscribes to lidar service and publishes to opengl
 // service: https://github.com/Marcus-Forte/learning-opengl
 
-static gl::PointCloud3 fromLidarService( sensors::PointCloud3& scan_data) {
+static gl::PointCloud3 fromLidarService(sensors::PointCloud3 &scan_data) {
 
   // Zero only works if .proto are the same.
   // return reinterpret_cast<gl::PointCloud3 *>(&scan_data);
@@ -38,7 +38,6 @@ static gl::PointCloud3 fromLidarService( sensors::PointCloud3& scan_data) {
     point->set_b(pt_b);
   }
   return ret;
-
 }
 void printUsage() {
   std::cout << "gl_proxy [lidar server ip:port] [opengl server ip:port]"

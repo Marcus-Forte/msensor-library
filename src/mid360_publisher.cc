@@ -9,7 +9,7 @@ void printUsage() {
   std::cout << "Usage: app [config] [accusamples] [mode: 0, 1,2,3]"
             << std::endl;
 }
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
   if (argc < 4) {
     printUsage();
     exit(0);
