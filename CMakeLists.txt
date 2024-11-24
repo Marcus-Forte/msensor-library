@@ -25,12 +25,14 @@ add_subdirectory(proto)
 add_subdirectory(grpc)
 
 add_executable(rplidar_publisher src/rplidar_publisher.cc)
-target_link_libraries(rplidar_publisher RPLidar grpc_sensor_server scan_recorder icm-20948)
+target_link_libraries(rplidar_publisher RPLidar sensors_server scan_recorder icm-20948)
 
 add_executable(mid360_publisher src/mid360_publisher.cc)
-target_link_libraries(mid360_publisher mid360 grpc_sensor_server scan_recorder)
+target_link_libraries(mid360_publisher mid360 sensors_server scan_recorder)
 
 set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install/ CACHE PATH "default Install prefix" FORCE)
+
+add_executable(draft src/draft.cc)
 
 message(STATUS "installing to: " ${CMAKE_INSTALL_PREFIX})
 

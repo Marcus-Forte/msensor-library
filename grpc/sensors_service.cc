@@ -1,9 +1,9 @@
-#include "get_points_service.hh"
+#include "sensors_service.hh"
 #include <chrono>
 #include <grpcpp/support/status.h>
 #include <thread>
 
-#include "colormap.hh" // intensity -> RGB
+// #include "colormap.hh" // intensity -> RGB
 
 constexpr size_t g_maxSamples = 1;
 constexpr size_t g_maxImuSamples = 400;

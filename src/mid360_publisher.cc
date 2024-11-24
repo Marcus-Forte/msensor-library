@@ -2,8 +2,8 @@
 #include <iomanip>
 #include <iostream>
 
-#include "grpc_server.hh"
 #include "lidar/Mid360.hh"
+#include "sensors_server.hh"
 
 void printUsage() {
   std::cout << "Usage: app [config] [accusamples] [mode: 0, 1,2,3]"

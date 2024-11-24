@@ -1,6 +1,6 @@
 #pragma once
 
-#include "get_points_service.hh"
+#include "sensors_service.hh"
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/server_builder.h>
 

@@ -1,9 +1,7 @@
-#include "grpc_server.hh"
+#include "sensors_server.hh"
 
-#include <future>
 #include <grpcpp/security/server_credentials.h>
 #include <grpcpp/server_builder.h>
-#include <memory>
 
 gRPCServer::gRPCServer() = default;
 
