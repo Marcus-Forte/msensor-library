@@ -5,6 +5,7 @@
 #include "recorder/ScanRecorder.hh"
 #include "sensors_server.hh"
 #include <chrono>
+#include "timing/timing.hh"
 #include <filesystem>
 #include <future>
 #include <getopt.h>
@@ -28,9 +29,7 @@ void ImuLoop(gRPCServer &server) {
     auto dbl_acc_data = icm20948.convert_raw_data(acc_data, FACTOR_ACC_2G);
     auto dbl_gyr_data =
         icm20948.convert_raw_data(gyr_data, FACTOR_GYRO_500DPS_RADS);
-    auto timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
-                         std::chrono::steady_clock::now().time_since_epoch())
-                         .count();
+    auto timestamp =  timing::getNowUs();
     IMUData data;
     data.timestamp = timestamp;
     data.ax = static_cast<float>(dbl_acc_data.x);

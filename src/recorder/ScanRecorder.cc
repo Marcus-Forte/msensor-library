@@ -1,8 +1,8 @@
 #include "recorder/ScanRecorder.hh"
 #include "sensors.pb.h"
-#include <chrono>
 #include <ostream>
 #include <string>
+#include "timing/timing.hh"
 
 namespace {
 sensors::PointCloud3 toProtobuf(const Scan3D &scan) {
@@ -23,9 +23,7 @@ ScanRecorder::ScanRecorder() : has_started_{false} {}
 ScanRecorder::~ScanRecorder() { record_file_.close(); }
 
 void ScanRecorder::start() {
-  const auto cur_time = std::chrono::duration_cast<std::chrono::milliseconds>(
-                            std::chrono::system_clock::now().time_since_epoch())
-                            .count();
+  const auto cur_time = timing::getNowUs();
 
   record_file_.open("scan_" + std::to_string(cur_time) + ".pbscan",
                     std::ios::binary | std::ios::trunc);
@@ -36,10 +34,8 @@ void ScanRecorder::record(const Scan3D &scan) {
   if (!has_started_)
     return;
   auto proto_binary = toProtobuf(scan);
-  proto_binary.set_timestamp(
-      std::chrono::duration_cast<std::chrono::milliseconds>(
-          std::chrono::system_clock::now().time_since_epoch())
-          .count());
+  
+  proto_binary.set_timestamp(scan.timestamp);
 
   const auto bytes = proto_binary.ByteSizeLong();
   record_file_ << bytes;

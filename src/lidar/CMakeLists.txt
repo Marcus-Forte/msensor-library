@@ -1,4 +1,4 @@
-link_libraries(ILidar)
+link_libraries(ILidar Timing)
 
 add_library(simLidar
 simLidar.cc)

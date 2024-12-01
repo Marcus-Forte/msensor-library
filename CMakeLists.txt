@@ -11,12 +11,11 @@ include(generate_proto)
 add_subdirectory(include)
 add_subdirectory(third_party)
 option (FORMAT_CODE "Format code" OFF)
-if(FORMAT_CODE)
-include(format)
+  if(FORMAT_CODE)
+  include(format)
 endif()
 
-include_directories(include)
-
+add_subdirectory(src/timing)
 add_subdirectory(src/lidar)
 add_subdirectory(src/imu)
 add_subdirectory(src/recorder)
@@ -32,7 +31,8 @@ target_link_libraries(mid360_publisher mid360 sensors_server scan_recorder)
 
 set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install/ CACHE PATH "default Install prefix" FORCE)
 
-add_executable(draft src/draft.cc)
+# add_executable(draft src/draft.cc)
+# target_link_libraries(draft Timing)
 
 message(STATUS "installing to: " ${CMAKE_INSTALL_PREFIX})
 

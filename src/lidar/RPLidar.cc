@@ -1,9 +1,9 @@
 #include "lidar/RPLidar.hh"
-#include <chrono>
-#include <cmath>
 #include <format>
 #include <iostream>
 #include <stdexcept>
+
+#include "timing/timing.hh"
 
 constexpr uint32_t g_baudRate = 115200;
 
@@ -23,9 +23,8 @@ Scan3D toScan3D(const sl_lidar_response_measurement_node_hq_t *nodes,
     float y = sin(angle_in_pi) * dist_m;
     scan.points.emplace_back(x, y, 0);
   }
-  scan.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
-                       std::chrono::steady_clock::now().time_since_epoch())
-                       .count();
+  scan.timestamp = timing::getNowUs();
+
   return scan;
 }
 
