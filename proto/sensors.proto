@@ -28,6 +28,13 @@ message IMUData {
     optional uint64 timestamp = 7;
 }
 
+message RecordingEntry {
+    oneof entry {
+     PointCloud3 scan = 1;
+     IMUData imu = 2;
+    }    
+}
+
 service SensorService {
     rpc getScan(google.protobuf.Empty) returns (stream PointCloud3);
     rpc getImu(google.protobuf.Empty) returns (stream IMUData);

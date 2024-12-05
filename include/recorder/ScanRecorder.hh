@@ -1,5 +1,6 @@
 #pragma once
 
+#include "imu/IImu.hh"
 #include "lidar/ILidar.hh"
 #include <fstream>
 
@@ -8,7 +9,9 @@ public:
   ScanRecorder();
   ~ScanRecorder();
   void start();
+  void start(const std::string &filename);
   void record(const Scan3D &scan);
+  void record(const IMUData &imu);
   void stop();
 
 private:

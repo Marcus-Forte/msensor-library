@@ -1,20 +1,18 @@
 #include "recorder/ScanRecorder.hh"
 #include "sensors.pb.h"
+#include "timing/timing.hh"
 #include <ostream>
 #include <string>
-#include "timing/timing.hh"
 
 namespace {
-sensors::PointCloud3 toProtobuf(const Scan3D &scan) {
-  sensors::PointCloud3 proto;
+void toProtobuf(const Scan3D &scan, sensors::PointCloud3 *proto_msg) {
   for (const auto &pt : scan.points) {
-    auto *proto_pt = proto.add_points();
+    auto *proto_pt = proto_msg->add_points();
     proto_pt->set_x(pt.x);
     proto_pt->set_y(pt.y);
     proto_pt->set_z(pt.z);
   }
-  proto.set_timestamp(scan.timestamp);
-  return proto;
+  proto_msg->set_timestamp(scan.timestamp);
 }
 } // namespace
 
@@ -30,17 +28,39 @@ void ScanRecorder::start() {
   has_started_ = true;
 }
 
+void ScanRecorder::start(const std::string &filename) {
+  record_file_.open(filename, std::ios::binary | std::ios::trunc);
+  has_started_ = true;
+}
+
 void ScanRecorder::record(const Scan3D &scan) {
   if (!has_started_)
     return;
-  auto proto_binary = toProtobuf(scan);
-  
-  proto_binary.set_timestamp(scan.timestamp);
 
-  const auto bytes = proto_binary.ByteSizeLong();
-  record_file_ << bytes;
-  proto_binary.SerializeToOstream(&record_file_);
-  record_file_ << std::flush;
+  sensors::RecordingEntry entry;
+  auto *proto_msg = entry.mutable_scan();
+  toProtobuf(scan, proto_msg);
+
+  record_file_ << entry.ByteSizeLong();
+  entry.SerializeToOstream(&record_file_);
+}
+
+void ScanRecorder::record(const IMUData &imu) {
+  if (!has_started_)
+    return;
+
+  sensors::RecordingEntry entry;
+  auto *proto_msg = entry.mutable_imu();
+  proto_msg->set_ax(imu.ax);
+  proto_msg->set_ay(imu.ay);
+  proto_msg->set_az(imu.az);
+  proto_msg->set_gx(imu.gx);
+  proto_msg->set_gy(imu.gy);
+  proto_msg->set_gz(imu.gz);
+  proto_msg->set_timestamp(imu.timestamp);
+
+  record_file_ << entry.ByteSizeLong();
+  entry.SerializeToOstream(&record_file_);
 }
 
 void ScanRecorder::stop() {

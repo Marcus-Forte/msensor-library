@@ -4,7 +4,6 @@
 #include "lidar/simLidar.hh"
 #include "recorder/ScanRecorder.hh"
 #include "sensors_server.hh"
-#include <chrono>
 #include "timing/timing.hh"
 #include <filesystem>
 #include <future>
@@ -29,7 +28,7 @@ void ImuLoop(gRPCServer &server) {
     auto dbl_acc_data = icm20948.convert_raw_data(acc_data, FACTOR_ACC_2G);
     auto dbl_gyr_data =
         icm20948.convert_raw_data(gyr_data, FACTOR_GYRO_500DPS_RADS);
-    auto timestamp =  timing::getNowUs();
+    auto timestamp = timing::getNowUs();
     IMUData data;
     data.timestamp = timestamp;
     data.ax = static_cast<float>(dbl_acc_data.x);

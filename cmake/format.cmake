@@ -3,6 +3,7 @@ find_program(formatter clang-format)
 if(formatter)
   file(GLOB_RECURSE sourcefiles
     "include/**/*.hh"
+    "src/**/*.cc"
     "src/*.cc"
     "grpc/*.cc"
     "grpc/*.hh")
