@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${command:cmake.launchTargetPath}",
-            "args": ["sim"],
+            "args": ["/workspaces/msensor_library/file.pbscan"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],

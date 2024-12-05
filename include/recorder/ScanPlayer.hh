@@ -13,7 +13,8 @@ public:
   const sensors::RecordingEntry &getLastEntry();
 
 private:
-  std::ifstream record_file_;
-  std::vector<char> read_buffer_;
+  char *memory_map_;
+  size_t offset_;
+  size_t num_bytes_;
   sensors::RecordingEntry entry_;
 };

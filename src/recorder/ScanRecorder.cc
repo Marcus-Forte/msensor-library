@@ -1,7 +1,6 @@
 #include "recorder/ScanRecorder.hh"
 #include "sensors.pb.h"
 #include "timing/timing.hh"
-#include <ostream>
 #include <string>
 
 namespace {
@@ -41,7 +40,8 @@ void ScanRecorder::record(const Scan3D &scan) {
   auto *proto_msg = entry.mutable_scan();
   toProtobuf(scan, proto_msg);
 
-  record_file_ << entry.ByteSizeLong();
+  auto bytes = entry.ByteSizeLong();
+  record_file_.write(reinterpret_cast<char *>(&bytes), sizeof(size_t));
   entry.SerializeToOstream(&record_file_);
 }
 
@@ -59,7 +59,8 @@ void ScanRecorder::record(const IMUData &imu) {
   proto_msg->set_gz(imu.gz);
   proto_msg->set_timestamp(imu.timestamp);
 
-  record_file_ << entry.ByteSizeLong();
+  auto bytes = entry.ByteSizeLong();
+  record_file_.write(reinterpret_cast<char *>(&bytes), sizeof(size_t));
   entry.SerializeToOstream(&record_file_);
 }
 
