@@ -1,7 +1,6 @@
 #include "recorder/ScanRecorder.hh"
 #include "sensors.pb.h"
 #include "timing/timing.hh"
-#include <string>
 
 namespace {
 void toProtobuf(const Scan3D &scan, sensors::PointCloud3 *proto_msg) {
@@ -15,20 +14,19 @@ void toProtobuf(const Scan3D &scan, sensors::PointCloud3 *proto_msg) {
 }
 } // namespace
 
-ScanRecorder::ScanRecorder() : has_started_{false} {}
+ScanRecorder::ScanRecorder(const std::shared_ptr<IFile> &file)
+    : record_file_{file}, has_started_{false} {}
 
-ScanRecorder::~ScanRecorder() { record_file_.close(); }
+ScanRecorder::~ScanRecorder() { record_file_->close(); }
 
 void ScanRecorder::start() {
   const auto cur_time = timing::getNowUs();
-
-  record_file_.open("scan_" + std::to_string(cur_time) + ".pbscan",
-                    std::ios::binary | std::ios::trunc);
+  record_file_->open("scan_" + std::to_string(cur_time) + ".pbscan");
   has_started_ = true;
 }
 
 void ScanRecorder::start(const std::string &filename) {
-  record_file_.open(filename, std::ios::binary | std::ios::trunc);
+  record_file_->open(filename);
   has_started_ = true;
 }
 
@@ -41,8 +39,11 @@ void ScanRecorder::record(const Scan3D &scan) {
   toProtobuf(scan, proto_msg);
 
   auto bytes = entry.ByteSizeLong();
-  record_file_.write(reinterpret_cast<char *>(&bytes), sizeof(size_t));
-  entry.SerializeToOstream(&record_file_);
+  // Write size of data
+  record_file_->write(reinterpret_cast<char *>(&bytes), sizeof(size_t));
+  // Write the sensor data
+  entry.SerializeToOstream(record_file_->ostream());
+  *record_file_->ostream() << std::flush;
 }
 
 void ScanRecorder::record(const IMUData &imu) {
@@ -60,11 +61,14 @@ void ScanRecorder::record(const IMUData &imu) {
   proto_msg->set_timestamp(imu.timestamp);
 
   auto bytes = entry.ByteSizeLong();
-  record_file_.write(reinterpret_cast<char *>(&bytes), sizeof(size_t));
-  entry.SerializeToOstream(&record_file_);
+  // Write size of data
+  record_file_->write(reinterpret_cast<char *>(&bytes), sizeof(size_t));
+  // Write the sensor data
+  entry.SerializeToOstream(record_file_->ostream());
+  *record_file_->ostream() << std::flush;
 }
 
 void ScanRecorder::stop() {
-  record_file_.close();
+  record_file_->close();
   has_started_ = false;
 }

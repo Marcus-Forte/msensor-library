@@ -6,7 +6,10 @@ if(formatter)
     "src/**/*.cc"
     "src/*.cc"
     "grpc/*.cc"
-    "grpc/*.hh")
+    "grpc/*.hh"
+    "test/src/*.cc"
+    "test/mocks/*.hh"
+    "test/*.cc")
   string (REPLACE ";" " " sourcefiles "${sourcefiles}")
   add_custom_target(format ALL
   COMMAND sh -c "clang-format -i ${sourcefiles}"

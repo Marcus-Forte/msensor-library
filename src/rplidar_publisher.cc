@@ -1,3 +1,4 @@
+#include "file/File.hh"
 #include "imu/icm-20948.h"
 #include "imu/icm-20948_defs.h"
 #include "lidar/RPLidar.hh"
@@ -11,7 +12,6 @@
 #include <iostream>
 #include <mutex>
 #include <thread>
-
 std::mutex g_mutex;
 
 // 100 Hz
@@ -71,7 +71,8 @@ int main(int argc, char **argv) {
     dynamic_cast<RPLidar *>(lidar.get())->setMotorRPM(360);
   }
 
-  ScanRecorder recorder;
+  auto file = std::make_shared<File>();
+  ScanRecorder recorder(file);
 
   bool record_scans = false;
   int opt;

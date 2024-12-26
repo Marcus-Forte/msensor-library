@@ -2,11 +2,11 @@
 
 #include "imu/IImu.hh"
 #include "lidar/ILidar.hh"
-#include <fstream>
+#include <file/IFile.hh>
 
 class ScanRecorder {
 public:
-  ScanRecorder();
+  ScanRecorder(const std::shared_ptr<IFile> &file);
   ~ScanRecorder();
   void start();
   void start(const std::string &filename);
@@ -15,6 +15,6 @@ public:
   void stop();
 
 private:
-  std::ofstream record_file_;
+  std::shared_ptr<IFile> record_file_;
   bool has_started_;
 };

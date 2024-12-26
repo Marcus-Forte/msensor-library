@@ -1,3 +1,4 @@
+#include "recorder/ScanPlayer.hh"
 #include "sensors.pb.h"
 #include <chrono>
 #include <filesystem>
@@ -46,35 +47,28 @@ int main(int argc, char **argv) {
     exit(-1);
   }
 
-  std::ifstream pbscan(file, std::ios::in | std::ios::binary);
-  size_t bytes;
-  sensors::PointCloud3 scan;
+  ScanPlayer player(file);
 
-  uint64_t time;
-  int count = 0;
-  int err_count = 0;
-  while (pbscan.peek() != EOF) {
-    pbscan >> bytes;
-    std::string data(bytes, 0);
-    pbscan.read(data.data(), bytes);
-    if (!scan.ParseFromString(data)) {
-      err_count++;
-    } else {
+  size_t nr_imu_entries = 0;
+  size_t nr_scan_entries = 0;
 
-      if (count > 0) {
-        const auto delta_us = scan.timestamp() - time;
-        if (simulate_time) {
-          std::this_thread::sleep_for(std::chrono::milliseconds(delta_us));
-          std::cout << scan.timestamp() << " pts: " << scan.points_size()
-                    << std::endl;
-        }
-      }
-      time = scan.timestamp();
+  while (player.next()) {
+    const auto entry = player.getLastEntry();
 
-      count++;
+    switch (entry.entry_case()) {
+    case sensors::RecordingEntry::kScan:
+      nr_scan_entries++;
+      break;
+
+    case sensors::RecordingEntry::kImu:
+      nr_imu_entries++;
+      break;
+
+    default:
+      break;
     }
   }
 
-  std::cout << "Valid scans: " << count << std::endl;
-  std::cout << "Errors scans: " << err_count << std::endl;
+  std::cout << std::format("Scans: {}, Imu: {}\n", nr_scan_entries,
+                           nr_imu_entries);
 }

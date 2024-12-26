@@ -15,6 +15,7 @@ option (FORMAT_CODE "Format code" OFF)
   include(format)
 endif()
 
+add_subdirectory(src/file)
 add_subdirectory(src/timing)
 add_subdirectory(src/lidar)
 add_subdirectory(src/imu)
@@ -31,8 +32,11 @@ target_link_libraries(mid360_publisher mid360 sensors_server scan_recorder)
 
 set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install/ CACHE PATH "default Install prefix" FORCE)
 
-# add_executable(draft src/draft.cc)
-# target_link_libraries(draft Timing)
+
+include(CTest)
+if(BUILD_TESTING)
+add_subdirectory(test)
+endif()
 
 message(STATUS "installing to: " ${CMAKE_INSTALL_PREFIX})
 

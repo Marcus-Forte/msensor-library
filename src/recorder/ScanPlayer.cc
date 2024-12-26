@@ -1,11 +1,11 @@
 #include "recorder/ScanPlayer.hh"
 #include <fcntl.h>
-#include <iostream>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
 ScanPlayer::ScanPlayer(const std::filesystem::path &file) {
+
   if (!std::filesystem::exists(file)) {
     throw std::runtime_error("File does not exist: " + file.string());
   }
@@ -19,9 +19,8 @@ ScanPlayer::ScanPlayer(const std::filesystem::path &file) {
 
   void *memmap = mmap(nullptr, num_bytes_, PROT_READ, MAP_PRIVATE, fd, 0);
   if (memory_map_ == MAP_FAILED) {
-    std::cerr << "Failed to map file into memory.\n";
     close(fd);
-    exit(0);
+    throw std::runtime_error("Failed to map file into memory.");
   }
   memory_map_ = reinterpret_cast<char *>(memmap);
   offset_ = 0;
