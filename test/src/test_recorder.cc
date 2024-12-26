@@ -53,6 +53,5 @@ TEST_F(TestRecorder, record_imu) {
   recorder_->start();
   recorder_->record(imu);
 
-  EXPECT_EQ(stream.str().size(),
-            34); // struct: 32 bytes. 2 bytes from protobuf.
+  EXPECT_EQ(stream.str().size(), 34);
 }

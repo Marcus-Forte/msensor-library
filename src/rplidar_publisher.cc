@@ -2,7 +2,6 @@
 #include "imu/icm-20948.h"
 #include "imu/icm-20948_defs.h"
 #include "lidar/RPLidar.hh"
-#include "lidar/simLidar.hh"
 #include "recorder/ScanRecorder.hh"
 #include "sensors_server.hh"
 #include "timing/timing.hh"
@@ -46,9 +45,8 @@ void ImuLoop(gRPCServer &server) {
   }
 }
 void print_usage() {
-  std::cout
-      << "Usage: rplidar_publisher [serial device path || \"sim\" [-r] record] "
-      << std::endl;
+  std::cout << "Usage: rplidar_publisher [serial device path]  [-r record] "
+            << std::endl;
 }
 
 int main(int argc, char **argv) {
@@ -59,17 +57,13 @@ int main(int argc, char **argv) {
   }
 
   std::unique_ptr<ILidar> lidar;
-  if (std::string(argv[1]) == "sim") {
-    lidar = std::make_unique<SimLidar>();
-  } else {
-    if (!std::filesystem::exists(argv[1])) {
-      std::cerr << "Device: " << argv[1] << " does not exist. Exiting..."
-                << std::endl;
-      exit(-1);
-    }
-    lidar = std::make_unique<RPLidar>(argv[1]);
-    dynamic_cast<RPLidar *>(lidar.get())->setMotorRPM(360);
+  if (!std::filesystem::exists(argv[1])) {
+    std::cerr << "Device: " << argv[1] << " does not exist. Exiting..."
+              << std::endl;
+    exit(-1);
   }
+  lidar = std::make_unique<RPLidar>(argv[1]);
+  dynamic_cast<RPLidar *>(lidar.get())->setMotorRPM(360);
 
   auto file = std::make_shared<File>();
   ScanRecorder recorder(file);
