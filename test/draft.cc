@@ -2,6 +2,8 @@
 #include "recorder/ScanPlayer.hh"
 #include "recorder/ScanRecorder.hh"
 
+using namespace msensor;
+
 int main(int argc, char **argv) {
   auto file = std::make_shared<File>();
 

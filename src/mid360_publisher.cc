@@ -17,21 +17,21 @@ int main(int argc, char **argv) {
 
   const int accumulate = atoi(argv[2]);
   std::cout << "Accu samples: " << accumulate << std::endl;
-  Mid360 lidar(argv[1], accumulate);
+  msensor::Mid360 lidar(argv[1], accumulate);
   lidar.init();
 
   const auto mode = atoi(argv[3]);
 
   if (mode == 0) {
-    lidar.setMode(Mid360::Mode::PowerSave);
+    lidar.setMode(msensor::Mid360::Mode::PowerSave);
   } else {
-    lidar.setMode(Mid360::Mode::Normal);
+    lidar.setMode(msensor::Mid360::Mode::Normal);
     if (mode == 1) {
-      lidar.setScanPattern(Mid360::ScanPattern::NonRepetitive);
+      lidar.setScanPattern(msensor::Mid360::ScanPattern::NonRepetitive);
     } else if (mode == 2) {
-      lidar.setScanPattern(Mid360::ScanPattern::Repetitive);
+      lidar.setScanPattern(msensor::Mid360::ScanPattern::Repetitive);
     } else {
-      lidar.setScanPattern(Mid360::ScanPattern::LowFrameRate);
+      lidar.setScanPattern(msensor::Mid360::ScanPattern::LowFrameRate);
     }
   }
 

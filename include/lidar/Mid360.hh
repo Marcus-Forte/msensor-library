@@ -7,6 +7,8 @@
 #include "ILidar.hh"
 #include "imu/IImu.hh"
 
+namespace msensor {
+
 class Mid360 : public ILidar {
 public:
   enum class ScanPattern { Repetitive, NonRepetitive, LowFrameRate };
@@ -35,3 +37,5 @@ private:
 
   uint32_t connection_handle_;
 };
+
+} // namespace msensor

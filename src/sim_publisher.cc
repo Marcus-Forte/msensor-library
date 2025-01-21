@@ -1,7 +1,7 @@
 #include "file/File.hh"
-#include "lidar/simLidar.hh"
 #include "recorder/ScanRecorder.hh"
 #include "sensors_server.hh"
+#include "lidar/simLidar.hh"
 #include <getopt.h>
 #include <iostream>
 
@@ -11,10 +11,10 @@ void print_usage() {
 
 int main(int argc, char **argv) {
 
-  auto simLidar = std::make_unique<SimLidar>();
+  auto simLidar = std::make_unique<msensor::SimLidar>();
 
   auto file = std::make_shared<File>();
-  ScanRecorder recorder(file);
+  msensor::ScanRecorder recorder(file);
 
   bool record_scans = false;
   int opt;

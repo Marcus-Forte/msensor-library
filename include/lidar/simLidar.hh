@@ -1,5 +1,8 @@
 #pragma once
+
 #include "ILidar.hh"
+
+namespace msensor {
 
 class SimLidar : public ILidar {
 public:
@@ -8,3 +11,5 @@ public:
   void stopSampling() override;
   Scan3D getScan() override;
 };
+
+} // namespace msensor

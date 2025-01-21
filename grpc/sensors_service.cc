@@ -43,14 +43,14 @@ ScanService::getScan(::grpc::ServerContext *context,
   return ::grpc::Status::OK;
 }
 
-void ScanService::putScan(const Scan3D &scan) {
+void ScanService::putScan(const msensor::Scan3D &scan) {
   scan_queue_.push_front(scan);
   if (scan_queue_.size() > g_maxSamples) {
     scan_queue_.pop_back();
   }
 }
 
-void ScanService::putImuData(const IMUData &imu_data) {
+void ScanService::putImuData(const msensor::IMUData &imu_data) {
   imu_queue_.push_front(imu_data);
   if (imu_queue_.size() > g_maxImuSamples) {
     imu_queue_.pop_back();

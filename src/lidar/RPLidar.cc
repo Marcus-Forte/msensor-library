@@ -5,6 +5,8 @@
 
 #include "timing/timing.hh"
 
+namespace msensor {
+
 constexpr uint32_t g_baudRate = 115200;
 
 Scan3D toScan3D(const sl_lidar_response_measurement_node_hq_t *nodes,
@@ -88,3 +90,5 @@ Scan3D RPLidar::getScan() {
 }
 
 void RPLidar::setMotorRPM(unsigned int rpm) { drv_->setMotorSpeed(rpm); }
+
+} // namespace msensor

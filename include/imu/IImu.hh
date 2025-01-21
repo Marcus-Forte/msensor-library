@@ -2,6 +2,8 @@
 
 #include <stdint.h>
 
+namespace msensor {
+
 struct IMUData {
   float ax;
   float ay;
@@ -11,3 +13,5 @@ struct IMUData {
   float gz;
   uint64_t timestamp;
 };
+
+} // namespace msensor

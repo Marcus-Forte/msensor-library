@@ -4,6 +4,8 @@
 #include "sl_lidar_driver.h"
 #include <string>
 
+namespace msensor {
+
 class RPLidar : public ILidar {
 public:
   RPLidar(const std::string &serial_port);
@@ -19,3 +21,5 @@ private:
   sl::IChannel *channel_;
   sl::ILidarDriver *drv_;
 };
+
+} // namespace msensor

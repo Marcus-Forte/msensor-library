@@ -10,6 +10,8 @@
 #include "lidar/ILidar.hh"
 #include "livox_lidar_api.h"
 
+namespace msensor {
+
 std::mutex g_mutex;
 std::mutex g_lidar_mutex;
 std::mutex g_imu_mutex;
@@ -211,3 +213,4 @@ std::optional<IMUData> Mid360::getImuSample() {
     return last;
   }
 }
+} // namespace msensor

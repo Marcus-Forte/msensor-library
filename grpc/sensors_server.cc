@@ -18,7 +18,9 @@ void gRPCServer::start() {
 
 void gRPCServer::stop() { server_->Shutdown(); }
 
-void gRPCServer::put_scan(const Scan3D &scan) { scan_service_.putScan(scan); }
-void gRPCServer::put_imu(const IMUData &imu_data) {
+void gRPCServer::put_scan(const msensor::Scan3D &scan) {
+  scan_service_.putScan(scan);
+}
+void gRPCServer::put_imu(const msensor::IMUData &imu_data) {
   scan_service_.putImuData(imu_data);
 }

@@ -4,6 +4,8 @@
 #include "lidar/ILidar.hh"
 #include <file/IFile.hh>
 
+namespace msensor {
+
 class ScanRecorder {
 public:
   ScanRecorder(const std::shared_ptr<IFile> &file);
@@ -18,3 +20,5 @@ private:
   std::shared_ptr<IFile> record_file_;
   bool has_started_;
 };
+
+} // namespace msensor

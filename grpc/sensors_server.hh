@@ -11,8 +11,8 @@ public:
   void start();
   void stop();
 
-  void put_scan(const Scan3D &scan);
-  void put_imu(const IMUData &data);
+  void put_scan(const msensor::Scan3D &scan);
+  void put_imu(const msensor::IMUData &data);
 
 private:
   ScanService scan_service_;

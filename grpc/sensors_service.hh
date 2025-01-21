@@ -16,10 +16,10 @@ public:
          const ::google::protobuf::Empty *request,
          ::grpc::ServerWriter<sensors::IMUData> *writer) override;
 
-  void putScan(const Scan3D &scan);
-  void putImuData(const IMUData &imu_data);
+  void putScan(const msensor::Scan3D &scan);
+  void putImuData(const msensor::IMUData &imu_data);
 
 private:
-  std::deque<Scan3D> scan_queue_;
-  std::deque<IMUData> imu_queue_;
+  std::deque<msensor::Scan3D> scan_queue_;
+  std::deque<msensor::IMUData> imu_queue_;
 };

@@ -28,7 +28,7 @@ void ImuLoop(gRPCServer &server) {
     auto dbl_gyr_data =
         icm20948.convert_raw_data(gyr_data, FACTOR_GYRO_500DPS_RADS);
     auto timestamp = timing::getNowUs();
-    IMUData data;
+    msensor::IMUData data;
     data.timestamp = timestamp;
     data.ax = static_cast<float>(dbl_acc_data.x);
     data.ay = static_cast<float>(dbl_acc_data.y);
@@ -56,17 +56,17 @@ int main(int argc, char **argv) {
     exit(0);
   }
 
-  std::unique_ptr<ILidar> lidar;
+  std::unique_ptr<msensor::ILidar> lidar;
   if (!std::filesystem::exists(argv[1])) {
     std::cerr << "Device: " << argv[1] << " does not exist. Exiting..."
               << std::endl;
     exit(-1);
   }
-  lidar = std::make_unique<RPLidar>(argv[1]);
-  dynamic_cast<RPLidar *>(lidar.get())->setMotorRPM(360);
+  lidar = std::make_unique<msensor::RPLidar>(argv[1]);
+  dynamic_cast<msensor::RPLidar *>(lidar.get())->setMotorRPM(360);
 
   auto file = std::make_shared<File>();
-  ScanRecorder recorder(file);
+  msensor::ScanRecorder recorder(file);
 
   bool record_scans = false;
   int opt;

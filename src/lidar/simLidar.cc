@@ -4,6 +4,9 @@
 #include <iostream>
 #include <random>
 #include <thread>
+
+namespace msensor {
+
 void SimLidar::init() { std::cout << "init" << std::endl; }
 
 void SimLidar::startSampling() { std::cout << "startSampling" << std::endl; }
@@ -24,3 +27,4 @@ Scan3D SimLidar::getScan() {
 
   return {pts, timing::getNowUs()};
 }
+} // namespace msensor

@@ -3,7 +3,7 @@
 #include "timing/timing.hh"
 
 namespace {
-void toProtobuf(const Scan3D &scan, sensors::PointCloud3 *proto_msg) {
+void toProtobuf(const msensor::Scan3D &scan, sensors::PointCloud3 *proto_msg) {
   for (const auto &pt : scan.points) {
     auto *proto_pt = proto_msg->add_points();
     proto_pt->set_x(pt.x);
@@ -13,6 +13,8 @@ void toProtobuf(const Scan3D &scan, sensors::PointCloud3 *proto_msg) {
   proto_msg->set_timestamp(scan.timestamp);
 }
 } // namespace
+
+namespace msensor {
 
 ScanRecorder::ScanRecorder(const std::shared_ptr<IFile> &file)
     : record_file_{file}, has_started_{false} {}
@@ -72,3 +74,4 @@ void ScanRecorder::stop() {
   record_file_->close();
   has_started_ = false;
 }
+} // namespace msensor

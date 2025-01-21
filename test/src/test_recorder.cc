@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 
 using namespace testing;
+using namespace msensor;
 
 class TestRecorder : public ::testing::Test {
 public:
