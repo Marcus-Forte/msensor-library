@@ -9,7 +9,7 @@
 		{
 			"type": "shell",
 			"label": "deploy",
-			"command": ".vscode/deploy.sh ${workspaceFolder}/build/install/ root@${config:target_ip}:/usr/local/",
+			"command": ".vscode/deploy.sh ${workspaceFolder}/build/install/bin/mid360_publisher root@${config:target_ip}:/usr/local/bin/",
 			"problemMatcher": [],
 			"dependsOn": "install"
 		}
