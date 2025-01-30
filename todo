@@ -1,2 +1,5 @@
 - cmake Library naming
 - namespace for parent projects
+
+
+- Improve performance when publishing sensor data (prevent mutex, copies,...)

@@ -1,12 +1,13 @@
 #include "sensors_service.hh"
-#include <chrono>
 #include <grpcpp/support/status.h>
-#include <thread>
 
 // #include "colormap.hh" // intensity -> RGB
 
 constexpr size_t g_maxSamples = 1;
 constexpr size_t g_maxImuSamples = 400;
+
+static std::mutex g_mutexLidar;
+static std::mutex g_mutexImu;
 
 ScanService::ScanService() = default;
 
@@ -24,6 +25,7 @@ ScanService::getScan(::grpc::ServerContext *context,
   while (!context->IsCancelled()) {
 
     while (!scan_queue_.empty()) {
+      std::lock_guard<std::mutex> lock(g_mutexLidar);
       auto scan = scan_queue_.front();
       sensors::PointCloud3 point_cloud;
       point_cloud.set_timestamp(scan.timestamp);
@@ -37,7 +39,6 @@ ScanService::getScan(::grpc::ServerContext *context,
       writer->Write(point_cloud);
       scan_queue_.pop_front();
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
   std::cout << "Ending Lidar scan stream." << std::endl;
   s_client_connected = false;
@@ -45,6 +46,7 @@ ScanService::getScan(::grpc::ServerContext *context,
 }
 
 void ScanService::putScan(const msensor::Scan3D &scan) {
+  std::lock_guard<std::mutex> lock(g_mutexLidar);
   scan_queue_.push_front(scan);
   if (scan_queue_.size() > g_maxSamples) {
     scan_queue_.pop_back();
@@ -52,6 +54,7 @@ void ScanService::putScan(const msensor::Scan3D &scan) {
 }
 
 void ScanService::putImuData(const msensor::IMUData &imu_data) {
+  std::lock_guard<std::mutex> lock(g_mutexImu);
   imu_queue_.push_front(imu_data);
   if (imu_queue_.size() > g_maxImuSamples) {
     imu_queue_.pop_back();
@@ -71,6 +74,7 @@ ScanService::getImu(::grpc::ServerContext *context,
   while (!context->IsCancelled()) {
 
     while (!imu_queue_.empty()) {
+      std::lock_guard<std::mutex> lock(g_mutexImu);
       const auto imu_data = imu_queue_.front();
 
       sensors::IMUData grpc_data;
