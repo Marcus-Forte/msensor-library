@@ -14,7 +14,7 @@ public:
   void init() override;
   inline void startSampling() override {}
   inline void stopSampling() override {}
-  Scan3D getScan() override;
+  Scan3DI getScan() override;
   void setMotorRPM(unsigned int rpm);
 
 private:

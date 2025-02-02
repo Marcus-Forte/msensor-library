@@ -16,7 +16,7 @@ public:
 
   Mid360(const std::string &&config, size_t accumulate_scan_count);
   void init() override;
-  Scan3D getScan() override;
+  Scan3DI getScan() override;
   void startSampling() override;
   void stopSampling() override;
   void setMode(Mode mode);
@@ -26,8 +26,8 @@ public:
 
 private:
   const std::string config_;
-  Scan3D pointclud_data_;
-  std::deque<Scan3D> queue_;
+  Scan3DI pointclud_data_;
+  std::deque<Scan3DI> queue_;
   std::deque<IMUData> queue_imu_;
 
   const size_t queue_limit_ = 50;

@@ -16,7 +16,7 @@ public:
   void start();
   void stop();
 
-  void publishScan(const msensor::Scan3D &scan);
+  void publishScan(const msensor::Scan3DI &scan);
   void publishImu(const msensor::IMUData &data);
 
 private:

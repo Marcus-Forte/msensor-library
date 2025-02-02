@@ -32,7 +32,7 @@ TEST_F(TestRecorder, record_scan) {
   // redirect to string stream
   std::stringstream stream;
   EXPECT_CALL(*file_mock_, ostream()).WillRepeatedly(Return(&stream));
-  Scan3D scan;
+  Scan3DI scan;
   scan.points.emplace_back(1, 2, 3);
   scan.points.emplace_back(1, 2, 3);
 

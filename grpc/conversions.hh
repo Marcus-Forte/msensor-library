@@ -5,5 +5,5 @@
 
 #include "sensors.pb.h"
 
-msensor::Scan3D fromGRPC(const sensors::PointCloud3 &msg);
+msensor::Scan3DI fromGRPC(const sensors::PointCloud3 &msg);
 msensor::IMUData fromGRPC(const sensors::IMUData &msg);

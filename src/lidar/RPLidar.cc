@@ -9,10 +9,10 @@ namespace msensor {
 
 constexpr uint32_t g_baudRate = 115200;
 
-Scan3D toScan3D(const sl_lidar_response_measurement_node_hq_t *nodes,
-                int count) {
+Scan3DI toScan3D(const sl_lidar_response_measurement_node_hq_t *nodes,
+                 int count) {
 
-  Scan3D scan;
+  Scan3DI scan;
   scan.points.reserve(count);
   int idx = 0;
   for (int pos = 0; pos < (int)count; ++pos) {
@@ -23,7 +23,7 @@ Scan3D toScan3D(const sl_lidar_response_measurement_node_hq_t *nodes,
     const float dist_m = nodes[pos].dist_mm_q2 / 4000.0f;
     float x = -cos(angle_in_pi) * dist_m;
     float y = sin(angle_in_pi) * dist_m;
-    scan.points.emplace_back(x, y, 0);
+    scan.points.emplace_back(x, y, 0, 0);
   }
   scan.timestamp = timing::getNowUs();
 
@@ -75,7 +75,7 @@ void RPLidar::init() {
   drv_->startScan(0, 1);
 }
 
-Scan3D RPLidar::getScan() {
+Scan3DI RPLidar::getScan() {
 
   sl_lidar_response_measurement_node_hq_t nodes[8192];
   size_t count = sizeof(nodes) / sizeof(nodes[0]);

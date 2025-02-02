@@ -12,7 +12,7 @@ void SimLidar::init() { std::cout << "init" << std::endl; }
 void SimLidar::startSampling() { std::cout << "startSampling" << std::endl; }
 void SimLidar::stopSampling() { std::cout << "stopSampling" << std::endl; }
 
-Scan3D SimLidar::getScan() {
+Scan3DI SimLidar::getScan() {
   std::random_device rd;
   std::mt19937 gen(rd());
 
@@ -20,10 +20,10 @@ Scan3D SimLidar::getScan() {
 
   std::this_thread::sleep_for(std::chrono::milliseconds(50)); // 20 Hz.
   pcl::PointCloud<pcl::PointXYZI> pts;
-  pts.points.emplace_back(dis(gen), dis(gen), 0);
-  pts.points.emplace_back(dis(gen), dis(gen), 0);
-  pts.points.emplace_back(dis(gen), dis(gen), 0);
-  pts.points.emplace_back(dis(gen), dis(gen), 0);
+  pts.points.emplace_back(dis(gen), dis(gen), 0, 0);
+  pts.points.emplace_back(dis(gen), dis(gen), 0, 0);
+  pts.points.emplace_back(dis(gen), dis(gen), 0, 0);
+  pts.points.emplace_back(dis(gen), dis(gen), 0, 0);
 
   return {pts, timing::getNowUs()};
 }

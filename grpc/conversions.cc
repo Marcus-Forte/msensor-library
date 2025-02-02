@@ -1,8 +1,8 @@
 
 #include "conversions.hh"
 
-msensor::Scan3D fromGRPC(const sensors::PointCloud3 &msg) {
-  msensor::Scan3D pointcloud;
+msensor::Scan3DI fromGRPC(const sensors::PointCloud3 &msg) {
+  msensor::Scan3DI pointcloud;
 
   pointcloud.points.reserve(msg.points_size());
   for (const auto &pt : msg.points()) {

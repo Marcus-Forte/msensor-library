@@ -45,7 +45,7 @@ ScanService::getScan(::grpc::ServerContext *context,
   return ::grpc::Status::OK;
 }
 
-void ScanService::putScan(const msensor::Scan3D &scan) {
+void ScanService::putScan(const msensor::Scan3DI &scan) {
   std::lock_guard<std::mutex> lock(g_mutexLidar);
   scan_queue_.push_front(scan);
   if (scan_queue_.size() > g_maxSamples) {

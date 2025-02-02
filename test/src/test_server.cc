@@ -22,7 +22,7 @@ TEST_F(TestServer, DISABLED_TestServer) {
   server->start();
   client->start();
 
-  msensor::Scan3D scan;
+  msensor::Scan3DI scan;
   scan.points.emplace_back(1, 2, 3);
   scan.timestamp = 10;
 

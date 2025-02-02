@@ -18,7 +18,7 @@ void SensorsServer::start() {
 
 void SensorsServer::stop() { server_->Shutdown(); }
 
-void SensorsServer::publishScan(const msensor::Scan3D &scan) {
+void SensorsServer::publishScan(const msensor::Scan3DI &scan) {
   scan_service_.putScan(scan);
 }
 void SensorsServer::publishImu(const msensor::IMUData &imu_data) {

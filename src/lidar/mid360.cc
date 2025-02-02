@@ -189,7 +189,7 @@ void Mid360::init() {
       this);
 }
 
-Scan3D Mid360::getScan() {
+Scan3DI Mid360::getScan() {
   if (queue_.empty()) {
     return {};
   }

@@ -10,8 +10,24 @@ namespace msensor {
 using Point3 = pcl::PointXYZ;
 using Point3I = pcl::PointXYZI;
 
+using PointCloud3 = pcl::PointCloud<Point3>;
+using PointCloud3I = pcl::PointCloud<Point3I>;
+
+/**
+ * @brief 3D Scan.
+ *
+ */
 struct Scan3D {
-  pcl::PointCloud<Point3I> points;
+  PointCloud3 points;
+  uint64_t timestamp;
+};
+
+/**
+ * @brief 3D Scan with Intensity.
+ *
+ */
+struct Scan3DI {
+  PointCloud3I points;
   uint64_t timestamp;
 };
 
@@ -25,6 +41,6 @@ public:
 
   /** Return lidar scan. Associated timestamp is assumed to be the time
    * point[0] was measured. Unit: ns (1/1000000000 sec) */
-  virtual Scan3D getScan() = 0;
+  virtual Scan3DI getScan() = 0;
 };
 } // namespace msensor

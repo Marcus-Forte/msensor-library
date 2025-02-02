@@ -26,7 +26,7 @@ void SensorsClient::stopSampling() {}
 
 SensorsClient::~SensorsClient() { stop(); }
 
-msensor::Scan3D SensorsClient::getScan() {
+msensor::Scan3DI SensorsClient::getScan() {
 
   if (!scans_.empty()) {
     std::lock_guard<std::mutex> lock(g_mutex);
@@ -59,7 +59,7 @@ void SensorsClient::start() {
         service_stub_->getScan(service_context_.get(), empty_response);
 
     sensors::PointCloud3 msg;
-    reader->Finish();
+
     while (!stop_token.stop_requested()) {
       if (!reader->Read(&msg)) {
         std::cout << "Unable to read remote lidar" << std::endl;
@@ -80,7 +80,6 @@ void SensorsClient::start() {
     auto imu_reader =
         service_stub_->getImu(service_context_.get(), empty_response);
     sensors::IMUData msg;
-    imu_reader->Finish();
 
     while (!stop_token.stop_requested()) {
 

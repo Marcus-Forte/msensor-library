@@ -24,7 +24,7 @@ public:
   void startSampling() override;
   void stopSampling() override;
 
-  msensor::Scan3D getScan() override;
+  msensor::Scan3DI getScan() override;
   msensor::IMUData getImuData() override;
 
 private:
@@ -36,6 +36,6 @@ private:
   std::jthread imu_reader_thread_;
   std::unique_ptr<grpc::ClientContext> context_;
 
-  std::deque<msensor::Scan3D> scans_;
+  std::deque<msensor::Scan3DI> scans_;
   std::deque<msensor::IMUData> imu_measurements_;
 };

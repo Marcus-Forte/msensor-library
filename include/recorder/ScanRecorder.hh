@@ -12,7 +12,7 @@ public:
   ~ScanRecorder();
   void start();
   void start(const std::string &filename);
-  void record(const Scan3D &scan);
+  void record(const Scan3DI &scan);
   void record(const IMUData &imu);
   void stop();
 
