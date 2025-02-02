@@ -31,7 +31,7 @@ add_executable(mid360_publisher src/mid360_publisher.cc)
 target_link_libraries(mid360_publisher mid360 sensors_server scan_recorder)
 
 add_executable(sim_publisher src/sim_publisher.cc)
-target_link_libraries(sim_publisher sensors_server scan_recorder sim_lidar)
+target_link_libraries(sim_publisher sensors_server scan_recorder sim_lidar sim_imu)
 
 set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install/ CACHE PATH "default Install prefix" FORCE)
 

@@ -39,8 +39,13 @@ public:
   virtual void startSampling() = 0;
   virtual void stopSampling() = 0;
 
-  /** Return lidar scan. Associated timestamp is assumed to be the time
-   * point[0] was measured. Unit: ns (1/1000000000 sec) */
+  /**
+   * @brief Return lidar scan.
+   *
+   * @return Scan3DI
+   * @note The associated timestamp is assumed to be the time
+   * point[0] was measured. Unit: ns (1/1000000000 sec).
+   */
   virtual Scan3DI getScan() = 0;
 };
 } // namespace msensor

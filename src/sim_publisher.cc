@@ -1,4 +1,5 @@
 #include "file/File.hh"
+#include "imu/SimImu.hh"
 #include "lidar/simLidar.hh"
 #include "recorder/ScanRecorder.hh"
 #include "sensors_server.hh"
@@ -12,6 +13,7 @@ void print_usage() {
 int main(int argc, char **argv) {
 
   auto simLidar = std::make_unique<msensor::SimLidar>();
+  auto simImu = std::make_unique<msensor::SimImu>();
 
   auto file = std::make_shared<File>();
   msensor::ScanRecorder recorder(file);
@@ -37,11 +39,15 @@ int main(int argc, char **argv) {
   SensorsServer server;
   server.start();
 
+  std::cout << "Publishing scan and Imu data";
   while (true) {
     const auto scan = simLidar->getScan();
-    std::cout << "Scans pts: " << scan.points.size() << std::endl;
+    const auto imudata = simImu->getImuData();
+
     server.publishScan(scan);
+    server.publishImu(imudata);
     recorder.record(scan);
+    recorder.record(imudata);
   }
 
   server.stop();
