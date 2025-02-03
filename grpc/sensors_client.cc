@@ -9,6 +9,7 @@
 constexpr int g_idleTimeMs = 5;
 constexpr int g_LidarQueueSize = 10;
 constexpr int g_imuQueueSize = 100;
+constexpr int g_connectionRecoverDelayMs = 1000;
 
 std::mutex g_mutex;
 std::mutex g_imu_mutex;
@@ -54,15 +55,19 @@ void SensorsClient::start() {
 
   read_thread_ = std::jthread([&](std::stop_token stop_token) {
     auto service_context_ = std::make_unique<grpc::ClientContext>();
-    google::protobuf::Empty empty_response;
-    auto reader =
-        service_stub_->getScan(service_context_.get(), empty_response);
+    google::protobuf::Empty empty_request;
+    auto reader = service_stub_->getScan(service_context_.get(), empty_request);
 
     sensors::PointCloud3 msg;
 
     while (!stop_token.stop_requested()) {
       if (!reader->Read(&msg)) {
-        std::cout << "Unable to read remote lidar" << std::endl;
+        std::cout << "Unable to read remote lidar." << std::endl;
+        std::this_thread::sleep_for(
+            std::chrono::milliseconds(g_connectionRecoverDelayMs));
+        service_context_ = std::make_unique<grpc::ClientContext>();
+        reader = service_stub_->getScan(service_context_.get(),
+                                        empty_request); // retry
       } else {
         std::lock_guard<std::mutex> lock(g_mutex);
         scans_.push_back(fromGRPC(msg));
@@ -76,15 +81,20 @@ void SensorsClient::start() {
 
   imu_reader_thread_ = std::jthread([&](std::stop_token stop_token) {
     auto service_context_ = std::make_unique<grpc::ClientContext>();
-    google::protobuf::Empty empty_response;
+    google::protobuf::Empty empty_request;
     auto imu_reader =
-        service_stub_->getImu(service_context_.get(), empty_response);
+        service_stub_->getImu(service_context_.get(), empty_request);
     sensors::IMUData msg;
 
     while (!stop_token.stop_requested()) {
 
       if (!imu_reader->Read(&msg)) {
-        std::cout << "Unable to read remote imu" << std::endl;
+        std::cout << "Unable to read remote imu." << std::endl;
+        std::this_thread::sleep_for(
+            std::chrono::milliseconds(g_connectionRecoverDelayMs));
+        service_context_ = std::make_unique<grpc::ClientContext>();
+        imu_reader =
+            service_stub_->getImu(service_context_.get(), empty_request);
       } else {
         std::lock_guard<std::mutex> lock(g_imu_mutex);
         imu_measurements_.push_back(fromGRPC(msg));
@@ -101,6 +111,7 @@ void SensorsClient::stop() {
   read_thread_.request_stop();
   imu_reader_thread_.request_stop();
 
+  /// \todo why does it not work in unit test?
   // read_thread_.join();
   // imu_reader_thread_.join();
 }

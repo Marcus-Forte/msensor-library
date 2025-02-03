@@ -90,7 +90,8 @@ int main(int argc, char **argv) {
 
   while (true) {
     const auto scan = lidar->getScan();
-    std::cout << "Scans pts: " << scan.points.size() << std::endl;
+    std::cout << "New Scan @ " << scan.timestamp
+              << " Points: " << scan.points.size() << std::endl;
     {
       std::lock_guard<std::mutex> lock(g_mutex);
       server.publishScan(scan);
