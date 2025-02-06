@@ -1,12 +1,12 @@
-# RPLIdar publisher app.
+# Library that encompasses multiple sensors as a simple interface.
 
-Small app to allow publishing LiDAR data from RPLidar sensor over gRPC.
+Link this library by adding it as subdirectort and linking your application with `msensor_library`
 
 ## Scan files
 
 Scan files are generates using protobuf. The convention is that the number of bytes to follow come before the serialized data.
 
-### Systemd examples
+### Systemd examples and embedded deployment
 Useful hints for systemd installation for services.
 Place them onto /etc/system/system/<name>.service
 
@@ -45,5 +45,3 @@ ExecStart=/usr/local/bin/gl_proxy localhost:50051 192.168.1.50:50051
 WantedBy=multi-user.target
 ```
 
-## TODO
-- Implement timestamp at lidar struct.

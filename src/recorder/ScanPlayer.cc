@@ -4,6 +4,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+namespace msensor {
+
 ScanPlayer::ScanPlayer(const std::filesystem::path &file) {
 
   if (!std::filesystem::exists(file)) {
@@ -40,3 +42,5 @@ bool ScanPlayer::next() {
 }
 
 const sensors::RecordingEntry &ScanPlayer::getLastEntry() { return entry_; }
+
+} // namespace msensor

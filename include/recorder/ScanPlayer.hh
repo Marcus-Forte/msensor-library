@@ -4,6 +4,8 @@
 
 #include <sensors.pb.h>
 
+namespace msensor {
+
 class ScanPlayer {
 public:
   ScanPlayer(const std::filesystem::path &file);
@@ -17,3 +19,4 @@ private:
   size_t num_bytes_;
   sensors::RecordingEntry entry_;
 };
+} // namespace msensor

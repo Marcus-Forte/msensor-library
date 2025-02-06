@@ -1,11 +1,8 @@
 #include "recorder/ScanPlayer.hh"
 #include "sensors.pb.h"
-#include <chrono>
 #include <filesystem>
-#include <fstream>
 #include <getopt.h>
 #include <iostream>
-#include <thread>
 
 static void printUsage() {
   std::cerr << "Usage: scan_parser [-f file] [-t sim time] [-p publish]"
@@ -47,7 +44,7 @@ int main(int argc, char **argv) {
     exit(-1);
   }
 
-  ScanPlayer player(file);
+  msensor::ScanPlayer player(file);
 
   size_t nr_imu_entries = 0;
   size_t nr_scan_entries = 0;
