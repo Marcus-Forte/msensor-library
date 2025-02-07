@@ -14,13 +14,18 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
+      with: 
+        submodules: true
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
+      uses: docker/setup-buildx-action@v3
 
     - name: Pull Docker image
-      run: docker pull mdnf1992/cpp-dev
+      run: docker pull --platform linux/arm64 mdnf1992/cpp-dev 
 
     - name: Build application
       run: |

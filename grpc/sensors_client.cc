@@ -3,19 +3,16 @@
 #include <google/protobuf/empty.pb.h>
 #include <grpcpp/client_context.h>
 #include <grpcpp/grpcpp.h>
-#include <mutex>
 #include <thread>
 
 constexpr int g_idleTimeMs = 5;
-constexpr int g_LidarQueueSize = 10;
-constexpr int g_imuQueueSize = 100;
+constexpr size_t g_maxLidarSamples = 100;
+constexpr size_t g_maxImuSamples = 200;
 constexpr int g_connectionRecoverDelayMs = 1000;
 
-std::mutex g_mutex;
-std::mutex g_imu_mutex;
-
 SensorsClient::SensorsClient(const std::string &remote_ip)
-    : remote_ip_(remote_ip) {
+    : remote_ip_(remote_ip), scan_queue_(g_maxLidarSamples),
+      imu_queue_(g_maxImuSamples) {
 
   channel_ = grpc::CreateChannel(remote_ip, grpc::InsecureChannelCredentials());
   service_stub_ = sensors::SensorService::NewStub(channel_);
@@ -29,10 +26,9 @@ SensorsClient::~SensorsClient() { stop(); }
 
 msensor::Scan3DI SensorsClient::getScan() {
 
-  if (!scans_.empty()) {
-    std::lock_guard<std::mutex> lock(g_mutex);
-    auto pointcloud = scans_.front();
-    scans_.pop_front();
+  if (!scan_queue_.empty()) {
+    auto pointcloud = scan_queue_.front();
+    scan_queue_.pop();
     return pointcloud;
   }
 
@@ -41,10 +37,9 @@ msensor::Scan3DI SensorsClient::getScan() {
 
 msensor::IMUData SensorsClient::getImuData() {
 
-  if (!imu_measurements_.empty()) {
-    std::lock_guard<std::mutex> lock(g_imu_mutex);
-    const auto imu_data = imu_measurements_.front();
-    imu_measurements_.pop_front();
+  if (!imu_queue_.empty()) {
+    const auto imu_data = imu_queue_.front();
+    imu_queue_.pop();
     return imu_data;
   }
 
@@ -69,12 +64,7 @@ void SensorsClient::start() {
         reader = service_stub_->getScan(service_context_.get(),
                                         empty_request); // retry
       } else {
-        std::lock_guard<std::mutex> lock(g_mutex);
-        scans_.push_back(fromGRPC(msg));
-
-        if (scans_.size() > g_LidarQueueSize) {
-          scans_.pop_front();
-        }
+        scan_queue_.push(fromGRPC(msg));
       }
     }
   });
@@ -96,12 +86,7 @@ void SensorsClient::start() {
         imu_reader =
             service_stub_->getImu(service_context_.get(), empty_request);
       } else {
-        std::lock_guard<std::mutex> lock(g_imu_mutex);
-        imu_measurements_.push_back(fromGRPC(msg));
-
-        if (imu_measurements_.size() > g_imuQueueSize) {
-          imu_measurements_.pop_front();
-        }
+        imu_queue_.push(fromGRPC(msg));
       }
     }
   });

@@ -10,17 +10,23 @@
 #include "lidar/ILidar.hh"
 #include "livox_lidar_api.h"
 
+/// \note Reference manual:
+/// https://livox-wiki-en.readthedocs.io/en/latest/tutorials/new_product/mid360/livox_eth_protocol_mid360.html#point-cloud-imu-data-protocol
+
 namespace msensor {
 
+const size_t g_max_queue_elements = 50;
+
 std::mutex g_mutex;
-std::mutex g_lidar_mutex;
-std::mutex g_imu_mutex;
 std::condition_variable g_cv;
 bool g_sync;
 
-// TODO pre-allocate accumulate_scans * 96.?
-static pcl::PointCloud<pcl::PointXYZI>
-convertData(const LivoxLidarEthernetPacket *eth_packet, unsigned int data_pts) {
+namespace {
+
+/// \todo pre-allocate accumulate_scans * 96.?
+pcl::PointCloud<pcl::PointXYZI>
+convertEthPacket(const LivoxLidarEthernetPacket *eth_packet,
+                 unsigned int data_pts) {
   const auto *data_ = reinterpret_cast<const LivoxLidarCartesianHighRawPoint *>(
       eth_packet->data);
   pcl::PointCloud<pcl::PointXYZI> cloud;
@@ -34,9 +40,11 @@ convertData(const LivoxLidarEthernetPacket *eth_packet, unsigned int data_pts) {
   }
   return cloud;
 }
+} // namespace
 
 Mid360::Mid360(const std::string &&config, size_t accumulate_scan_count)
     : config_{config}, accumulate_scan_count_(accumulate_scan_count),
+      scan_queue_(g_max_queue_elements), imu_queue_(g_max_queue_elements),
       scan_count_(0) {}
 
 void Mid360::startSampling() {
@@ -44,7 +52,7 @@ void Mid360::startSampling() {
     throw std::runtime_error("Unable to initialize Mid360!");
   }
 };
-void Mid360::stopSampling() { /* TODO */ };
+void Mid360::stopSampling() { /* \todo */ };
 
 void Mid360::setMode(Mode mode) {
   // Wake up is actually idle...
@@ -143,16 +151,11 @@ void Mid360::init() {
         auto *this_ = reinterpret_cast<decltype(this)>(client_data);
 
         auto *data_ = reinterpret_cast<LivoxLidarImuRawPoint *>(data->data);
-        {
-          std::lock_guard<std::mutex> lock(g_imu_mutex);
-          if (this_->queue_imu_.size() > this_->queue_limit_) {
-            this_->queue_imu_.pop_back();
-          }
-          this_->queue_imu_.push_front(
-              {data_->gyro_x, data_->gyro_y, data_->gyro_z, data_->acc_x,
-               data_->acc_y, data_->acc_z,
-               *reinterpret_cast<uint64_t *>(data->timestamp)});
-        }
+
+        this_->imu_queue_.push(
+            {data_->gyro_x, data_->gyro_y, data_->gyro_z, data_->acc_x,
+             data_->acc_y, data_->acc_z,
+             *reinterpret_cast<uint64_t *>(data->timestamp)});
       },
       this);
 
@@ -164,7 +167,7 @@ void Mid360::init() {
         }
         auto *this_ = reinterpret_cast<decltype(this)>(client_data);
 
-        const auto cloud = convertData(data, data->dot_num);
+        const auto cloud = convertEthPacket(data, data->dot_num);
         auto &pointclud_data = this_->pointclud_data_;
 
         if (pointclud_data.points.empty()) {
@@ -176,12 +179,8 @@ void Mid360::init() {
                                      cloud.end());
 
         if (++this_->scan_count_ % this_->accumulate_scan_count_ == 0) {
-          std::lock_guard<std::mutex> lock(g_lidar_mutex);
 
-          if (this_->queue_.size() > this_->queue_limit_) {
-            this_->queue_.pop_back();
-          }
-          this_->queue_.push_front(pointclud_data);
+          this_->scan_queue_.push(pointclud_data);
 
           pointclud_data.points.clear();
         }
@@ -190,27 +189,21 @@ void Mid360::init() {
 }
 
 Scan3DI Mid360::getScan() {
-  if (queue_.empty()) {
+  if (scan_queue_.empty()) {
     return {};
   }
 
-  {
-    std::lock_guard<std::mutex> lock(g_lidar_mutex);
-    const auto last = queue_.front();
-    queue_.pop_front();
-    return last;
-  }
+  const auto last = scan_queue_.front();
+  scan_queue_.pop();
+  return last;
 }
 
 std::optional<IMUData> Mid360::getImuSample() {
-  if (queue_imu_.empty()) {
+  if (imu_queue_.empty()) {
     return {};
   }
-  {
-    std::lock_guard<std::mutex> lock(g_imu_mutex);
-    const auto last = queue_imu_.front();
-    queue_imu_.pop_front();
-    return last;
-  }
+  const auto last = imu_queue_.front();
+  imu_queue_.pop();
+  return last;
 }
 } // namespace msensor

@@ -9,9 +9,7 @@
 #include <future>
 #include <getopt.h>
 #include <iostream>
-#include <mutex>
 #include <thread>
-std::mutex g_mutex;
 
 // 100 Hz
 void ImuLoop(SensorsServer &server, msensor::ScanRecorder &recorder) {
@@ -36,11 +34,9 @@ void ImuLoop(SensorsServer &server, msensor::ScanRecorder &recorder) {
     data.gx = static_cast<float>(dbl_gyr_data.x);
     data.gy = static_cast<float>(dbl_gyr_data.y);
     data.gz = static_cast<float>(dbl_gyr_data.z);
-    {
-      std::lock_guard<std::mutex> lock(g_mutex);
-      server.publishImu(data);
-      recorder.record(data);
-    }
+
+    recorder.record(data);
+    server.publishImu(data);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
@@ -94,11 +90,9 @@ int main(int argc, char **argv) {
     const auto scan = lidar->getScan();
     std::cout << "New Scan @ " << scan.timestamp
               << " Points: " << scan.points.size() << std::endl;
-    {
-      std::lock_guard<std::mutex> lock(g_mutex);
-      server.publishScan(scan);
-      recorder.record(scan);
-    }
+
+    recorder.record(scan);
+    server.publishScan(scan);
   }
 
   server.stop();

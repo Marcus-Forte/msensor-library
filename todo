@@ -2,4 +2,5 @@
 - namespace for parent projects
 
 
-- Improve performance when publishing sensor data (prevent mutex, copies,...)
+- separate thread for sensor recording?
+- pass shared_ptrs to grpc server instead of const refs to avoid copy 

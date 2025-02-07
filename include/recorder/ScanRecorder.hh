@@ -10,10 +10,36 @@ class ScanRecorder {
 public:
   ScanRecorder(const std::shared_ptr<IFile> &file);
   ~ScanRecorder();
+
+  /**
+   * @brief Start the recording. Creates a file with the current timestamp.
+   *
+   */
   void start();
+
+  /**
+   * @brief Start the recording. Creates a file with a given name.
+   *
+   * @param filename
+   */
   void start(const std::string &filename);
+
+  /**
+   * @brief Records a laser scan into scanfile. Thread-safe.
+   *
+   */
   void record(const Scan3DI &scan);
+
+  /**
+   * @brief Records an IMU data into scanfile. Thread-safe.
+   *
+   */
   void record(const IMUData &imu);
+
+  /**
+   * @brief Stops the recording.
+   *
+   */
   void stop();
 
 private:

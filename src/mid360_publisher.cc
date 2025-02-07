@@ -2,15 +2,18 @@
 #include <iomanip>
 #include <iostream>
 
+#include "file/File.hh"
 #include "lidar/Mid360.hh"
+#include "recorder/ScanRecorder.hh"
 #include "sensors_server.hh"
 
 void printUsage() {
-  std::cout << "Usage: app [config] [accusamples] [mode: 0, 1,2,3]"
+  std::cout << "Usage: app [config] [accusamples] [mode: 0, 1,2,3] [0: "
+               "non-record, 1:record]"
             << std::endl;
 }
 int main(int argc, char **argv) {
-  if (argc < 4) {
+  if (argc < 5) {
     printUsage();
     exit(0);
   }
@@ -35,6 +38,15 @@ int main(int argc, char **argv) {
     }
   }
 
+  const auto record = atoi(argv[4]);
+  auto file = std::make_shared<File>();
+  msensor::ScanRecorder recorder(file);
+
+  if (record == 1) {
+    recorder.start();
+    std::cout << "Recording scans." << std::endl;
+  }
+
   lidar.startSampling();
 
   SensorsServer server;
@@ -51,6 +63,8 @@ int main(int argc, char **argv) {
     if (imu.has_value()) {
       // std::cout << "Imu time: " << imu->timestamp << std::endl;
       // std::cout << imu->az << "," << imu->timestamp << std::endl;
+      recorder.record(imu.value());
+      server.publishImu(imu.value());
     }
     const auto cloud = lidar.getScan();
 
@@ -72,7 +86,7 @@ int main(int argc, char **argv) {
                 << stamp_s +
                        (static_cast<double>(cloud.points.size()) / 200000.0)
                 << '\n';
-
+      recorder.record(cloud);
       server.publishScan(cloud);
     }
   }

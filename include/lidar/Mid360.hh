@@ -1,11 +1,12 @@
 #pragma once
 
-#include <deque>
 #include <optional>
 #include <string>
 
 #include "ILidar.hh"
 #include "imu/IImu.hh"
+
+#include <boost/lockfree/spsc_queue.hpp>
 
 namespace msensor {
 
@@ -27,10 +28,10 @@ public:
 private:
   const std::string config_;
   Scan3DI pointclud_data_;
-  std::deque<Scan3DI> queue_;
-  std::deque<IMUData> queue_imu_;
 
-  const size_t queue_limit_ = 50;
+  boost::lockfree::spsc_queue<Scan3DI> scan_queue_;
+  boost::lockfree::spsc_queue<IMUData> imu_queue_;
+
   const size_t accumulate_scan_count_;
 
   size_t scan_count_;

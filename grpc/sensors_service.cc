@@ -3,13 +3,11 @@
 
 // #include "colormap.hh" // intensity -> RGB
 
-constexpr size_t g_maxSamples = 1;
-constexpr size_t g_maxImuSamples = 400;
+constexpr size_t g_maxLidarSamples = 100;
+constexpr size_t g_maxImuSamples = 200;
 
-static std::mutex g_mutexLidar;
-static std::mutex g_mutexImu;
-
-ScanService::ScanService() = default;
+ScanService::ScanService()
+    : scan_queue_(g_maxLidarSamples), imu_queue_(g_maxImuSamples) {}
 
 grpc::Status
 ScanService::getScan(::grpc::ServerContext *context,
@@ -18,14 +16,13 @@ ScanService::getScan(::grpc::ServerContext *context,
   static bool s_client_connected = false;
   if (s_client_connected)
     return grpc::Status(grpc::StatusCode::RESOURCE_EXHAUSTED,
-                        "Only one client supported");
+                        "Only one client stream supported");
 
   std::cout << "Start Lidar scan stream." << std::endl;
   s_client_connected = true;
   while (!context->IsCancelled()) {
 
     while (!scan_queue_.empty()) {
-      std::lock_guard<std::mutex> lock(g_mutexLidar);
       auto scan = scan_queue_.front();
       sensors::PointCloud3 point_cloud;
       point_cloud.set_timestamp(scan.timestamp);
@@ -37,7 +34,7 @@ ScanService::getScan(::grpc::ServerContext *context,
         pt->set_intensity(point.intensity);
       }
       writer->Write(point_cloud);
-      scan_queue_.pop_front();
+      scan_queue_.pop();
     }
   }
   std::cout << "Ending Lidar scan stream." << std::endl;
@@ -46,19 +43,11 @@ ScanService::getScan(::grpc::ServerContext *context,
 }
 
 void ScanService::putScan(const msensor::Scan3DI &scan) {
-  std::lock_guard<std::mutex> lock(g_mutexLidar);
-  scan_queue_.push_front(scan);
-  if (scan_queue_.size() > g_maxSamples) {
-    scan_queue_.pop_back();
-  }
+  scan_queue_.push(scan);
 }
 
 void ScanService::putImuData(const msensor::IMUData &imu_data) {
-  std::lock_guard<std::mutex> lock(g_mutexImu);
-  imu_queue_.push_front(imu_data);
-  if (imu_queue_.size() > g_maxImuSamples) {
-    imu_queue_.pop_back();
-  }
+  imu_queue_.push(imu_data);
 }
 
 ::grpc::Status
@@ -74,7 +63,6 @@ ScanService::getImu(::grpc::ServerContext *context,
   while (!context->IsCancelled()) {
 
     while (!imu_queue_.empty()) {
-      std::lock_guard<std::mutex> lock(g_mutexImu);
       const auto imu_data = imu_queue_.front();
 
       sensors::IMUData grpc_data;
@@ -86,7 +74,7 @@ ScanService::getImu(::grpc::ServerContext *context,
       grpc_data.set_gz(imu_data.gz);
       grpc_data.set_timestamp(imu_data.timestamp);
       writer->Write(grpc_data);
-      imu_queue_.pop_front();
+      imu_queue_.pop();
     }
   }
   std::cout << "Ending IMU data stream." << std::endl;

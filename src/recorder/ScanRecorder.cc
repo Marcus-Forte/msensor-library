@@ -1,6 +1,9 @@
 #include "recorder/ScanRecorder.hh"
 #include "sensors.pb.h"
 #include "timing/timing.hh"
+#include <mutex>
+
+std::mutex g_mutex;
 
 namespace {
 void toProtobuf(const msensor::Scan3DI &scan, sensors::PointCloud3 *proto_msg) {
@@ -41,11 +44,14 @@ void ScanRecorder::record(const Scan3DI &scan) {
   toProtobuf(scan, proto_msg);
 
   auto bytes = entry.ByteSizeLong();
-  // Write size of data
-  record_file_->write(reinterpret_cast<char *>(&bytes), sizeof(size_t));
-  // Write the sensor data
-  entry.SerializeToOstream(record_file_->ostream());
-  *record_file_->ostream() << std::flush;
+  {
+    std::scoped_lock<std::mutex> lock(g_mutex);
+    // Write size of data
+    record_file_->write(reinterpret_cast<char *>(&bytes), sizeof(size_t));
+    // Write the sensor data
+    entry.SerializeToOstream(record_file_->ostream());
+    *record_file_->ostream() << std::flush;
+  }
 }
 
 void ScanRecorder::record(const IMUData &imu) {
@@ -63,11 +69,15 @@ void ScanRecorder::record(const IMUData &imu) {
   proto_msg->set_timestamp(imu.timestamp);
 
   auto bytes = entry.ByteSizeLong();
-  // Write size of data
-  record_file_->write(reinterpret_cast<char *>(&bytes), sizeof(size_t));
-  // Write the sensor data
-  entry.SerializeToOstream(record_file_->ostream());
-  *record_file_->ostream() << std::flush;
+
+  {
+    std::scoped_lock<std::mutex> lock(g_mutex);
+    // Write size of data
+    record_file_->write(reinterpret_cast<char *>(&bytes), sizeof(size_t));
+    // Write the sensor data
+    entry.SerializeToOstream(record_file_->ostream());
+    *record_file_->ostream() << std::flush;
+  }
 }
 
 void ScanRecorder::stop() {

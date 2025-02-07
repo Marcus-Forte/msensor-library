@@ -3,8 +3,9 @@
 #include "imu/IImu.hh"
 #include "lidar/ILidar.hh"
 
+#include <boost/lockfree/spsc_queue.hpp>
+
 #include "sensors.grpc.pb.h"
-#include <deque>
 #include <grpcpp/channel.h>
 #include <memory>
 #include <thread>
@@ -36,6 +37,6 @@ private:
   std::jthread imu_reader_thread_;
   std::unique_ptr<grpc::ClientContext> context_;
 
-  std::deque<msensor::Scan3DI> scans_;
-  std::deque<msensor::IMUData> imu_measurements_;
+  boost::lockfree::spsc_queue<msensor::Scan3DI> scan_queue_;
+  boost::lockfree::spsc_queue<msensor::IMUData> imu_queue_;
 };
