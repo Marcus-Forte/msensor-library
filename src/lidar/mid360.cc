@@ -153,8 +153,8 @@ void Mid360::init() {
         auto *data_ = reinterpret_cast<LivoxLidarImuRawPoint *>(data->data);
 
         this_->imu_queue_.push(
-            {data_->gyro_x, data_->gyro_y, data_->gyro_z, data_->acc_x,
-             data_->acc_y, data_->acc_z,
+            {data_->acc_x, data_->acc_y, data_->acc_z, data_->gyro_x,
+             data_->gyro_y, data_->gyro_z,
              *reinterpret_cast<uint64_t *>(data->timestamp)});
       },
       this);
