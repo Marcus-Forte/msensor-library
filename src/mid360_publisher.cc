@@ -1,6 +1,7 @@
 #include <chrono>
 #include <iomanip>
 #include <iostream>
+#include <thread>
 
 #include "file/File.hh"
 #include "lidar/Mid360.hh"
@@ -89,5 +90,8 @@ int main(int argc, char **argv) {
       recorder.record(cloud);
       server.publishScan(cloud);
     }
+
+    /// \todo sleep just enough
+    std::this_thread::sleep_for(std::chrono::microseconds(100));
   }
 }

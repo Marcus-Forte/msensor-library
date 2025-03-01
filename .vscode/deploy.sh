@@ -1,3 +1,3 @@
 #/bin/bash
 
-rsync -avu --exclude 'include/' --exclude 'lib/' $1 $2
+rsync -avu --exclude 'include/' --exclude 'lib/' $@

@@ -1,10 +1,9 @@
 #include "lidar/Mid360.hh"
 
+#include <future>
 #include <livox_lidar_def.h>
 
-#include <condition_variable>
 #include <iostream>
-#include <mutex>
 #include <string>
 
 #include "lidar/ILidar.hh"
@@ -16,10 +15,6 @@
 namespace msensor {
 
 const size_t g_max_queue_elements = 50;
-
-std::mutex g_mutex;
-std::condition_variable g_cv;
-bool g_sync;
 
 namespace {
 
@@ -60,23 +55,27 @@ void Mid360::setMode(Mode mode) {
                                        ? LivoxLidarWorkMode::kLivoxLidarNormal
                                        : LivoxLidarWorkMode::kLivoxLidarWakeUp;
 
-  g_sync = false;
+ 
+ 
+  std::promise<void> promise_complete;
+  const auto future = promise_complete.get_future();
+
   SetLivoxLidarWorkMode(
       connection_handle_, _mode,
       [](livox_status status, uint32_t handle,
          LivoxLidarAsyncControlResponse *response, void *client_data) {
-        if (response == nullptr) {
-        }
-        printf("WorkModeCallack, status:%u, handle:%u, ret_code:%u, "
+        printf("WorkModeCallback, status:%u, handle:%u, ret_code:%u, "
                "error_key:%u\n",
                status, handle, response->ret_code, response->error_key);
-        std::lock_guard<std::mutex> lock(g_mutex);
-        g_sync = true;
-        g_cv.notify_one();
+        auto *promise = static_cast<std::promise<void> *>(client_data);
+        promise->set_value();
       },
-      nullptr);
-  std::unique_lock<std::mutex> lock(g_mutex);
-  g_cv.wait(lock, [] { return g_sync; });
+      &promise_complete);
+
+
+      if (future.wait_for(std::chrono::milliseconds(1000)) == std::future_status::timeout) {
+        throw std::runtime_error("Unable to set mode!");
+      }
 };
 
 void Mid360::setScanPattern(ScanPattern pattern) const {
@@ -88,25 +87,25 @@ void Mid360::setScanPattern(ScanPattern pattern) const {
   } else {
     scan_pattern = kLivoxLidarScanPatternRepetiveLowFrameRate;
   }
-  g_sync = false;
+
+  std::promise<void> promise_complete;
+  const auto future = promise_complete.get_future();
+
   SetLivoxLidarScanPattern(
       connection_handle_, scan_pattern,
       [](livox_status status, uint32_t handle,
          LivoxLidarAsyncControlResponse *response, void *client_data) {
-        std::lock_guard<std::mutex> lock(g_mutex);
-
         printf("SetLivoxLidarScanPattern, status:%u, handle:%u, ret_code:%u, "
                "error_key:%u\n",
                status, handle, response->ret_code, response->error_key);
-        g_cv.notify_one();
-        g_sync = true;
+               auto *promise = static_cast<std::promise<void> *>(client_data);
+               promise->set_value();
       },
-      nullptr);
+      &promise_complete);
 
-  {
-    std::unique_lock<std::mutex> lock(g_mutex);
-    g_cv.wait(lock, [] { return g_sync; });
-  }
+      if (future.wait_for(std::chrono::milliseconds(1000)) == std::future_status::timeout) {
+        throw std::runtime_error("Unable to set scan pattern!");
+      }
 }
 
 void Mid360::init() {
@@ -117,7 +116,10 @@ void Mid360::init() {
     throw std::runtime_error("Unable to initialize Mid360!");
   }
 
-  g_sync = false;
+  std::promise<int> promise_complete;
+   auto future = promise_complete.get_future();
+
+
   SetLivoxLidarInfoChangeCallback(
       [](const uint32_t handle, const LivoxLidarInfo *info, void *client_data) {
         if (info == nullptr) {
@@ -126,21 +128,22 @@ void Mid360::init() {
 
         auto *this_ = reinterpret_cast<decltype(this)>(client_data);
 
-        std::lock_guard<std::mutex> lock(g_mutex);
         std::cout << "Lidar IP: " << info->lidar_ip << std::endl;
         std::cout << "DevType: " << info->dev_type << std::endl;
         std::cout << "SN: " << info->sn << std::endl;
         std::cout << "handle: " << std::to_string(handle) << std::endl;
-        this_->connection_handle_ = handle;
-        g_cv.notify_one();
-        g_sync = true;
+        
+        auto *promise = static_cast<std::promise<int> *>(client_data);
+        promise->set_value(handle);
       },
-      this);
+      &promise_complete);
 
-  {
-    std::unique_lock<std::mutex> lock(g_mutex);
-    g_cv.wait(lock, [] { return g_sync; });
-  }
+      if (future.wait_for(std::chrono::milliseconds(10000)) == std::future_status::timeout) {
+        throw std::runtime_error("Unable to get Lidar Info scan!");
+      }
+      connection_handle_ = future.get();
+  std::cout << "connection_handle_: " << connection_handle_ << std::endl;
+ 
 
   SetLivoxLidarImuDataCallback(
       [](const uint32_t handle, const uint8_t dev_type,
@@ -149,7 +152,6 @@ void Mid360::init() {
           return;
         }
         auto *this_ = reinterpret_cast<decltype(this)>(client_data);
-
         auto *data_ = reinterpret_cast<LivoxLidarImuRawPoint *>(data->data);
 
         this_->imu_queue_.push(

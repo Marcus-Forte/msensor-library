@@ -39,6 +39,13 @@ target_link_libraries(sim_publisher ${PROJECT_NAME} sim_lidar sim_imu)
 
 set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install/ CACHE PATH "default Install prefix" FORCE)
 
+include(GNUInstallDirs)
+install(TARGETS rplidar_publisher mid360_publisher sim_publisher
+DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/cfg/mid360_config.json
+DESTINATION ${CMAKE_INSTALL_SYSCONFDIR})
+
 include(CTest)
 if(BUILD_TESTING)
 add_subdirectory(test)
