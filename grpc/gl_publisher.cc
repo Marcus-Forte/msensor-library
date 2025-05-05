@@ -13,18 +13,44 @@ GLPublisher::GLPublisher(const std::string &server_address) {
   attemptConnection(true);
 }
 
-GLPublisher::~GLPublisher() = default;
-
 void GLPublisher::attemptConnection(bool reset) {
   std::cout << "Slam Publisher attemting connection" << std::endl;
-  context_ = std::make_unique<grpc::ClientContext>();
+  stream_context_ = std::make_unique<grpc::ClientContext>();
   google::protobuf::Empty empty_response;
-  writer_ = stub_->streamPointClouds(context_.get(), &empty_response);
+  writer_ = stub_->streamPointClouds(stream_context_.get(), &empty_response);
 
-  auto context = std::make_unique<grpc::ClientContext>();
+  grpc::ClientContext context;
   if (reset) {
-    stub_->resetScene(context.get(), {}, &empty_response);
+    stub_->resetScene(&context, {}, &empty_response);
   }
+}
+
+void GLPublisher::publishLines(const msensor::PointCloud3 &src,
+                               const msensor::PointCloud3 &tgt, float r,
+                               float g, float b) {
+  size_t idx = 0;
+
+  assert(src.size() == tgt.size());
+
+  gl::LinesRequest lines;
+  google::protobuf::Empty empty_response;
+  grpc::ClientContext context;
+  lines.set_r(r);
+  lines.set_g(g);
+  lines.set_b(b);
+  for (size_t i = 0; i < src.size(); ++i) {
+    auto *line = lines.add_lines();
+    line->set_x0(src[i].x);
+    line->set_y0(src[i].y);
+    line->set_z0(src[i].z);
+
+    line->set_x1(tgt[i].x);
+    line->set_y1(tgt[i].y);
+    line->set_z1(tgt[i].z);
+
+    line->set_entity_name("line_" + std::to_string(idx++));
+  }
+  stub_->addLines(&context, lines, &empty_response);
 }
 
 void GLPublisher::publishScan(const msensor::PointCloud3 &scan, float r,
