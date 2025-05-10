@@ -25,6 +25,12 @@ void GLPublisher::attemptConnection(bool reset) {
   }
 }
 
+void GLPublisher::resetScene() {
+  grpc::ClientContext context;
+  google::protobuf::Empty empty_response, empty_request;
+  stub_->resetScene(&context, empty_request, &empty_response);
+}
+
 void GLPublisher::publishLines(const msensor::PointCloud3 &src,
                                const msensor::PointCloud3 &tgt, float r,
                                float g, float b) {

@@ -15,6 +15,7 @@ public:
   GLPublisher(const std::string &server_address);
   ~GLPublisher() = default;
 
+  void resetScene();
   void publishLines(const msensor::PointCloud3 &src,
                     const msensor::PointCloud3 &tgt, float r = 0.0,
                     float g = 1.0, float b = 0.0);
