@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.20)
 project(msensor_library)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-find_package(PCL 1.14 REQUIRED) # for point types
+find_package(PCL 1.15 REQUIRED COMPONENTS common io) # for point types, point cloud serialization
+link_libraries(${PCL_LIBRARIES})
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(findGRPC)
@@ -37,11 +39,14 @@ target_link_libraries(mid360_publisher mid360 ${PROJECT_NAME})
 add_executable(sim_publisher src/sim_publisher.cc)
 target_link_libraries(sim_publisher ${PROJECT_NAME} sim_lidar sim_imu)
 
-set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install/ CACHE PATH "default Install prefix" FORCE)
-
 include(GNUInstallDirs)
 install(TARGETS rplidar_publisher mid360_publisher sim_publisher
-DESTINATION ${CMAKE_INSTALL_BINDIR})
+DESTINATION ${CMAKE_INSTALL_BINDIR} RUNTIME_DEPENDENCY_SET runtime_targets)
+
+# Experimental - install (some) runtime dependencies together with application.
+# \note Is there a better way?
+install(RUNTIME_DEPENDENCY_SET runtime_targets PRE_EXCLUDE_REGEXES "." PRE_INCLUDE_REGEXES "pcl|boost|i2c|omp"
+DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/cfg/mid360_config.json
 DESTINATION ${CMAKE_INSTALL_SYSCONFDIR})

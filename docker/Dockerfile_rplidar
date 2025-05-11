@@ -1,0 +1,18 @@
+# This build a docker image that runs the rplidar application. 
+# makse sure to provide the device as an argument, e.g `docker run --device /dev/ttyUSB0 <this_image> /dev/ttyUSB0`
+FROM mdnf1992/cpp-dev AS build
+
+COPY . /src
+
+# Release build cause illegal instruction on raspberry pi.. Probably because of the -march=native flag set somewhere
+RUN mkdir -p /src/build && cd /src/build && \
+    cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-O1" -DCMAKE_INSTALL_PREFIX=/app && \
+    make -j4 install
+
+FROM ubuntu:latest AS runtime
+
+COPY --from=build /app /usr/local
+
+RUN ldconfig
+
+ENTRYPOINT ["/usr/local/bin/rplidar_publisher"]
