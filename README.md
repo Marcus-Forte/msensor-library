@@ -1,47 +1,32 @@
-# Library that encompasses multiple sensors as a simple interface.
+# The MSensor Library
 
-Link this library by adding it as subdirectort and linking your application with `msensor_library`
+This library serve as a base for writing generic LiDAR and IMU drivers based on a simple interface.
+It was inspired by ROS2, but with gRPC+Protobuf as message and service definition technologies
+and simplicity in mind.
 
-## Scan files
+By inheriting these common interfaces, the driver benefit from:
 
-Scan files are generates using protobuf. The convention is that the number of bytes to follow come before the serialized data.
+* Exposing your driver as an gRPC interface to be used remotely.
+* Enabling your driver to serialize data to a file to be read back at a later time.
 
-### Systemd examples and embedded deployment
-Useful hints for systemd installation for services.
-Place them onto /etc/system/system/<name>.service
+## Usage
 
-## udev dependant example (optional)
-- Find device info: `udevadm info --name=/dev/ttyUSB0`
-- Collect "idVendor", "idProduct" information.
-- Write `SUBSYSTEM=="tty", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", SYMLINK+="my_usb_device", MODE="0666`
-- Use `my_usb_device` as udev event.
-- Debug with `udevadm control --reload-rules` and `udevadm trigger`
+### As an interface
 
-```
-[Unit]
-Description=RPLidar publisher
-Requires=dev-ttyUSB0.device
-After=dev-ttyUSB0.device
+* The interface at `include/lidar/ILidar` serves as a base for implementing new LiDAR drivers.
+* The interface at `include/lidar/IImu` serves as a base for implementing new IMU drivers.
 
-[Service]
-Type=simple
-ExecStart=/usr/local/bin/rplidar_publisher /dev/ttyUSB0
+### As a driver
 
-[Install]
-WantedBy=multi-user.target
-```
+* The classes at `src/lidar` represent LiDARs objects / drivers that can be instantiated and communicate with the real LiDAR sensors.
+* The classes at `src/imu` represent IMU objects / drivers that can be instantiated and communicate with the real IMU sensors.
 
-## Common example.
-```
-[Unit]
-Description=GL Proxy Service
-After=network.target
+### Remote Driver
 
-[Service]
-Type=simple
-ExecStart=/usr/local/bin/gl_proxy localhost:50051 192.168.1.50:50051
+* Your driver can be programmed as a gRPC service. See `src/*_publisher` applications as example.
+* A client (at another machine) application can instantiate a `grpc/sensors_client.hh` class and subscribe to the IP
+of a driver server to get sensory data.
 
-[Install]
-WantedBy=multi-user.target
-```
+
+
 

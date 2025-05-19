@@ -9,9 +9,6 @@
 #include "lidar/ILidar.hh"
 #include "livox_lidar_api.h"
 
-/// \note Reference manual:
-/// https://livox-wiki-en.readthedocs.io/en/latest/tutorials/new_product/mid360/livox_eth_protocol_mid360.html#point-cloud-imu-data-protocol
-
 namespace msensor {
 
 const size_t g_max_queue_elements = 50;
