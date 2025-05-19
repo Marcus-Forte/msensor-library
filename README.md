@@ -28,5 +28,14 @@ By inheriting these common interfaces, the driver benefit from:
 of a driver server to get sensory data.
 
 
+## Docker
+
+A `DockerfileRuntime` is provided to offer small footprint images that allows one to run the publisher applications from inside a container. Make sure the hardware is correctly mapped to the container (`--device /dev/ttyUSB*` or `--network=host`)
+
+To build the Mid360 publisher for example, use:
+`docker build -f docker/DockerfileRuntime -t mid360 .`
+
+To run, use:
+`docker run --network host --rm mid360 <nr samples>`
 
 

@@ -1,14 +1,11 @@
 #include "sensors_service.hh"
-#include <grpcpp/support/status.h>
+#include "timing/timing.hh"
+#include <pcl/io/ply_io.h>
 
 // #include "colormap.hh" // intensity -> RGB
 
-constexpr size_t g_maxLidarSamples = 100;
-constexpr size_t g_maxImuSamples = 200;
-
-ScanService::ScanService()
-    : scan_queue_(g_maxLidarSamples), imu_queue_(g_maxImuSamples) {}
-
+ScanService::ScanService(size_t max_lidar_samples, size_t max_imu_samples)
+    : scan_queue_(max_lidar_samples), imu_queue_(max_imu_samples) {}
 grpc::Status
 ScanService::getScan(::grpc::ServerContext *context,
                      const ::google::protobuf::Empty * /*request*/,
@@ -23,7 +20,7 @@ ScanService::getScan(::grpc::ServerContext *context,
   while (!context->IsCancelled()) {
 
     while (!scan_queue_.empty()) {
-      auto scan = scan_queue_.front();
+      auto &scan = scan_queue_.front();
       sensors::PointCloud3 point_cloud;
       point_cloud.set_timestamp(scan.timestamp);
       for (const auto &point : scan.points) {
@@ -42,12 +39,52 @@ ScanService::getScan(::grpc::ServerContext *context,
   return ::grpc::Status::OK;
 }
 
+::grpc::Status
+ScanService::savePLYScan(::grpc::ServerContext *context,
+                         const ::sensors::saveFileRequest *request,
+                         ::google::protobuf::Empty *response) {
+
+  /// \todo check if stream is active. Save in PBscan or PCL?
+
+  auto scan = scan_queue_.front();
+  std::string filename;
+  if (request->has_filename()) {
+    filename = std::format("{}.ply", request->filename());
+  } else {
+    filename = std::format("scan_{}.ply", timing::getNowUs());
+  }
+
+  if (pcl::io::savePLYFileBinary<pcl::PointXYZI>(filename, scan.points) == 0) {
+    std::cout << "Saved scan to:" << filename << std::endl;
+    return ::grpc::Status::OK;
+  }
+
+  return ::grpc::Status(grpc::StatusCode::INTERNAL,
+                        "Error saving scan to PLY file, no points");
+}
+
 void ScanService::putScan(const msensor::Scan3DI &scan) {
-  scan_queue_.push(scan);
+
+  if (scan_queue_.write_available() == 0) {
+    scan_queue_.pop();
+  }
+
+  const auto res = scan_queue_.push(scan);
+
+  if (res == false) {
+    std::cerr << "Scan queue is full. Dropping scan." << std::endl;
+  }
 }
 
 void ScanService::putImuData(const msensor::IMUData &imu_data) {
-  imu_queue_.push(imu_data);
+  if (imu_queue_.write_available() == 0) {
+    imu_queue_.pop();
+  }
+  const auto res = imu_queue_.push(imu_data);
+
+  if (res == false) {
+    std::cerr << "Imu queue is full. Dropping imu data." << std::endl;
+  }
 }
 
 ::grpc::Status

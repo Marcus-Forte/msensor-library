@@ -5,7 +5,7 @@ sensors_server.cc
 sensors_client.cc
 sensors_service.cc)
 
-target_link_libraries(sensors_server sensors_proto sensors_grpc conversions IImu ILidar)
+target_link_libraries(sensors_server sensors_proto sensors_grpc conversions IImu ILidar Timing)
 target_include_directories(sensors_server PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # OpenGL server grpc (https://github.com/Marcus-Forte/learning-opengl/blob/main/grpc/proto/gl_server.proto)
@@ -28,11 +28,8 @@ add_executable(gl_proxy
 target_link_libraries(gl_proxy sensors_grpc sensors_proto gl_server_grpc_client)
 target_include_directories(gl_proxy PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-# Publishes SLAM-like data to GL server
-add_library(slam_publisher
-slam_publisher.cc
+# Publishes sensor data to GL server
+add_library(gl_publisher
+gl_publisher.cc
 )
-target_link_libraries(slam_publisher conversions)
-
-install(TARGETS gl_proxy
-DESTINATION bin)
+target_link_libraries(gl_publisher conversions)

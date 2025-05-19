@@ -13,6 +13,7 @@
 			],
 			"settings": {
 				"clangd.arguments": ["-header-insertion=never"],
+				"cmake.configureArgs": ["-DCMAKE_INSTALL_PREFIX=${containerWorkspaceFolder}/build/install"],
 				"C_Cpp.intelliSenseEngine": "disabled"
 			}
 		}

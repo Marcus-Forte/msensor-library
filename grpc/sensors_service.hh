@@ -11,7 +11,13 @@
  */
 class ScanService : public sensors::SensorService::Service {
 public:
-  ScanService();
+  /**
+   * @brief Construct a new Scan Service object
+   *
+   * @param max_lidar_samples size of the queue to hold lidar samples
+   * @param max_imu_samples size of the queue to hold imu samples
+   */
+  ScanService(size_t max_lidar_samples, size_t max_imu_samples);
 
   ::grpc::Status
   getScan(::grpc::ServerContext *context,
@@ -22,6 +28,13 @@ public:
   getImu(::grpc::ServerContext *context,
          const ::google::protobuf::Empty *request,
          ::grpc::ServerWriter<sensors::IMUData> *writer) override;
+
+  /**
+   * @brief Saves the oldest scan in the queue to a PLY file.
+   */
+  ::grpc::Status savePLYScan(::grpc::ServerContext *context,
+                             const ::sensors::saveFileRequest *request,
+                             ::google::protobuf::Empty *response) override;
 
   /**
    * @brief Puts a scan in the server queue.

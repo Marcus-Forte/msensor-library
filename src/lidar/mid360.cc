@@ -52,8 +52,6 @@ void Mid360::setMode(Mode mode) {
                                        ? LivoxLidarWorkMode::kLivoxLidarNormal
                                        : LivoxLidarWorkMode::kLivoxLidarWakeUp;
 
- 
- 
   std::promise<void> promise_complete;
   const auto future = promise_complete.get_future();
 
@@ -69,10 +67,10 @@ void Mid360::setMode(Mode mode) {
       },
       &promise_complete);
 
-
-      if (future.wait_for(std::chrono::milliseconds(1000)) == std::future_status::timeout) {
-        throw std::runtime_error("Unable to set mode!");
-      }
+  if (future.wait_for(std::chrono::milliseconds(1000)) ==
+      std::future_status::timeout) {
+    throw std::runtime_error("Unable to set mode!");
+  }
 };
 
 void Mid360::setScanPattern(ScanPattern pattern) const {
@@ -95,14 +93,15 @@ void Mid360::setScanPattern(ScanPattern pattern) const {
         printf("SetLivoxLidarScanPattern, status:%u, handle:%u, ret_code:%u, "
                "error_key:%u\n",
                status, handle, response->ret_code, response->error_key);
-               auto *promise = static_cast<std::promise<void> *>(client_data);
-               promise->set_value();
+        auto *promise = static_cast<std::promise<void> *>(client_data);
+        promise->set_value();
       },
       &promise_complete);
 
-      if (future.wait_for(std::chrono::milliseconds(1000)) == std::future_status::timeout) {
-        throw std::runtime_error("Unable to set scan pattern!");
-      }
+  if (future.wait_for(std::chrono::milliseconds(1000)) ==
+      std::future_status::timeout) {
+    throw std::runtime_error("Unable to set scan pattern!");
+  }
 }
 
 void Mid360::init() {
@@ -114,8 +113,7 @@ void Mid360::init() {
   }
 
   std::promise<int> promise_complete;
-   auto future = promise_complete.get_future();
-
+  auto future = promise_complete.get_future();
 
   SetLivoxLidarInfoChangeCallback(
       [](const uint32_t handle, const LivoxLidarInfo *info, void *client_data) {
@@ -129,18 +127,18 @@ void Mid360::init() {
         std::cout << "DevType: " << info->dev_type << std::endl;
         std::cout << "SN: " << info->sn << std::endl;
         std::cout << "handle: " << std::to_string(handle) << std::endl;
-        
+
         auto *promise = static_cast<std::promise<int> *>(client_data);
         promise->set_value(handle);
       },
       &promise_complete);
 
-      if (future.wait_for(std::chrono::milliseconds(10000)) == std::future_status::timeout) {
-        throw std::runtime_error("Unable to get Lidar Info scan!");
-      }
-      connection_handle_ = future.get();
+  if (future.wait_for(std::chrono::milliseconds(10000)) ==
+      std::future_status::timeout) {
+    throw std::runtime_error("Unable to get Lidar Info scan!");
+  }
+  connection_handle_ = future.get();
   std::cout << "connection_handle_: " << connection_handle_ << std::endl;
- 
 
   SetLivoxLidarImuDataCallback(
       [](const uint32_t handle, const uint8_t dev_type,

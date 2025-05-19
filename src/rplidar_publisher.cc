@@ -79,7 +79,7 @@ int main(int argc, char **argv) {
 
   lidar->init();
 
-  SensorsServer server;
+  SensorsServer server(10, 10);
   server.start();
 
   auto imu_loop = std::async(std::launch::async, [&server, &recorder]() {

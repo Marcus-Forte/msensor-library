@@ -35,7 +35,13 @@ message RecordingEntry {
     }    
 }
 
+message saveFileRequest {
+    optional string filename = 1;
+}
+
 service SensorService {
     rpc getScan(google.protobuf.Empty) returns (stream PointCloud3);
     rpc getImu(google.protobuf.Empty) returns (stream IMUData);
+    
+    rpc savePLYScan(saveFileRequest) returns (google.protobuf.Empty);
 }
