@@ -27,6 +27,10 @@ By inheriting these common interfaces, the driver benefit from:
 * A client (at another machine) application can instantiate a `grpc/sensors_client.hh` class and subscribe to the IP
 of a driver server to get sensory data.
 
+### Client
+
+A Python client is provided together with the repository to facilitate testing the remote driver.
+See `test/client` folder.
 
 ## Docker
 
