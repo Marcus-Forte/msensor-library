@@ -10,12 +10,14 @@
 
 namespace msensor {
 
-  /**
-   * @brief This class represents a Mid360 lidar, with getters methods to receive LiDAR data.
-   * 
-   * \note Manua: https://livox-wiki-en.readthedocs.io/en/latest/tutorials/new_product/mid360/livox_eth_protocol_mid360.html#point-cloud-imu-data-protocol
-   * 
-   */
+/**
+ * @brief This class represents a Mid360 lidar, with getters methods to receive
+ * LiDAR data.
+ *
+ * \note Manua:
+ * https://livox-wiki-en.readthedocs.io/en/latest/tutorials/new_product/mid360/livox_eth_protocol_mid360.html#point-cloud-imu-data-protocol
+ *
+ */
 class Mid360 : public ILidar {
 public:
   enum class ScanPattern { Repetitive, NonRepetitive, LowFrameRate };
@@ -23,11 +25,13 @@ public:
 
   /**
    * @brief Construct a new Mid360 object.
-   * 
-   * @param config Configuration file to be loaded. \note The IP address of the LiDAR is one of the
-   * configuration elements. Make sure your machine lies within a reacheable subnet of the LiDAR.
-   * @param accumulate_scan_count number of samples to accumulate when returning data from getScan().
-   * Typically the number of points per `getScan` is 96 * `accumulate_scan_count`.
+   *
+   * @param config Configuration file to be loaded. \note The IP address of the
+   * LiDAR is one of the configuration elements. Make sure your machine lies
+   * within a reacheable subnet of the LiDAR.
+   * @param accumulate_scan_count number of samples to accumulate when returning
+   * data from getScan(). Typically the number of points per `getScan` is 96 *
+   * `accumulate_scan_count`.
    */
   Mid360(const std::string &&config, size_t accumulate_scan_count);
   void init() override;

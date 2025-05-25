@@ -31,6 +31,7 @@ ScanService::getScan(::grpc::ServerContext *context,
         pt->set_intensity(point.intensity);
       }
       writer->Write(point_cloud);
+      /// \todo this infrige SPSC rule
       scan_queue_.pop();
     }
   }
