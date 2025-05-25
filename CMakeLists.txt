@@ -13,9 +13,11 @@ include(generate_proto)
 add_subdirectory(include)
 add_subdirectory(third_party)
 option (FORMAT_CODE "Format code" OFF)
-  if(FORMAT_CODE)
+option (IMPORT_ALL_RUNTIME "Import all runtime libraries, including system libraries like libc" OFF)
+if(FORMAT_CODE)
   include(format)
 endif()
+
 
 add_subdirectory(src/file)
 add_subdirectory(src/timing)
@@ -43,10 +45,17 @@ include(GNUInstallDirs)
 install(TARGETS rplidar_publisher mid360_publisher sim_publisher
 DESTINATION ${CMAKE_INSTALL_BINDIR} RUNTIME_DEPENDENCY_SET runtime_targets)
 
-# Experimental - install (some) runtime dependencies together with application.
-# \note Is there a better way?
-install(RUNTIME_DEPENDENCY_SET runtime_targets PRE_EXCLUDE_REGEXES "." PRE_INCLUDE_REGEXES "pcl|boost|i2c|omp"
-DESTINATION ${CMAKE_INSTALL_LIBDIR})
+# Experimental - install (all, including system libraries) runtime dependencies together for a standalone container.
+# TODO Is there a better way?
+if(IMPORT_ALL_RUNTIME)
+  install(RUNTIME_DEPENDENCY_SET runtime_targets
+  DESTINATION ${CMAKE_INSTALL_LIBDIR})
+else()
+# It is also possible to install only some of the libraries - given the system contains the others.
+# The container must be based on the same distro
+  install(RUNTIME_DEPENDENCY_SET runtime_targets PRE_EXCLUDE_REGEXES "." PRE_INCLUDE_REGEXES "pcl|boost|i2c|omp"
+  DESTINATION ${CMAKE_INSTALL_LIBDIR})
+endif()
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/cfg/mid360_config.json
 DESTINATION ${CMAKE_INSTALL_SYSCONFDIR})
