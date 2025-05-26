@@ -1,7 +1,12 @@
+// special devcontainer with envoy proxy active to process gRPC request from browsers.
+// Proxy port: see `envoy.yaml
 {
-	"name": "msensor_library",
-	"image": "mdnf1992/cpp-dev",
-
+	"name": "msensor-library-envoy-proxy",
+	"dockerComposeFile": [
+		"docker-compose.yml"
+	],
+	"service": "devcontainer",
+    "workspaceFolder": "/workspaces/",
 	"customizations": {
 		"vscode": {
 			"extensions": [
@@ -18,9 +23,9 @@
 				"C_Cpp.intelliSenseEngine": "disabled"
 			}
 		}
-	},
+	}
 
-	"mounts": [
-		"source=msensor-app-cache,target=${containerWorkspaceFolder}/build,type=volume"
-	]
+	// "mounts": [
+	// 	"source=msensor-app-cache,target=${containerWorkspaceFolder}/build,type=volume"
+	// ]
 }

@@ -9,6 +9,11 @@ By inheriting these common interfaces, the driver benefit from:
 * Exposing your driver as an gRPC interface to be used remotely.
 * Enabling your driver to serialize data to a file to be read back at a later time.
 
+## Development
+
+Two devcontainers are included. The `dev` is a normal devcontainer for development.
+The `envoy` is a special devcontainer that pulls envoy proxy that proxies grpc-web HTTP request to gRPC of the container.
+
 ## Usage
 
 ### As an interface

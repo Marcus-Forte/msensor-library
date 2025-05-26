@@ -1,0 +1,31 @@
+// devcontainer for development
+{
+	"name": "msensor-library",
+	"image": "mdnf1992/cpp-dev",
+	
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-vscode.cpptools-extension-pack",
+				"llvm-vs-code-extensions.vscode-clangd",
+				"cschlosser.doxdocgen",
+				"zxh404.vscode-proto3",
+				"jebbs.plantuml",
+				"ms-python.python"
+			],
+			"settings": {
+				"clangd.arguments": ["-header-insertion=never"],
+				"cmake.configureArgs": ["-DCMAKE_INSTALL_PREFIX=${containerWorkspaceFolder}/build/install"],
+				"C_Cpp.intelliSenseEngine": "disabled"
+			}
+		}
+	},
+
+	"forwardPorts": [
+		50051
+	],
+
+	"mounts": [
+		"source=msensor-app-cache,target=${containerWorkspaceFolder}/build,type=volume"
+	]
+}
