@@ -6,14 +6,15 @@
 std::mutex g_mutex;
 
 namespace {
-void toProtobuf(const msensor::Scan3DI &scan, sensors::PointCloud3 *proto_msg) {
-  for (const auto &pt : scan.points) {
+void toProtobuf(const std::shared_ptr<msensor::Scan3DI> &scan,
+                sensors::PointCloud3 *proto_msg) {
+  for (const auto &pt : *scan->points) {
     auto *proto_pt = proto_msg->add_points();
     proto_pt->set_x(pt.x);
     proto_pt->set_y(pt.y);
     proto_pt->set_z(pt.z);
   }
-  proto_msg->set_timestamp(scan.timestamp);
+  proto_msg->set_timestamp(scan->timestamp);
 }
 } // namespace
 
@@ -35,7 +36,7 @@ void ScanRecorder::start(const std::string &filename) {
   has_started_ = true;
 }
 
-void ScanRecorder::record(const Scan3DI &scan) {
+void ScanRecorder::record(const std::shared_ptr<Scan3DI> &scan) {
   if (!has_started_)
     return;
 
@@ -54,19 +55,19 @@ void ScanRecorder::record(const Scan3DI &scan) {
   }
 }
 
-void ScanRecorder::record(const IMUData &imu) {
+void ScanRecorder::record(const std::shared_ptr<IMUData> &imu) {
   if (!has_started_)
     return;
 
   sensors::RecordingEntry entry;
   auto *proto_msg = entry.mutable_imu();
-  proto_msg->set_ax(imu.ax);
-  proto_msg->set_ay(imu.ay);
-  proto_msg->set_az(imu.az);
-  proto_msg->set_gx(imu.gx);
-  proto_msg->set_gy(imu.gy);
-  proto_msg->set_gz(imu.gz);
-  proto_msg->set_timestamp(imu.timestamp);
+  proto_msg->set_ax(imu->ax);
+  proto_msg->set_ay(imu->ay);
+  proto_msg->set_az(imu->az);
+  proto_msg->set_gx(imu->gx);
+  proto_msg->set_gy(imu->gy);
+  proto_msg->set_gz(imu->gz);
+  proto_msg->set_timestamp(imu->timestamp);
 
   auto bytes = entry.ByteSizeLong();
 

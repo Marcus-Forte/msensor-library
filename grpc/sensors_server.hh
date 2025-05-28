@@ -17,8 +17,8 @@ public:
   void start();
   void stop();
 
-  void publishScan(const msensor::Scan3DI &scan);
-  void publishImu(const msensor::IMUData &data);
+  void publishScan(const std::shared_ptr<msensor::Scan3DI> &scan);
+  void publishImu(const std::shared_ptr<msensor::IMUData> &data);
 
 private:
   ScanService scan_service_;

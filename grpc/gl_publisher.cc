@@ -31,12 +31,14 @@ void GLPublisher::resetScene() {
   stub_->resetScene(&context, empty_request, &empty_response);
 }
 
-void GLPublisher::publishLines(const msensor::PointCloud3 &src,
-                               const msensor::PointCloud3 &tgt, float r,
-                               float g, float b) {
+void GLPublisher::publishLines(const std::shared_ptr<msensor::Scan3DI> &src,
+                               const std::shared_ptr<msensor::Scan3DI> &tgt,
+                               float r, float g, float b) {
   size_t idx = 0;
+  const auto &src_points = *src->points;
+  const auto &tgt_points = *tgt->points;
 
-  assert(src.size() == tgt.size());
+  assert(src->points->size() == tgt->points->size());
 
   gl::LinesRequest lines;
   google::protobuf::Empty empty_response;
@@ -44,23 +46,24 @@ void GLPublisher::publishLines(const msensor::PointCloud3 &src,
   lines.set_r(r);
   lines.set_g(g);
   lines.set_b(b);
-  for (size_t i = 0; i < src.size(); ++i) {
+  for (size_t i = 0; i < src->points->size(); ++i) {
     auto *line = lines.add_lines();
-    line->set_x0(src[i].x);
-    line->set_y0(src[i].y);
-    line->set_z0(src[i].z);
+    line->set_x0(src_points[i].x);
+    line->set_y0(src_points[i].y);
+    line->set_z0(src_points[i].z);
 
-    line->set_x1(tgt[i].x);
-    line->set_y1(tgt[i].y);
-    line->set_z1(tgt[i].z);
+    line->set_x1(tgt_points[i].x);
+    line->set_y1(tgt_points[i].y);
+    line->set_z1(tgt_points[i].z);
 
     line->set_entity_name("line_" + std::to_string(idx++));
   }
   stub_->addLines(&context, lines, &empty_response);
 }
 
-void GLPublisher::publishScan(const msensor::PointCloud3 &scan, float r,
-                              float g, float b, const std::string &name) {
+void GLPublisher::publishScan(const std::shared_ptr<msensor::Scan3DI> &scan,
+                              float r, float g, float b,
+                              const std::string &name) {
   // green
   auto gl_cloud = toGRPC(scan, r, g, b);
   gl_cloud.set_entity_name(name);

@@ -12,7 +12,7 @@ void SimLidar::init() { std::cout << "init" << std::endl; }
 void SimLidar::startSampling() { std::cout << "startSampling" << std::endl; }
 void SimLidar::stopSampling() { std::cout << "stopSampling" << std::endl; }
 
-Scan3DI SimLidar::getScan() {
+std::shared_ptr<Scan3DI> SimLidar::getScan() {
 
   const int nr_points = 10;
 
@@ -22,13 +22,15 @@ Scan3DI SimLidar::getScan() {
   std::uniform_real_distribution<> dis(-1.0, 1.0);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(50)); // 20 Hz.
-  pcl::PointCloud<pcl::PointXYZI> pts;
-  pts.reserve(nr_points);
+  auto scan = std::make_shared<Scan3DI>();
+  scan->points->reserve(nr_points);
 
   for (int i = 0; i < nr_points; ++i) {
-    pts.points.emplace_back(dis(gen), dis(gen), dis(gen), 0);
+    scan->points->emplace_back(dis(gen), dis(gen), dis(gen), 0);
   }
 
-  return {pts, timing::getNowUs()};
+  scan->timestamp = timing::getNowUs();
+
+  return scan;
 }
 } // namespace msensor

@@ -59,17 +59,17 @@ int main(int argc, char **argv) {
 
   std::cout << std::fixed << std::setprecision(9);
   while (true) {
-    const auto imu = lidar.getImuSample();
+    const auto imu = lidar.getImuData();
 
-    if (imu.has_value()) {
+    if (imu) {
       // std::cout << "Imu time: " << imu->timestamp << std::endl;
       // std::cout << imu->az << "," << imu->timestamp << std::endl;
-      recorder.record(imu.value());
-      server.publishImu(imu.value());
+      recorder.record(imu);
+      server.publishImu(imu);
     }
     const auto cloud = lidar.getScan();
 
-    if (!cloud.points.empty()) {
+    if (!cloud) {
       current = std::chrono::high_resolution_clock::now();
       std::cout << "AccScan time diff: "
                 << std::chrono::duration_cast<std::chrono::microseconds>(
@@ -79,13 +79,14 @@ int main(int argc, char **argv) {
 
       last = current;
 
-      std::cout << "Sending: " << cloud.points.size() << " points" << std::endl;
+      std::cout << "Sending: " << cloud->points->size() << " points"
+                << std::endl;
       const double stamp_s =
-          static_cast<double>(cloud.timestamp) / 1000000000.0;
+          static_cast<double>(cloud->timestamp) / 1000000000.0;
       std::cout << "First point stamp " << stamp_s << '\n';
       std::cout << "Last point stamp:"
                 << stamp_s +
-                       (static_cast<double>(cloud.points.size()) / 200000.0)
+                       (static_cast<double>(cloud->points->size()) / 200000.0)
                 << '\n';
       recorder.record(cloud);
       server.publishScan(cloud);

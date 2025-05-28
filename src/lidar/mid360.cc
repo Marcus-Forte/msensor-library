@@ -11,26 +11,28 @@
 
 namespace msensor {
 
-const size_t g_max_queue_elements = 50;
+constexpr size_t g_max_queue_elements = 50;
+constexpr size_t g_max_scan_points_per_packet = 96;
+
+using PointCloudPacketT =
+    std::array<pcl::PointXYZI, g_max_scan_points_per_packet>;
 
 namespace {
 
-/// \todo pre-allocate accumulate_scans * 96.?
-pcl::PointCloud<pcl::PointXYZI>
-convertEthPacket(const LivoxLidarEthernetPacket *eth_packet,
-                 unsigned int data_pts) {
+PointCloudPacketT convertEthPacket(const LivoxLidarEthernetPacket *eth_packet,
+                                   unsigned int data_pts) {
   const auto *data_ = reinterpret_cast<const LivoxLidarCartesianHighRawPoint *>(
       eth_packet->data);
-  pcl::PointCloud<pcl::PointXYZI> cloud;
-  cloud.resize(data_pts);
-  for (auto &point : cloud) {
+
+  PointCloudPacketT pointcloud_data;
+  for (auto &point : pointcloud_data) {
     point.x = static_cast<float>(data_->x) / 1000.0F;
     point.y = static_cast<float>(data_->y) / 1000.0F;
     point.z = static_cast<float>(data_->z) / 1000.0F;
     point.intensity = data_->reflectivity;
     data_++;
   }
-  return cloud;
+  return pointcloud_data;
 }
 } // namespace
 
@@ -149,10 +151,11 @@ void Mid360::init() {
         auto *this_ = reinterpret_cast<decltype(this)>(client_data);
         auto *data_ = reinterpret_cast<LivoxLidarImuRawPoint *>(data->data);
 
-        this_->imu_queue_.push(
-            {data_->acc_x, data_->acc_y, data_->acc_z, data_->gyro_x,
-             data_->gyro_y, data_->gyro_z,
-             *reinterpret_cast<uint64_t *>(data->timestamp)});
+        auto imu_data = std::make_shared<IMUData>(
+            data_->acc_x, data_->acc_y, data_->acc_z, data_->gyro_x,
+            data_->gyro_y, data_->gyro_z,
+            *reinterpret_cast<uint64_t *>(data->timestamp));
+        this_->imu_queue_.push(imu_data);
       },
       this);
 
@@ -165,29 +168,29 @@ void Mid360::init() {
         auto *this_ = reinterpret_cast<decltype(this)>(client_data);
 
         const auto cloud = convertEthPacket(data, data->dot_num);
-        auto &pointclud_data = this_->pointclud_data_;
 
-        if (pointclud_data.points.empty()) {
-          pointclud_data.timestamp =
+        if (!this_->accumulated_pointcloud_data_) {
+          this_->accumulated_pointcloud_data_ = std::make_shared<Scan3DI>();
+          this_->accumulated_pointcloud_data_->timestamp =
               *reinterpret_cast<uint64_t *>(data->timestamp);
         }
 
-        pointclud_data.points.insert(pointclud_data.points.end(), cloud.begin(),
-                                     cloud.end());
+        this_->accumulated_pointcloud_data_->points->insert(
+            this_->accumulated_pointcloud_data_->points->end(), cloud.begin(),
+            cloud.end());
 
         if (++this_->scan_count_ % this_->accumulate_scan_count_ == 0) {
 
-          this_->scan_queue_.push(pointclud_data);
-
-          pointclud_data.points.clear();
+          this_->scan_queue_.push(this_->accumulated_pointcloud_data_);
+          this_->accumulated_pointcloud_data_.reset();
         }
       },
       this);
 }
 
-Scan3DI Mid360::getScan() {
+std::shared_ptr<Scan3DI> Mid360::getScan() {
   if (scan_queue_.empty()) {
-    return {};
+    return nullptr;
   }
 
   const auto last = scan_queue_.front();
@@ -195,9 +198,9 @@ Scan3DI Mid360::getScan() {
   return last;
 }
 
-std::optional<IMUData> Mid360::getImuSample() {
+std::shared_ptr<IMUData> Mid360::getImuData() {
   if (imu_queue_.empty()) {
-    return {};
+    return nullptr;
   }
   const auto last = imu_queue_.front();
   imu_queue_.pop();

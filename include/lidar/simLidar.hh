@@ -9,7 +9,7 @@ public:
   void init() override;
   void startSampling() override;
   void stopSampling() override;
-  Scan3DI getScan() override;
+  std::shared_ptr<Scan3DI> getScan() override;
 };
 
 } // namespace msensor

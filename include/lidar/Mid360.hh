@@ -1,6 +1,5 @@
 #pragma once
 
-#include <optional>
 #include <string>
 
 #include "ILidar.hh"
@@ -12,13 +11,13 @@ namespace msensor {
 
 /**
  * @brief This class represents a Mid360 lidar, with getters methods to receive
- * LiDAR data.
+ * LiDAR data. It has an embedded IMU sensor, therefore we inherit IImu as well.
  *
- * \note Manua:
+ * \note Manual:
  * https://livox-wiki-en.readthedocs.io/en/latest/tutorials/new_product/mid360/livox_eth_protocol_mid360.html#point-cloud-imu-data-protocol
  *
  */
-class Mid360 : public ILidar {
+class Mid360 : public ILidar, public IImu {
 public:
   enum class ScanPattern { Repetitive, NonRepetitive, LowFrameRate };
   enum class Mode { Normal, PowerSave };
@@ -35,20 +34,20 @@ public:
    */
   Mid360(const std::string &&config, size_t accumulate_scan_count);
   void init() override;
-  Scan3DI getScan() override;
+  std::shared_ptr<Scan3DI> getScan() override;
+  std::shared_ptr<IMUData> getImuData() override;
   void startSampling() override;
   void stopSampling() override;
   void setMode(Mode mode);
 
   void setScanPattern(ScanPattern pattern) const;
-  std::optional<IMUData> getImuSample();
 
 private:
   const std::string config_;
-  Scan3DI pointclud_data_;
+  std::shared_ptr<Scan3DI> accumulated_pointcloud_data_;
 
-  boost::lockfree::spsc_queue<Scan3DI> scan_queue_;
-  boost::lockfree::spsc_queue<IMUData> imu_queue_;
+  boost::lockfree::spsc_queue<std::shared_ptr<Scan3DI>> scan_queue_;
+  boost::lockfree::spsc_queue<std::shared_ptr<IMUData>> imu_queue_;
 
   const size_t accumulate_scan_count_;
 

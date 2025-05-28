@@ -1,32 +1,37 @@
 
 #include "conversions.hh"
 
-msensor::Scan3DI fromGRPC(const sensors::PointCloud3 &msg) {
-  msensor::Scan3DI pointcloud;
+std::shared_ptr<msensor::Scan3DI> fromGRPC(const sensors::PointCloud3 &msg) {
 
-  pointcloud.points.reserve(msg.points_size());
+  auto scan = std::make_shared<msensor::Scan3DI>();
+
+  scan->points->reserve(msg.points_size());
   for (const auto &pt : msg.points()) {
-    pointcloud.points.emplace_back(pt.x(), pt.y(), pt.z());
+    scan->points->emplace_back(pt.x(), pt.y(), pt.z());
   }
-  pointcloud.timestamp = msg.timestamp();
+  scan->timestamp = msg.timestamp();
 
-  return pointcloud;
+  return scan;
 }
 
-msensor::IMUData fromGRPC(const sensors::IMUData &msg) {
-
-  return {
-      msg.ax(), msg.ay(), msg.az(),        msg.gx(),
-      msg.gy(), msg.gz(), msg.timestamp(),
-  };
+std::shared_ptr<msensor::IMUData> fromGRPC(const sensors::IMUData &msg) {
+  auto imu_data = std::make_shared<msensor::IMUData>();
+  imu_data->ax = msg.ax();
+  imu_data->ay = msg.ay();
+  imu_data->az = msg.az();
+  imu_data->gx = msg.gx();
+  imu_data->gy = msg.gy();
+  imu_data->gz = msg.gz();
+  imu_data->timestamp = msg.timestamp();
+  return imu_data;
 }
 
-gl::PointCloud3 toGRPC(const msensor::PointCloud3 &scan, float r, float g,
-                       float b) {
+gl::PointCloud3 toGRPC(const std::shared_ptr<msensor::Scan3DI> &scan, float r,
+                       float g, float b) {
   gl::PointCloud3 msg;
 
-  msg.mutable_points()->Reserve(scan.points.size());
-  for (const auto &pt : scan.points) {
+  msg.mutable_points()->Reserve(scan->points->size());
+  for (const auto &pt : *scan->points) {
     auto *point = msg.add_points();
     point->set_x(pt.x);
     point->set_y(pt.y);

@@ -16,10 +16,10 @@ public:
   ~GLPublisher() = default;
 
   void resetScene();
-  void publishLines(const msensor::PointCloud3 &src,
-                    const msensor::PointCloud3 &tgt, float r = 0.0,
+  void publishLines(const std::shared_ptr<msensor::Scan3DI> &src,
+                    const std::shared_ptr<msensor::Scan3DI> &tgt, float r = 0.0,
                     float g = 1.0, float b = 0.0);
-  void publishScan(const msensor::PointCloud3 &scan, float r = 0.0,
+  void publishScan(const std::shared_ptr<msensor::Scan3DI> &scan, float r = 0.0,
                    float g = 1.0, float b = 0.0,
                    const std::string &name = "scan");
   void publishPose(float x, float y, float z, float r = 0.0, float g = 0.0,

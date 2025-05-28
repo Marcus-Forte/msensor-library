@@ -26,14 +26,15 @@ void ImuLoop(SensorsServer &server, msensor::ScanRecorder &recorder) {
     auto dbl_gyr_data =
         icm20948.convert_raw_data(gyr_data, FACTOR_GYRO_500DPS_RADS);
     auto timestamp = timing::getNowUs();
-    msensor::IMUData data;
-    data.timestamp = timestamp;
-    data.ax = static_cast<float>(dbl_acc_data.x);
-    data.ay = static_cast<float>(dbl_acc_data.y);
-    data.az = static_cast<float>(dbl_acc_data.z);
-    data.gx = static_cast<float>(dbl_gyr_data.x);
-    data.gy = static_cast<float>(dbl_gyr_data.y);
-    data.gz = static_cast<float>(dbl_gyr_data.z);
+
+    auto data = std::make_shared<msensor::IMUData>();
+    data->timestamp = timestamp;
+    data->ax = static_cast<float>(dbl_acc_data.x);
+    data->ay = static_cast<float>(dbl_acc_data.y);
+    data->az = static_cast<float>(dbl_acc_data.z);
+    data->gx = static_cast<float>(dbl_gyr_data.x);
+    data->gy = static_cast<float>(dbl_gyr_data.y);
+    data->gz = static_cast<float>(dbl_gyr_data.z);
 
     recorder.record(data);
     server.publishImu(data);
@@ -88,8 +89,8 @@ int main(int argc, char **argv) {
 
   while (true) {
     const auto scan = lidar->getScan();
-    std::cout << "New Scan @ " << scan.timestamp
-              << " Points: " << scan.points.size() << std::endl;
+    std::cout << "New Scan @ " << scan->timestamp
+              << " Points: " << scan->points->size() << std::endl;
 
     recorder.record(scan);
     server.publishScan(scan);

@@ -22,8 +22,9 @@ ScanService::getScan(::grpc::ServerContext *context,
     while (!scan_queue_.empty()) {
       auto &scan = scan_queue_.front();
       sensors::PointCloud3 point_cloud;
-      point_cloud.set_timestamp(scan.timestamp);
-      for (const auto &point : scan.points) {
+
+      point_cloud.set_timestamp(scan->timestamp);
+      for (const auto &point : *scan->points) {
         auto pt = point_cloud.add_points();
         pt->set_x(point.x);
         pt->set_y(point.y);
@@ -55,7 +56,8 @@ ScanService::savePLYScan(::grpc::ServerContext *context,
     filename = std::format("scan_{}.ply", timing::getNowUs());
   }
 
-  if (pcl::io::savePLYFileBinary<pcl::PointXYZI>(filename, scan.points) == 0) {
+  if (pcl::io::savePLYFileBinary<pcl::PointXYZI>(filename, *scan->points) ==
+      0) {
     std::cout << "Saved scan to:" << filename << std::endl;
     return ::grpc::Status::OK;
   }
@@ -64,7 +66,7 @@ ScanService::savePLYScan(::grpc::ServerContext *context,
                         "Error saving scan to PLY file, no points");
 }
 
-void ScanService::putScan(const msensor::Scan3DI &scan) {
+void ScanService::putScan(const std::shared_ptr<msensor::Scan3DI> &scan) {
 
   if (scan_queue_.write_available() == 0) {
     scan_queue_.pop();
@@ -77,7 +79,8 @@ void ScanService::putScan(const msensor::Scan3DI &scan) {
   }
 }
 
-void ScanService::putImuData(const msensor::IMUData &imu_data) {
+void ScanService::putImuData(
+    const std::shared_ptr<msensor::IMUData> &imu_data) {
   if (imu_queue_.write_available() == 0) {
     imu_queue_.pop();
   }
@@ -104,13 +107,13 @@ ScanService::getImu(::grpc::ServerContext *context,
       const auto imu_data = imu_queue_.front();
 
       sensors::IMUData grpc_data;
-      grpc_data.set_ax(imu_data.ax);
-      grpc_data.set_ay(imu_data.ay);
-      grpc_data.set_az(imu_data.az);
-      grpc_data.set_gx(imu_data.gx);
-      grpc_data.set_gy(imu_data.gy);
-      grpc_data.set_gz(imu_data.gz);
-      grpc_data.set_timestamp(imu_data.timestamp);
+      grpc_data.set_ax(imu_data->ax);
+      grpc_data.set_ay(imu_data->ay);
+      grpc_data.set_az(imu_data->az);
+      grpc_data.set_gx(imu_data->gx);
+      grpc_data.set_gy(imu_data->gy);
+      grpc_data.set_gz(imu_data->gz);
+      grpc_data.set_timestamp(imu_data->timestamp);
       writer->Write(grpc_data);
       imu_queue_.pop();
     }

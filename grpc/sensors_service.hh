@@ -41,15 +41,15 @@ public:
    *
    * @param scan
    */
-  void putScan(const msensor::Scan3DI &scan);
+  void putScan(const std::shared_ptr<msensor::Scan3DI> &scan);
   /**
    * @brief Puts IMU into the server queue.
    *
    * @param imu_data
    */
-  void putImuData(const msensor::IMUData &imu_data);
+  void putImuData(const std::shared_ptr<msensor::IMUData> &imu_data);
 
 private:
-  boost::lockfree::spsc_queue<msensor::Scan3DI> scan_queue_;
-  boost::lockfree::spsc_queue<msensor::IMUData> imu_queue_;
+  boost::lockfree::spsc_queue<std::shared_ptr<msensor::Scan3DI>> scan_queue_;
+  boost::lockfree::spsc_queue<std::shared_ptr<msensor::IMUData>> imu_queue_;
 };

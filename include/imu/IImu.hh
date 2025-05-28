@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <stdint.h>
 
 namespace msensor {
@@ -16,7 +17,7 @@ struct IMUData {
 
 class IImu {
 public:
-  virtual IMUData getImuData() = 0;
+  virtual std::shared_ptr<IMUData> getImuData() = 0;
 };
 
 } // namespace msensor

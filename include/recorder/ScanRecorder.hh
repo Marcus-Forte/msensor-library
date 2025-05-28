@@ -28,13 +28,13 @@ public:
    * @brief Records a laser scan into scanfile. Thread-safe.
    *
    */
-  void record(const Scan3DI &scan);
+  void record(const std::shared_ptr<Scan3DI> &scan);
 
   /**
    * @brief Records an IMU data into scanfile. Thread-safe.
    *
    */
-  void record(const IMUData &imu);
+  void record(const std::shared_ptr<IMUData> &imu);
 
   /**
    * @brief Stops the recording.
