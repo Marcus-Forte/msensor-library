@@ -1,7 +1,5 @@
 - cmake Library naming
 - namespace for parent projects
-
-
+- setup samples to accumulate per stream request?
 - separate thread for sensor recording?
-- pass shared_ptrs to grpc server instead of const refs to avoid copy 
 - Support more subscribers at once

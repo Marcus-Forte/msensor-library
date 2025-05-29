@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
     }
     const auto cloud = lidar.getScan();
 
-    if (!cloud) {
+    if (cloud) {
       current = std::chrono::high_resolution_clock::now();
       std::cout << "AccScan time diff: "
                 << std::chrono::duration_cast<std::chrono::microseconds>(
