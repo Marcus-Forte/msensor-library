@@ -27,6 +27,6 @@ jobs:
     - name: Pull Docker image
       run: docker pull --platform linux/arm64 mdnf1992/cpp-dev 
 
-    - name: Build application
+    - name: Build application & Test
       run: |
-        docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace mdnf1992/cpp-dev /bin/bash -c "mkdir build && cd build && cmake .. && make"
+        docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace mdnf1992/cpp-dev /bin/bash -c "mkdir build && cd build && cmake .. && make && ctest"
