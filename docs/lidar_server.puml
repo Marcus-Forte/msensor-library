@@ -29,7 +29,7 @@ node "RaspberryPi\n<img:rpi.png{scale=0.1}>" as RaspberryPi {
 
     ILiDAR <|.. Mid360
 
-    gRPCPublisher -> "use" Mid360
+    gRPCPublisher -> "use" ILiDAR
 
     class "gRPC Publisher" as gRPCPublisher {
         +getScan(): Scan3D

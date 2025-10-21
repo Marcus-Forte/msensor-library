@@ -32,6 +32,9 @@ add_subdirectory(grpc)
 add_library(${PROJECT_NAME} INTERFACE)
 target_link_libraries(${PROJECT_NAME} INTERFACE ${PROJECT_NAME} Timing sensors_server scan_recorder sensors_proto gl_publisher)
 
+add_executable(icm20948_publisher src/icm20948_publisher.cc)
+target_link_libraries(icm20948_publisher ${PROJECT_NAME} icm-20948)
+
 add_executable(rplidar_publisher src/rplidar_publisher.cc)
 target_link_libraries(rplidar_publisher RPLidar ${PROJECT_NAME} icm-20948)
 
