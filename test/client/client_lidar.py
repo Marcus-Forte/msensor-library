@@ -1,5 +1,5 @@
 import grpc
-from proto_gen import sensors_pb2, sensors_pb2_grpc
+from proto_gen import  sensors_pb2_grpc
 from google.protobuf.empty_pb2 import Empty
 
 def main():
