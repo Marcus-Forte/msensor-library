@@ -21,8 +21,9 @@
 		}
 	},
 
-	"forwardPorts": [
-		50051
+	"appPort": 
+	[
+		"50051:50051"
 	],
 
 	"mounts": [

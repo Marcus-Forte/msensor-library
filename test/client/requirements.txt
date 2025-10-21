@@ -1,1 +1,2 @@
 grpcio-tools==1.71.0 # This pulls grpcio already
+matplotlib==3.10.7

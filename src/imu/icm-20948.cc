@@ -1,16 +1,21 @@
 #include "imu/icm-20948.h"
 #include "imu/icm-20948_defs.h"
+#include "timing/timing.hh"
 #include <stdexcept>
 
 extern "C" {
 #include <i2c/smbus.h>
 #include <linux/i2c-dev.h>
 }
+
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+#include <memory>
 #include <string>
+
+namespace msensor {
 
 inline uint8_t ICM20948::write_(uint8_t reg_address, uint8_t data) const {
   return i2c_smbus_write_byte_data(i2c_device_fd_, reg_address, data);
@@ -199,6 +204,19 @@ bool ICM20948::calibrate() const {
   return true;
 }
 
+std::shared_ptr<IMUData> ICM20948::getImuData() {
+  auto acc_data = get_acc_data();
+  auto gyr_data = get_gyro_data();
+  auto dbl_acc_data = convert_raw_data(acc_data, FACTOR_ACC_2G);
+  auto dbl_gyr_data = convert_raw_data(gyr_data, FACTOR_GYRO_500DPS_RADS);
+
+  return std::make_shared<IMUData>(
+      static_cast<float>(dbl_acc_data.x), static_cast<float>(dbl_acc_data.y),
+      static_cast<float>(dbl_acc_data.z), static_cast<float>(dbl_gyr_data.x),
+      static_cast<float>(dbl_gyr_data.y), static_cast<float>(dbl_gyr_data.z),
+      timing::getNowUs());
+}
+
 ICM20948::xyz_data_ ICM20948::get_acc_data() const {
   uint8_t data[6];
   auto bytes_read = read_block_(REG_ACCEL_XOUT_H, 6, data);
@@ -246,3 +264,4 @@ ICM20948::ACC_SCALE ICM20948::get_acc_scale() const {
   scale_bits = (scale_bits >> 1) & 0x03;
   return (ACC_SCALE)scale_bits;
 }
+} // namespace msensor

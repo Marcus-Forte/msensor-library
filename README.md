@@ -47,4 +47,6 @@ To build the Mid360 publisher for example, use:
 To run, use:
 `docker run --network host --rm mid360 <nr samples>`
 
+Using ICM20948
+`docker run --rm --init --device /dev/i2c-1 -p 50051:50051 imu`
 

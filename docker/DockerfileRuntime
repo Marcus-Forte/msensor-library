@@ -17,6 +17,7 @@ COPY --from=build /app /usr/local
 
 RUN ldconfig
 
+# Various targets
 FROM runtime AS rplidar 
 
 ENTRYPOINT ["/usr/local/bin/rplidar_publisher"]
@@ -25,6 +26,11 @@ FROM runtime AS mid360
 
 ENTRYPOINT ["/usr/local/bin/mid360_publisher", "/usr/local/etc/mid360_config.json"]
 CMD ["100", "1", "0"]
+
+FROM runtime AS icm20948
+
+ENTRYPOINT ["/usr/local/bin/icm20948_publisher"]
+CMD ["1"]
 
 # One can use `scratch` as a base and manually call the copied `ld` binary.
 # Use -DIMPORT_ALL_RUNTIME=ON when building for scratch.

@@ -6,11 +6,21 @@
 #include <iostream>
 #include <thread>
 
+constexpr uint64_t sample_period_us = 10000; // 100 hz
+
+int SetRealTimePriority() {
+  struct sched_param sch;
+  sch.sched_priority = 99;
+  return sched_setscheduler(0, SCHED_FIFO, &sch);
+}
+
 void print_usage() {
   std::cout << "Usage: imu_publisher [i2c device] " << std::endl;
 }
 
 int main(int argc, char **argv) {
+
+  SetRealTimePriority();
 
   if (argc < 2) {
     print_usage();
@@ -19,7 +29,7 @@ int main(int argc, char **argv) {
 
   auto i2c_device = std::atoi(argv[1]);
 
-  ICM20948 icm20948(i2c_device, ICM20948_ADDR0);
+  msensor::ICM20948 icm20948(i2c_device, ICM20948_ADDR0);
   icm20948.init();
 
   icm20948.calibrate();
@@ -28,26 +38,19 @@ int main(int argc, char **argv) {
   server.start();
 
   while (true) {
+    const auto now = timing::getNowUs();
 
-    auto acc_data = icm20948.get_acc_data();
-    auto gyr_data = icm20948.get_gyro_data();
-    auto dbl_acc_data = icm20948.convert_raw_data(acc_data, FACTOR_ACC_2G);
-    auto dbl_gyr_data =
-        icm20948.convert_raw_data(gyr_data, FACTOR_GYRO_500DPS_RADS);
-    auto timestamp = timing::getNowUs();
-
-    auto data = std::make_shared<msensor::IMUData>();
-    data->timestamp = timestamp;
-    data->ax = static_cast<float>(dbl_acc_data.x);
-    data->ay = static_cast<float>(dbl_acc_data.y);
-    data->az = static_cast<float>(dbl_acc_data.z);
-    data->gx = static_cast<float>(dbl_gyr_data.x);
-    data->gy = static_cast<float>(dbl_gyr_data.y);
-    data->gz = static_cast<float>(dbl_gyr_data.z);
+    auto data = icm20948.getImuData();
 
     server.publishImu(data);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    const auto remaining_us = sample_period_us - (timing::getNowUs() - now);
+    if (remaining_us > 0) {
+      std::this_thread::sleep_for(std::chrono::microseconds(remaining_us));
+    } else {
+      std::cout << "IMU loop overrun by " << -remaining_us << " us"
+                << std::endl;
+    }
   }
 
   server.stop();

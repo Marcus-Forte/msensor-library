@@ -13,33 +13,28 @@
 
 // 100 Hz
 void ImuLoop(SensorsServer &server, msensor::ScanRecorder &recorder) {
+  constexpr uint64_t sample_period_us = 10000; // 100 hz
   std::cout << "Start imu loop" << std::endl;
-  ICM20948 icm20948(1, ICM20948_ADDR0);
+  msensor::ICM20948 icm20948(1, ICM20948_ADDR0);
   icm20948.init();
 
   icm20948.calibrate();
   while (true) {
 
-    auto acc_data = icm20948.get_acc_data();
-    auto gyr_data = icm20948.get_gyro_data();
-    auto dbl_acc_data = icm20948.convert_raw_data(acc_data, FACTOR_ACC_2G);
-    auto dbl_gyr_data =
-        icm20948.convert_raw_data(gyr_data, FACTOR_GYRO_500DPS_RADS);
-    auto timestamp = timing::getNowUs();
+     const auto now = timing::getNowUs();
 
-    auto data = std::make_shared<msensor::IMUData>();
-    data->timestamp = timestamp;
-    data->ax = static_cast<float>(dbl_acc_data.x);
-    data->ay = static_cast<float>(dbl_acc_data.y);
-    data->az = static_cast<float>(dbl_acc_data.z);
-    data->gx = static_cast<float>(dbl_gyr_data.x);
-    data->gy = static_cast<float>(dbl_gyr_data.y);
-    data->gz = static_cast<float>(dbl_gyr_data.z);
+    auto data = icm20948.getImuData();
 
     recorder.record(data);
     server.publishImu(data);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    const auto remaining_us = sample_period_us - (timing::getNowUs() - now);
+    if (remaining_us > 0) {
+      std::this_thread::sleep_for(std::chrono::microseconds(remaining_us));
+    } else {
+      std::cout << "IMU loop overrun by " << -remaining_us << " us"
+                << std::endl;
+    }
   }
 }
 void print_usage() {
