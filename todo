@@ -3,3 +3,4 @@
 - setup samples to accumulate per stream request?
 - separate thread for sensor recording?
 - Support more subscribers at once
+- [grpc] pecify buffer size at stream opening?
