@@ -21,7 +21,7 @@ void ImuLoop(SensorsServer &server, msensor::ScanRecorder &recorder) {
   icm20948.calibrate();
   while (true) {
 
-     const auto now = timing::getNowUs();
+    const auto now = timing::getNowUs();
 
     auto data = icm20948.getImuData();
 

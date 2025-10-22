@@ -25,21 +25,3 @@ std::shared_ptr<msensor::IMUData> fromGRPC(const sensors::IMUData &msg) {
   imu_data->timestamp = msg.timestamp();
   return imu_data;
 }
-
-gl::PointCloud3 toGRPC(const std::shared_ptr<msensor::Scan3DI> &scan, float r,
-                       float g, float b) {
-  gl::PointCloud3 msg;
-
-  msg.mutable_points()->Reserve(scan->points->size());
-  for (const auto &pt : *scan->points) {
-    auto *point = msg.add_points();
-    point->set_x(pt.x);
-    point->set_y(pt.y);
-    point->set_z(pt.z);
-    point->set_r(r);
-    point->set_g(g);
-    point->set_b(b);
-  }
-
-  return msg;
-}

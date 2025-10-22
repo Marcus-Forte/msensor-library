@@ -30,7 +30,7 @@ add_subdirectory(grpc)
 
 # Combines all
 add_library(${PROJECT_NAME} INTERFACE)
-target_link_libraries(${PROJECT_NAME} INTERFACE ${PROJECT_NAME} Timing sensors_server scan_recorder sensors_proto gl_publisher)
+target_link_libraries(${PROJECT_NAME} INTERFACE ${PROJECT_NAME} Timing sensors_server scan_recorder sensors_proto)
 
 add_executable(icm20948_publisher src/icm20948_publisher.cc)
 target_link_libraries(icm20948_publisher ${PROJECT_NAME} icm-20948)

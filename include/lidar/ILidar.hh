@@ -20,8 +20,7 @@ using PointCloud3I = pcl::PointCloud<Point3I>;
  *
  */
 struct Scan3D {
-  Scan3D();
-
+  Scan3D() : points(pcl::make_shared<PointCloud3>()), timestamp(0) {}
   PointCloud3::Ptr points;
   uint64_t timestamp;
 };
@@ -31,8 +30,7 @@ struct Scan3D {
  *
  */
 struct Scan3DI {
-  Scan3DI();
-
+  Scan3DI() : points(pcl::make_shared<PointCloud3I>()), timestamp(0) {}
   PointCloud3I::Ptr points;
   uint64_t timestamp;
 };
