@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IImu.hh"
+#include "interface/IImu.hh"
 #include <stdint.h>
 
 

@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string>
 
-#include "lidar/ILidar.hh"
+#include "interface/ILidar.hh"
 #include "livox_lidar_api.h"
 
 namespace msensor {

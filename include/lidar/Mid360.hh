@@ -2,8 +2,8 @@
 
 #include <string>
 
-#include "ILidar.hh"
-#include "imu/IImu.hh"
+#include "interface/IImu.hh"
+#include "interface/ILidar.hh"
 
 #include <boost/lockfree/spsc_queue.hpp>
 
@@ -11,7 +11,8 @@ namespace msensor {
 
 /**
  * @brief This class represents a Mid360 lidar, with getters methods to receive
- * LiDAR data. It has an embedded IMU sensor, therefore we inherit IImu as well.
+ * LiDAR data. It has an embedded IMU sensor, therefore IImu is inherited as
+ * well.
  *
  * \note Manual:
  * https://livox-wiki-en.readthedocs.io/en/latest/tutorials/new_product/mid360/livox_eth_protocol_mid360.html#point-cloud-imu-data-protocol

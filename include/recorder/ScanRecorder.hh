@@ -1,8 +1,8 @@
 #pragma once
 
-#include "imu/IImu.hh"
-#include "lidar/ILidar.hh"
-#include <file/IFile.hh>
+#include "interface/IFile.hh"
+#include "interface/IImu.hh"
+#include "interface/ILidar.hh"
 
 namespace msensor {
 

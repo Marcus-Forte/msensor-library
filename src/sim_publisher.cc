@@ -15,7 +15,7 @@ int main(int argc, char **argv) {
   auto simLidar = std::make_unique<msensor::SimLidar>();
   auto simImu = std::make_unique<msensor::SimImu>();
 
-  auto file = std::make_shared<File>();
+  auto file = std::make_shared<msensor::File>();
   msensor::ScanRecorder recorder(file);
 
   bool record_scans = false;

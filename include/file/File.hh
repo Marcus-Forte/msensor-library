@@ -1,8 +1,9 @@
 #pragma once
 
-#include "IFile.hh"
+#include "interface/IFile.hh"
 #include <fstream>
 
+namespace msensor {
 class File : public IFile {
 public:
   File();
@@ -15,3 +16,4 @@ public:
 private:
   std::ofstream file_;
 };
+} // namespace msensor

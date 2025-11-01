@@ -1,4 +1,3 @@
-#include "lidar/ILidar.hh"
 #include "sensors_remote_client.hh"
 #include "sensors_server.hh"
 #include <gtest/gtest.h>

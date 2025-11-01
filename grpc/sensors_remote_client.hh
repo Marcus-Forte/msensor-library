@@ -1,7 +1,7 @@
 #pragma once
 
-#include "imu/IImu.hh"
-#include "lidar/ILidar.hh"
+#include "interface/IImu.hh"
+#include "interface/ILidar.hh"
 
 #include <boost/lockfree/spsc_queue.hpp>
 

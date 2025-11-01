@@ -1,5 +1,6 @@
 #include "file/File.hh"
 
+namespace msensor {
 File::File() = default;
 
 File::~File() = default;
@@ -15,3 +16,5 @@ void File::write(const char *data, size_t size) {
 }
 
 std::ostream *File::ostream() { return &file_; }
+
+} // namespace msensor

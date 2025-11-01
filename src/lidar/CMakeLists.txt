@@ -9,4 +9,4 @@ target_link_libraries(mid360 livox_lidar_sdk_static)
 
 add_library(RPLidar 
   RPLidar.cc)
-target_link_libraries(RPLidar IRPlidar)
+target_link_libraries(RPLidar rplidar_sdk ILidar)

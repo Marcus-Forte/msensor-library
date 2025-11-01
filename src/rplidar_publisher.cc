@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
   lidar = std::make_unique<msensor::RPLidar>(argv[1]);
   dynamic_cast<msensor::RPLidar *>(lidar.get())->setMotorRPM(360);
 
-  auto file = std::make_shared<File>();
+  auto file = std::make_shared<msensor::File>();
   msensor::ScanRecorder recorder(file);
 
   bool record_scans = false;

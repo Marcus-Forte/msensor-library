@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
   }
 
   const auto record = atoi(argv[4]);
-  auto file = std::make_shared<File>();
+  auto file = std::make_shared<msensor::File>();
   msensor::ScanRecorder recorder(file);
 
   if (record == 1) {

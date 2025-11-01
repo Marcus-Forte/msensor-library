@@ -1,5 +1,7 @@
-#include "file/IFile.hh"
+#include "interface/IFile.hh"
 #include <gmock/gmock.h>
+
+using namespace msensor;
 
 class IFileMock : public IFile {
 public:

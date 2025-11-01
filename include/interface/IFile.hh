@@ -5,6 +5,8 @@
 #include <iostream>
 #include <string>
 
+namespace msensor {
+
 /**
  * @brief Adapter to a file interface.
  *
@@ -16,3 +18,5 @@ public:
   virtual void close() = 0;
   virtual std::ostream *ostream() = 0;
 };
+
+} // namespace msensor
