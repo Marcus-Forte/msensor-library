@@ -12,7 +12,6 @@
 class SensorsServer {
 public:
   SensorsServer();
-  SensorsServer(size_t max_lidar_samples, size_t max_imu_samples);
 
   void start();
   void stop();

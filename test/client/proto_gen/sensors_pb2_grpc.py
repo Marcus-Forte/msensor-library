@@ -37,12 +37,12 @@ class SensorServiceStub(object):
         """
         self.getScan = channel.unary_stream(
                 '/sensors.SensorService/getScan',
-                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                request_serializer=proto__gen_dot_sensors__pb2.SensorStreamRequest.SerializeToString,
                 response_deserializer=proto__gen_dot_sensors__pb2.PointCloud3.FromString,
                 _registered_method=True)
         self.getImu = channel.unary_stream(
                 '/sensors.SensorService/getImu',
-                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                request_serializer=proto__gen_dot_sensors__pb2.SensorStreamRequest.SerializeToString,
                 response_deserializer=proto__gen_dot_sensors__pb2.IMUData.FromString,
                 _registered_method=True)
         self.savePLYScan = channel.unary_unary(
@@ -78,12 +78,12 @@ def add_SensorServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'getScan': grpc.unary_stream_rpc_method_handler(
                     servicer.getScan,
-                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    request_deserializer=proto__gen_dot_sensors__pb2.SensorStreamRequest.FromString,
                     response_serializer=proto__gen_dot_sensors__pb2.PointCloud3.SerializeToString,
             ),
             'getImu': grpc.unary_stream_rpc_method_handler(
                     servicer.getImu,
-                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    request_deserializer=proto__gen_dot_sensors__pb2.SensorStreamRequest.FromString,
                     response_serializer=proto__gen_dot_sensors__pb2.IMUData.SerializeToString,
             ),
             'savePLYScan': grpc.unary_unary_rpc_method_handler(
@@ -117,7 +117,7 @@ class SensorService(object):
             request,
             target,
             '/sensors.SensorService/getScan',
-            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            proto__gen_dot_sensors__pb2.SensorStreamRequest.SerializeToString,
             proto__gen_dot_sensors__pb2.PointCloud3.FromString,
             options,
             channel_credentials,
@@ -144,7 +144,7 @@ class SensorService(object):
             request,
             target,
             '/sensors.SensorService/getImu',
-            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            proto__gen_dot_sensors__pb2.SensorStreamRequest.SerializeToString,
             proto__gen_dot_sensors__pb2.IMUData.FromString,
             options,
             channel_credentials,

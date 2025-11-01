@@ -63,3 +63,9 @@ class saveFileRequest(_message.Message):
     FILENAME_FIELD_NUMBER: _ClassVar[int]
     filename: str
     def __init__(self, filename: _Optional[str] = ...) -> None: ...
+
+class SensorStreamRequest(_message.Message):
+    __slots__ = ("queue_size",)
+    QUEUE_SIZE_FIELD_NUMBER: _ClassVar[int]
+    queue_size: int
+    def __init__(self, queue_size: _Optional[int] = ...) -> None: ...

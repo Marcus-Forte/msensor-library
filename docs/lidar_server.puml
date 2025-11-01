@@ -1,4 +1,4 @@
-@startuml pic
+@startuml Lidar Server
 ' allow_mixing
 
 struct Point3DI {

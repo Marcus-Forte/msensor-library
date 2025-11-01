@@ -2,13 +2,18 @@
 #include "timing/timing.hh"
 #include <pcl/io/ply_io.h>
 
-// #include "colormap.hh" // intensity -> RGB
+constexpr uint32_t DEFAULT_QUEUE_SIZE = 100;
+constexpr uint32_t MAX_QUEUE_SIZE = 100000;
 
-ScanService::ScanService(size_t max_lidar_samples, size_t max_imu_samples)
-    : scan_queue_(max_lidar_samples), imu_queue_(max_imu_samples) {}
+static bool isQueueSizeValid(uint32_t queue_size) {
+  return (queue_size > 0 && queue_size <= MAX_QUEUE_SIZE);
+}
+
+ScanService::ScanService() = default;
+
 grpc::Status
 ScanService::getScan(::grpc::ServerContext *context,
-                     const ::google::protobuf::Empty * /*request*/,
+                     const ::sensors::SensorStreamRequest *request,
                      ::grpc::ServerWriter<sensors::PointCloud3> *writer) {
   static bool s_client_connected = false;
   if (s_client_connected)
@@ -16,11 +21,27 @@ ScanService::getScan(::grpc::ServerContext *context,
                         "Only one client stream supported");
 
   std::cout << "Start Lidar scan stream." << std::endl;
+
+  uint32_t queue_size = DEFAULT_QUEUE_SIZE;
+
+  if (!request->has_queue_size()) {
+    queue_size = DEFAULT_QUEUE_SIZE;
+  } else if (isQueueSizeValid(request->queue_size())) {
+    queue_size = request->queue_size();
+  } else {
+    return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT,
+                        "Invalid queue size requested.");
+  }
+
   s_client_connected = true;
+
+  // allocate queue
+  scan_queue_ = std::make_shared<QueueT<msensor::Scan3DI>>(queue_size);
+
   while (!context->IsCancelled()) {
 
-    while (!scan_queue_.empty()) {
-      auto &scan = scan_queue_.front();
+    while (!scan_queue_->empty()) {
+      auto &scan = scan_queue_->front();
       sensors::PointCloud3 point_cloud;
 
       point_cloud.set_timestamp(scan->timestamp);
@@ -33,10 +54,57 @@ ScanService::getScan(::grpc::ServerContext *context,
       }
       writer->Write(point_cloud);
       /// \todo this infrige SPSC rule
-      scan_queue_.pop();
+      scan_queue_->pop();
     }
   }
   std::cout << "Ending Lidar scan stream." << std::endl;
+  s_client_connected = false;
+  return ::grpc::Status::OK;
+}
+
+::grpc::Status
+ScanService::getImu(::grpc::ServerContext *context,
+                    const ::sensors::SensorStreamRequest *request,
+                    ::grpc::ServerWriter<sensors::IMUData> *writer) {
+  static bool s_client_connected = false;
+  if (s_client_connected)
+    return grpc::Status(grpc::StatusCode::RESOURCE_EXHAUSTED,
+                        "Only one client supported");
+  std::cout << "Start IMU data stream." << std::endl;
+
+  uint32_t queue_size = DEFAULT_QUEUE_SIZE;
+
+  if (!request->has_queue_size()) {
+    queue_size = DEFAULT_QUEUE_SIZE;
+  } else if (isQueueSizeValid(request->queue_size())) {
+    queue_size = request->queue_size();
+  } else {
+    return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT,
+                        "Invalid queue size requested.");
+  }
+  s_client_connected = true;
+
+  // allocate queue
+  imu_queue_ = std::make_shared<QueueT<msensor::IMUData>>(queue_size);
+
+  while (!context->IsCancelled()) {
+
+    while (!imu_queue_->empty()) {
+      const auto imu_data = imu_queue_->front();
+
+      sensors::IMUData grpc_data;
+      grpc_data.set_ax(imu_data->ax);
+      grpc_data.set_ay(imu_data->ay);
+      grpc_data.set_az(imu_data->az);
+      grpc_data.set_gx(imu_data->gx);
+      grpc_data.set_gy(imu_data->gy);
+      grpc_data.set_gz(imu_data->gz);
+      grpc_data.set_timestamp(imu_data->timestamp);
+      writer->Write(grpc_data);
+      imu_queue_->pop();
+    }
+  }
+  std::cout << "Ending IMU data stream." << std::endl;
   s_client_connected = false;
   return ::grpc::Status::OK;
 }
@@ -47,8 +115,10 @@ ScanService::savePLYScan(::grpc::ServerContext *context,
                          ::google::protobuf::Empty *response) {
 
   /// \todo check if stream is active. Save in PBscan or PCL?
-
-  auto scan = scan_queue_.front();
+  if (!scan_queue_) {
+    ::grpc::Status(grpc::StatusCode::INTERNAL, "No active stream");
+  }
+  auto scan = scan_queue_->front();
   std::string filename;
   if (request->has_filename()) {
     filename = std::format("{}.ply", request->filename());
@@ -67,12 +137,15 @@ ScanService::savePLYScan(::grpc::ServerContext *context,
 }
 
 void ScanService::putScan(const std::shared_ptr<msensor::Scan3DI> &scan) {
-
-  if (scan_queue_.write_available() == 0) {
-    scan_queue_.pop();
+  if (!scan_queue_) {
+    return;
   }
 
-  const auto res = scan_queue_.push(scan);
+  if (scan_queue_->write_available() == 0) {
+    scan_queue_->pop();
+  }
+
+  const auto res = scan_queue_->push(scan);
 
   if (res == false) {
     std::cerr << "Scan queue is full. Dropping scan." << std::endl;
@@ -81,44 +154,17 @@ void ScanService::putScan(const std::shared_ptr<msensor::Scan3DI> &scan) {
 
 void ScanService::putImuData(
     const std::shared_ptr<msensor::IMUData> &imu_data) {
-  if (imu_queue_.write_available() == 0) {
-    imu_queue_.pop();
+
+  if (!imu_queue_) {
+    return;
   }
-  const auto res = imu_queue_.push(imu_data);
+
+  if (imu_queue_->write_available() == 0) {
+    imu_queue_->pop();
+  }
+  const auto res = imu_queue_->push(imu_data);
 
   if (res == false) {
     std::cerr << "Imu queue is full. Dropping imu data." << std::endl;
   }
-}
-
-::grpc::Status
-ScanService::getImu(::grpc::ServerContext *context,
-                    const ::google::protobuf::Empty *request,
-                    ::grpc::ServerWriter<sensors::IMUData> *writer) {
-  static bool s_client_connected = false;
-  if (s_client_connected)
-    return grpc::Status(grpc::StatusCode::RESOURCE_EXHAUSTED,
-                        "Only one client supported");
-  std::cout << "Start IMU data stream." << std::endl;
-  s_client_connected = true;
-  while (!context->IsCancelled()) {
-
-    while (!imu_queue_.empty()) {
-      const auto imu_data = imu_queue_.front();
-
-      sensors::IMUData grpc_data;
-      grpc_data.set_ax(imu_data->ax);
-      grpc_data.set_ay(imu_data->ay);
-      grpc_data.set_az(imu_data->az);
-      grpc_data.set_gx(imu_data->gx);
-      grpc_data.set_gy(imu_data->gy);
-      grpc_data.set_gz(imu_data->gz);
-      grpc_data.set_timestamp(imu_data->timestamp);
-      writer->Write(grpc_data);
-      imu_queue_.pop();
-    }
-  }
-  std::cout << "Ending IMU data stream." << std::endl;
-  s_client_connected = false;
-  return ::grpc::Status::OK;
 }

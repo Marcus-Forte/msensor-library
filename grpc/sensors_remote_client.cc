@@ -50,8 +50,9 @@ void SensorsRemoteClient::start() {
 
   read_thread_ = std::jthread([&](std::stop_token stop_token) {
     auto service_context_ = std::make_unique<grpc::ClientContext>();
-    google::protobuf::Empty empty_request;
-    auto reader = service_stub_->getScan(service_context_.get(), empty_request);
+    sensors::SensorStreamRequest request;
+    request.set_queue_size(g_maxLidarSamples);
+    auto reader = service_stub_->getScan(service_context_.get(), request);
 
     sensors::PointCloud3 msg;
 
@@ -62,7 +63,7 @@ void SensorsRemoteClient::start() {
             std::chrono::milliseconds(g_connectionRecoverDelayMs));
         service_context_ = std::make_unique<grpc::ClientContext>();
         reader = service_stub_->getScan(service_context_.get(),
-                                        empty_request); // retry
+                                        request); // retry
       } else {
         scan_queue_.push(fromGRPC(msg));
       }
@@ -71,9 +72,10 @@ void SensorsRemoteClient::start() {
 
   imu_reader_thread_ = std::jthread([&](std::stop_token stop_token) {
     auto service_context_ = std::make_unique<grpc::ClientContext>();
-    google::protobuf::Empty empty_request;
-    auto imu_reader =
-        service_stub_->getImu(service_context_.get(), empty_request);
+    sensors::SensorStreamRequest request;
+    request.set_queue_size(g_maxImuSamples);
+
+    auto imu_reader = service_stub_->getImu(service_context_.get(), request);
     sensors::IMUData msg;
 
     while (!stop_token.stop_requested()) {
@@ -83,8 +85,7 @@ void SensorsRemoteClient::start() {
         std::this_thread::sleep_for(
             std::chrono::milliseconds(g_connectionRecoverDelayMs));
         service_context_ = std::make_unique<grpc::ClientContext>();
-        imu_reader =
-            service_stub_->getImu(service_context_.get(), empty_request);
+        imu_reader = service_stub_->getImu(service_context_.get(), request);
       } else {
         imu_queue_.push(fromGRPC(msg));
       }
@@ -97,6 +98,6 @@ void SensorsRemoteClient::stop() {
   imu_reader_thread_.request_stop();
 
   /// \todo why does it not work in unit test?
-  // read_thread_.join();
-  // imu_reader_thread_.join();
+  read_thread_.join();
+  imu_reader_thread_.join();
 }

@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
 
   icm20948.calibrate();
 
-  SensorsServer server(10, 10);
+  SensorsServer server;
   server.start();
 
   while (true) {

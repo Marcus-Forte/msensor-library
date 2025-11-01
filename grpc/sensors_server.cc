@@ -3,10 +3,7 @@
 #include <grpcpp/security/server_credentials.h>
 #include <grpcpp/server_builder.h>
 
-SensorsServer::SensorsServer() : scan_service_(100, 200) {}
-
-SensorsServer::SensorsServer(size_t max_lidar_samples, size_t max_imu_samples)
-    : scan_service_(max_lidar_samples, max_imu_samples) {}
+SensorsServer::SensorsServer() = default;
 
 void SensorsServer::start() {
 

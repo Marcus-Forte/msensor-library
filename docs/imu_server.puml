@@ -1,0 +1,47 @@
+@startuml IMU Server
+
+
+package "Sensor Server" {
+
+class AppPublisher<<App>> {
+}
+
+struct IMUData<<type>> {
+    +float ax
+    +float ay
+    +float az
+    +float gx
+    +float gy
+    +float gz
+}
+
+interface IIMU<<Interface>>  {
+    +getIMUData(): IMUData
+}
+
+class ICM20948<<Driver>> {
+    +getIMUData(): IMUData
+}
+
+class gRPCServer {
+    +publishIMU(IMUData): void
+}
+
+IMUData - IIMU 
+AppPublisher ..> gRPCServer
+AppPublisher ..> ICM20948
+
+IIMU <|.. ICM20948
+}
+
+package "Sensor Client" {
+    class gRPCClient {
+        +getIMUData(): IMUData
+    }
+
+
+}
+
+    gRPCClient -- gRPCServer
+
+@enduml

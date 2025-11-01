@@ -2,13 +2,12 @@ import open3d as o3d
 import numpy as np
 import grpc
 
-# `pip install open3d` required!
+# `pip install open3d` required! May be available only up to python 3.12
 
-from proto_gen import  sensors_pb2_grpc
-from google.protobuf.empty_pb2 import Empty
+from proto_gen import  sensors_pb2_grpc, sensors_pb2
 
 def main():
-    with grpc.insecure_channel('192.168.3.232:50051') as channel:
+    with grpc.insecure_channel('localhost:50051') as channel:
         vis = o3d.visualization.Visualizer()
         vis.create_window()
         opt = vis.get_render_option()
@@ -26,7 +25,7 @@ def main():
         vis.add_geometry(pcd)
 
         stub = sensors_pb2_grpc.SensorServiceStub(channel)
-        request = Empty()
+        request = sensors_pb2.SensorStreamRequest()
         stream = stub.getScan(request)
         for scan in stream:
             print(f"Got points: {len(scan.points)} at {scan.timestamp}")
