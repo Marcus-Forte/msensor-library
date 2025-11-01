@@ -1,7 +1,7 @@
 link_libraries(ILidar)
 
 add_library(sim_lidar
-simLidar.cc)
+SimLidar.cc)
 
 add_library(mid360
 mid360.cc)

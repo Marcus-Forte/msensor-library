@@ -3,45 +3,56 @@
 
 package "Sensor Server" {
 
-class AppPublisher<<App>> {
+    class AppPublisher<<App>> {
+    }
+
+    struct IMUData<<type>> {
+        +float ax
+        +float ay
+        +float az
+        +float gx
+        +float gy
+        +float gz
+    }
+
+    interface IIMU<<Interface>>  {
+        +getIMUData(): IMUData
+    }
+
+    class ICM20948<<Driver>> {
+        +getIMUData(): IMUData
+    }
+
+    class gRPCServer {
+        +publishIMU(IMUData)
+        ---
+        +getImu(IMUData)
+        ---
+        -queue<IMUData>
+    }
+
+
+    IMUData - IIMU: implements
+    AppPublisher ..> gRPCServer: publish to
+    AppPublisher ..> ICM20948: gets data from
+
+    IIMU <|.. ICM20948
 }
 
-struct IMUData<<type>> {
-    +float ax
-    +float ay
-    +float az
-    +float gx
-    +float gy
-    +float gz
-}
-
-interface IIMU<<Interface>>  {
-    +getIMUData(): IMUData
-}
-
-class ICM20948<<Driver>> {
-    +getIMUData(): IMUData
-}
-
-class gRPCServer {
-    +publishIMU(IMUData): void
-}
-
-IMUData - IIMU 
-AppPublisher ..> gRPCServer
-AppPublisher ..> ICM20948
-
-IIMU <|.. ICM20948
+interface ProtoDefinitions<<proto>> {
+    +getImu(): IMUData
 }
 
 package "Sensor Client" {
     class gRPCClient {
-        +getIMUData(): IMUData
+        +getImu(): IMUData
     }
-
-
 }
 
-    gRPCClient -- gRPCServer
+
+gRPCClient <--> gRPCServer: RPC
+
+gRPCServer ..> ProtoDefinitions: implements
+gRPCClient ..> ProtoDefinitions: implements
 
 @enduml

@@ -68,7 +68,7 @@ ICM20948::ICM20948(int i2c_device, int i2c_icm_address)
   }
 }
 
-// TODO allow configuration.
+/// \todo allow configuration.
 bool ICM20948::init() const {
   bank_select(0);
   // Read device ID. We are in BANK0

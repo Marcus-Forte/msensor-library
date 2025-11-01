@@ -1,4 +1,4 @@
-#include "lidar/simLidar.hh"
+#include "lidar/SimLidar.hh"
 #include "timing/timing.hh"
 #include <chrono>
 #include <iostream>

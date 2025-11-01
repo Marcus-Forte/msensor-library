@@ -1,6 +1,6 @@
 #include "file/File.hh"
 #include "imu/SimImu.hh"
-#include "lidar/simLidar.hh"
+#include "lidar/SimLidar.hh"
 #include "recorder/ScanRecorder.hh"
 #include "sensors_server.hh"
 #include <getopt.h>
