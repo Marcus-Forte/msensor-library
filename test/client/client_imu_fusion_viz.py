@@ -1,5 +1,5 @@
 import grpc
-
+import math
 # gRPC stubs for your SENSOR server
 from proto_gen import sensors_pb2_grpc, sensors_pb2, plot_pb2_grpc, plot_pb2
 
@@ -12,12 +12,39 @@ PLOT_SERVER_ADDR = 'host.docker.internal:50052' # Assuming it's on the same mach
 # We'll create 6 signals and map them. Must match the configured signal
 # https://github.com/Marcus-Forte/msensor-remote-plotter/blob/main/config/config_imu_signals.py
 
+"""
+@startuml
+
+object "IMU Sensor Server" as imu {
++ getImu()
+}
+object "Plot Server" as plot
+object "Client" as client {
++ fuse_data()
+}
+
+client --> imu : streams from
+client --> plot : streams to
+
+@enduml
+"""
+
+
+AXIS_ID = 3
+
 SIGNAL_ID_ACC_X = 10
 SIGNAL_ID_ACC_Y = 11
 SIGNAL_ID_ACC_Z = 12
 SIGNAL_ID_GYRO_X = 20
 SIGNAL_ID_GYRO_Y = 21
 SIGNAL_ID_GYRO_Z = 22
+
+SIGNAL_ID_ACC_PITCH = 30
+SIGNAL_ID_ACC_ROLL = 31
+SIGNAL_ID_GYRO_PITCH = 40
+SIGNAL_ID_GYRO_ROLL = 41
+SIGNAL_ID_FUSED_PITCH = 50
+SIGNAL_ID_FUSED_ROLL = 51
 
 def stream_adapter(sensor_stub):
     """
@@ -33,11 +60,38 @@ def stream_adapter(sensor_stub):
         sensor_stream = sensor_stub.getImu(request)
         print("Connected to sensor stream. Forwarding data...")
 
-        # Loop forever, getting data from the sensor
+        dt = 0
+        last_timestamp = 0.0
+
+        # Process each sample from the sensor stream
+        gyro_pitch = 0.0
+        gyro_roll = 0.0
+
+        fused_roll = 0.0
+        fused_pitch = 0.0
         for sample in sensor_stream:
-            # (This assumes your sensor 'sample' has fields ax, ay, az, gx, gy, gz)
-            print(sample)
-            # Create a batch with all 6 data points
+            # Filter sample time difference
+            dt = (sample.timestamp - last_timestamp) / 1000000 # in seconds
+            if(dt < 0 or dt > 1):
+                dt = 0.01  # Default to 10ms if invalid
+            last_timestamp = sample.timestamp
+
+            # Let's do the experiment here.
+            # Accelerometer-based angle estimation
+            roll_angle_acc = math.atan2(sample.ay, sample.az) * (180.0 / math.pi)
+            pitch_angle_acc = math.atan2(-sample.ax, math.sqrt(sample.ay**2 + sample.az**2)) * (180.0 / math.pi)
+            
+
+            # Gyroscope-based angle estimation (not used in this example)
+            gyro_roll += sample.gx * dt * (180.0 / math.pi)
+            gyro_pitch += sample.gy * dt * (180.0 / math.pi)
+            
+            # # Simple complementary filter for fused angle estimation
+            # alpha = 0.98 # Closer to 1 means more gyro, closer to 0 means more acc
+            # fused_roll = alpha * (fused_roll + sample.gx * dt * (180.0 / math.pi)) + (1 - alpha) * roll_angle_acc
+            # fused_pitch = alpha * (fused_pitch + sample.gy * dt * (180.0 / math.pi)) + (1 - alpha) * pitch_angle_acc
+
+            # Send to the plot server
             batch = plot_pb2.streamPointRequest(
                 points=[
                     plot_pb2.streamPoint(signal_id=SIGNAL_ID_ACC_X, value=sample.ax),
@@ -46,8 +100,16 @@ def stream_adapter(sensor_stub):
                     plot_pb2.streamPoint(signal_id=SIGNAL_ID_GYRO_X, value=sample.gx),
                     plot_pb2.streamPoint(signal_id=SIGNAL_ID_GYRO_Y, value=sample.gy),
                     plot_pb2.streamPoint(signal_id=SIGNAL_ID_GYRO_Z, value=sample.gz),
+                    plot_pb2.streamPoint(signal_id=SIGNAL_ID_ACC_ROLL, value=roll_angle_acc),
+                    plot_pb2.streamPoint(signal_id=SIGNAL_ID_ACC_PITCH, value=pitch_angle_acc),
+                    plot_pb2.streamPoint(signal_id=SIGNAL_ID_GYRO_ROLL, value=gyro_roll),
+                    plot_pb2.streamPoint(signal_id=SIGNAL_ID_GYRO_PITCH, value=gyro_pitch),
+                    plot_pb2.streamPoint(signal_id=SIGNAL_ID_FUSED_ROLL, value=fused_roll),
+                    plot_pb2.streamPoint(signal_id=SIGNAL_ID_FUSED_PITCH, value=fused_pitch),
                 ]
             )
+
+            
             
             # Yield this batch to the plot server stream
             yield batch
@@ -61,9 +123,23 @@ def main():
     with grpc.insecure_channel(SENSOR_SERVER_ADDR) as sensor_channel, \
          grpc.insecure_channel(PLOT_SERVER_ADDR) as plot_channel:
         
-        # Create stubs for both servers
         sensor_stub = sensors_pb2_grpc.SensorServiceStub(sensor_channel)
         plot_stub = plot_pb2_grpc.PlotServiceStub(plot_channel)
+
+
+        # Plot configuration
+        plot_stub.RemoveAxis(plot_pb2.RemoveAxisRequest(axis_id=AXIS_ID))
+        plot_stub.AddAxis(plot_pb2.AddAxisRequest(axis_id=AXIS_ID, number_of_samples=1000, plot_title="Estimates"))
+        # plot_stub.AddSignal(plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_ACC_ROLL, axis_id=AXIS_ID, signal_name="Acc Roll"))
+        # plot_stub.AddSignal(plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_ACC_PITCH, axis_id=AXIS_ID, signal_name="Acc Pitch"))
+
+        plot_stub.AddSignal(plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_GYRO_ROLL, axis_id=AXIS_ID, signal_name="Gyro Roll"))
+        plot_stub.AddSignal(plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_GYRO_PITCH, axis_id=AXIS_ID, signal_name="Gyro Pitch"))
+
+
+        # plot_stub.AddSignal(plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_FUSED_ROLL, axis_id=AXIS_ID, signal_name="Fused Roll"))
+        # plot_stub.AddSignal(plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_FUSED_PITCH, axis_id=AXIS_ID, signal_name="Fused Pitch"))
+
 
         try:
             print(f"Connected to plot server at {PLOT_SERVER_ADDR}")
