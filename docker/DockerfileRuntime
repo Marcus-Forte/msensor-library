@@ -1,17 +1,14 @@
-# This build a docker image that runs the rplidar application. 
-# makse sure to provide the device as an argument, e.g `docker run --device /dev/ttyUSB0 <this_image> /dev/ttyUSB0`
-FROM mdnf1992/cpp-dev AS build
+ARG DEVICE=latest
+
+FROM mdnf1992/cpp-dev:${DEVICE} AS build
 
 COPY . /src
 
-# Release build may cause illegal instruction on raspberry pi for RPLidar.. Probably because of the -march=native flag set somewhere.
-# Use `-DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-O1" ` to fix.
-
 RUN mkdir -p /src/build && cd /src/build && \
-    cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/app -DIMPORT_ALL_RUNTIME=OFF && \
-    make -j8 install
+    cmake .. -DCMAKE_INSTALL_PREFIX=/app -DIMPORT_ALL_RUNTIME=OFF -DBUILD_TESTING=OFF && \
+    make -j4 install
 
-FROM ubuntu:latest AS runtime
+FROM debian:trixie-slim AS runtime
 
 COPY --from=build /app /usr/local
 

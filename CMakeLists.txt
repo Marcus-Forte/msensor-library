@@ -3,8 +3,7 @@ project(msensor_library)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-find_package(PCL 1.15 REQUIRED COMPONENTS common io) # for point types, point cloud serialization
-link_libraries(${PCL_LIBRARIES})
+find_package(PCL 1.15.1 REQUIRED COMPONENTS common io) # for point types, point cloud serialization
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(findGRPC)
@@ -56,7 +55,7 @@ if(IMPORT_ALL_RUNTIME)
 else()
 # It is also possible to install only some of the libraries - given the system contains the others.
 # The container must be based on the same distro
-  install(RUNTIME_DEPENDENCY_SET runtime_targets PRE_EXCLUDE_REGEXES "." PRE_INCLUDE_REGEXES "pcl|boost|i2c|omp"
+  install(RUNTIME_DEPENDENCY_SET runtime_targets PRE_EXCLUDE_REGEXES "." PRE_INCLUDE_REGEXES "pcl|boost|i2c|omp|png"
   DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()
 

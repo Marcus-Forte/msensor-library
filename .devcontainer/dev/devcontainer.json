@@ -16,6 +16,7 @@
 			"settings": {
 				"clangd.arguments": ["-header-insertion=never"],
 				"cmake.configureArgs": ["-DCMAKE_INSTALL_PREFIX=${containerWorkspaceFolder}/build/install"],
+				"cmake.additionalKits": ["/opt/toolchains/cmake-kits.json"],
 				"C_Cpp.intelliSenseEngine": "disabled"
 			}
 		}

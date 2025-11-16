@@ -10,7 +10,7 @@ constexpr uint64_t sample_period_us = 10000; // 100 hz
 
 int SetRealTimePriority() {
   struct sched_param sch;
-  sch.sched_priority = 99;
+  sch.sched_priority = 10;
   return sched_setscheduler(0, SCHED_FIFO, &sch);
 }
 
