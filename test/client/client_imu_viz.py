@@ -2,10 +2,11 @@ import grpc
 import math
 # gRPC stubs for your SENSOR server
 from proto_gen import sensors_pb2_grpc, sensors_pb2, plot_pb2_grpc, plot_pb2
+from google.protobuf.empty_pb2 import Empty
 
 # --- Configuration ---
-SENSOR_SERVER_ADDR = '192.168.3.232:50051'
-PLOT_SERVER_ADDR = 'host.docker.internal:50052' # Assuming it's on the same machine
+SENSOR_SERVER_ADDR = '192.168.3.251:50052'
+PLOT_SERVER_ADDR = 'localhost:50052' # Assuming it's on the same machine
 
 # --- Plot Configuration ---
 
@@ -30,11 +31,13 @@ client --> plot : streams to
 """
 
 
-AXIS_ID = 3
+AXIS_ACC_ID = 3
+AXIS_GYRO_ID = 4
 
 SIGNAL_ID_ACC_X = 10
 SIGNAL_ID_ACC_Y = 11
 SIGNAL_ID_ACC_Z = 12
+
 SIGNAL_ID_GYRO_X = 20
 SIGNAL_ID_GYRO_Y = 21
 SIGNAL_ID_GYRO_Z = 22
@@ -66,6 +69,7 @@ def stream_adapter(sensor_stub):
         # Process each sample from the sensor stream
         gyro_pitch = 0.0
         gyro_roll = 0.0
+        gyro_yaw = 0.0
 
         fused_roll = 0.0
         fused_pitch = 0.0
@@ -85,6 +89,7 @@ def stream_adapter(sensor_stub):
             # Gyroscope-based angle estimation (not used in this example)
             gyro_roll += sample.gx * dt * (180.0 / math.pi)
             gyro_pitch += sample.gy * dt * (180.0 / math.pi)
+            gyro_yaw += sample.gz * dt * (180.0 / math.pi)
             
             # # Simple complementary filter for fused angle estimation
             # alpha = 0.98 # Closer to 1 means more gyro, closer to 0 means more acc
@@ -100,12 +105,11 @@ def stream_adapter(sensor_stub):
                     plot_pb2.streamPoint(signal_id=SIGNAL_ID_GYRO_X, value=sample.gx),
                     plot_pb2.streamPoint(signal_id=SIGNAL_ID_GYRO_Y, value=sample.gy),
                     plot_pb2.streamPoint(signal_id=SIGNAL_ID_GYRO_Z, value=sample.gz),
-                    plot_pb2.streamPoint(signal_id=SIGNAL_ID_ACC_ROLL, value=roll_angle_acc),
-                    plot_pb2.streamPoint(signal_id=SIGNAL_ID_ACC_PITCH, value=pitch_angle_acc),
-                    plot_pb2.streamPoint(signal_id=SIGNAL_ID_GYRO_ROLL, value=gyro_roll),
-                    plot_pb2.streamPoint(signal_id=SIGNAL_ID_GYRO_PITCH, value=gyro_pitch),
-                    plot_pb2.streamPoint(signal_id=SIGNAL_ID_FUSED_ROLL, value=fused_roll),
-                    plot_pb2.streamPoint(signal_id=SIGNAL_ID_FUSED_PITCH, value=fused_pitch),
+                    # plot_pb2.streamPoint(signal_id=SIGNAL_ID_ACC_ROLL, value=roll_angle_acc),
+                    # plot_pb2.streamPoint(signal_id=SIGNAL_ID_ACC_PITCH, value=pitch_angle_acc),
+                    # plot_pb2.streamPoint(signal_id=SIGNAL_ID_GYRO_ROLL, value=gyro_roll),
+                    # plot_pb2.streamPoint(signal_id=SIGNAL_ID_GYRO_PITCH, value=gyro_pitch),
+                    # plot_pb2.streamPoint(signal_id=SIGNAL_ID_FUSED_ROLL, value=fused_roll),
                 ]
             )
 
@@ -126,20 +130,19 @@ def main():
         sensor_stub = sensors_pb2_grpc.SensorServiceStub(sensor_channel)
         plot_stub = plot_pb2_grpc.PlotServiceStub(plot_channel)
 
-
         # Plot configuration
-        plot_stub.RemoveAxis(plot_pb2.RemoveAxisRequest(axis_id=AXIS_ID))
-        plot_stub.AddAxis(plot_pb2.AddAxisRequest(axis_id=AXIS_ID, number_of_samples=1000, plot_title="Estimates"))
-        # plot_stub.AddSignal(plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_ACC_ROLL, axis_id=AXIS_ID, signal_name="Acc Roll"))
-        # plot_stub.AddSignal(plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_ACC_PITCH, axis_id=AXIS_ID, signal_name="Acc Pitch"))
+        plot_stub.clearAll(Empty())
+        plot_stub.AddAxis(plot_pb2.AddAxisRequest(axis_id=AXIS_ACC_ID, number_of_samples=1000, plot_title="raw acc"))
+        plot_stub.AddAxis(plot_pb2.AddAxisRequest(axis_id=AXIS_GYRO_ID, number_of_samples=1000, plot_title="raw gyro"))
+   
+        plot_stub.AddSignal(plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_ACC_X, axis_id=AXIS_ACC_ID, signal_name="Acc X"))
+        plot_stub.AddSignal(plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_ACC_Y, axis_id=AXIS_ACC_ID, signal_name="Acc Y"))
+        plot_stub.AddSignal(plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_ACC_Z, axis_id=AXIS_ACC_ID, signal_name="Acc Z"))
 
-        plot_stub.AddSignal(plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_GYRO_ROLL, axis_id=AXIS_ID, signal_name="Gyro Roll"))
-        plot_stub.AddSignal(plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_GYRO_PITCH, axis_id=AXIS_ID, signal_name="Gyro Pitch"))
 
-
-        # plot_stub.AddSignal(plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_FUSED_ROLL, axis_id=AXIS_ID, signal_name="Fused Roll"))
-        # plot_stub.AddSignal(plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_FUSED_PITCH, axis_id=AXIS_ID, signal_name="Fused Pitch"))
-
+        plot_stub.AddSignal(plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_GYRO_X, axis_id=AXIS_GYRO_ID, signal_name="Gyro X"))
+        plot_stub.AddSignal(plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_GYRO_Y, axis_id=AXIS_GYRO_ID, signal_name="Gyro Y"))
+        plot_stub.AddSignal(plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_GYRO_Z, axis_id=AXIS_GYRO_ID, signal_name="Gyro Z"))
 
         try:
             print(f"Connected to plot server at {PLOT_SERVER_ADDR}")
