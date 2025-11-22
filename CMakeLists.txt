@@ -35,7 +35,7 @@ add_executable(icm20948_publisher src/icm20948_publisher.cc)
 target_link_libraries(icm20948_publisher ${PROJECT_NAME} icm-20948)
 
 add_executable(rplidar_publisher src/rplidar_publisher.cc)
-target_link_libraries(rplidar_publisher RPLidar ${PROJECT_NAME} icm-20948)
+target_link_libraries(rplidar_publisher RPLidar ${PROJECT_NAME})
 
 add_executable(mid360_publisher src/mid360_publisher.cc)
 target_link_libraries(mid360_publisher mid360 ${PROJECT_NAME})

@@ -11,23 +11,19 @@ RUN mkdir -p /src/build && cd /src/build && \
 FROM debian:trixie-slim AS runtime
 
 COPY --from=build /app /usr/local
+# If using Docker BuildKit, set mode on copy:
+COPY --from=build --chmod=0755 /src/docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+
+# Fallback (uncomment if not using BuildKit):
+# COPY --from=build /src/docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+# RUN chmod +x /usr/local/bin/entrypoint.sh
 
 RUN ldconfig
 
 # Various targets
 FROM runtime AS rplidar 
 
-ENTRYPOINT ["/usr/local/bin/rplidar_publisher"]
-
-FROM runtime AS mid360
-
-ENTRYPOINT ["/usr/local/bin/mid360_publisher", "/usr/local/etc/mid360_config.json"]
-CMD ["100", "1", "0"]
-
-FROM runtime AS icm20948
-
-ENTRYPOINT ["/usr/local/bin/icm20948_publisher"]
-CMD ["1"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 # One can use `scratch` as a base and manually call the copied `ld` binary.
 # Use -DIMPORT_ALL_RUNTIME=ON when building for scratch.
