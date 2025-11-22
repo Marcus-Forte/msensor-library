@@ -1,33 +1,24 @@
-ARG DEVICE=latest
-
-FROM mdnf1992/cpp-dev:${DEVICE} AS build
+FROM mdnf1992/cpp-dev AS build
 
 COPY . /src
 
+# Toolchain file is present in the devcontainer to build native binaries.
+# make install will install all binaries and library dependencies to /app
 RUN mkdir -p /src/build && cd /src/build && \
-    cmake .. -DCMAKE_INSTALL_PREFIX=/app -DIMPORT_ALL_RUNTIME=OFF -DBUILD_TESTING=OFF && \
-    make -j4 install
+    cmake .. -DCMAKE_TOOLCHAIN_FILE=/opt/toolchains/native.cmake \
+    -DCMAKE_INSTALL_PREFIX=/app \ 
+    -DIMPORT_ALL_RUNTIME=OFF \ 
+    -DBUILD_TESTING=OFF && \
+    make -j4 install 
 
 FROM debian:trixie-slim AS runtime
 
 COPY --from=build /app /usr/local
+COPY --from=build --chmod=0755 /src/docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 RUN ldconfig
 
-# Various targets
-FROM runtime AS rplidar 
-
-ENTRYPOINT ["/usr/local/bin/rplidar_publisher"]
-
-FROM runtime AS mid360
-
-ENTRYPOINT ["/usr/local/bin/mid360_publisher", "/usr/local/etc/mid360_config.json"]
-CMD ["100", "1", "0"]
-
-FROM runtime AS icm20948
-
-ENTRYPOINT ["/usr/local/bin/icm20948_publisher"]
-CMD ["1"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 # One can use `scratch` as a base and manually call the copied `ld` binary.
 # Use -DIMPORT_ALL_RUNTIME=ON when building for scratch.
