@@ -1,9 +1,12 @@
+# The runtime image. 
+# To build for arm64 (e.g for Raspberry pi, Nvidia Jetson, ...), simply pass `--platform linux/arm64` to `docker build`.
+
 FROM mdnf1992/cpp-dev AS build
 
 COPY . /src
 
 # Toolchain file is present in the devcontainer to build native binaries.
-# make install will install all binaries and library dependencies to /app
+# `make install` will install all binaries and library dependencies to `/app`
 RUN mkdir -p /src/build && cd /src/build && \
     cmake .. -DCMAKE_TOOLCHAIN_FILE=/opt/toolchains/native.cmake \
     -DCMAKE_INSTALL_PREFIX=/app \ 
