@@ -35,7 +35,7 @@ std::shared_ptr<msensor::Scan3DI> SensorsRemoteClient::getScan() {
   return nullptr;
 }
 
-std::shared_ptr<msensor::IMUData> SensorsRemoteClient::getImuData() {
+std::optional<msensor::IMUData> SensorsRemoteClient::getImuData() {
 
   if (!imu_queue_.empty()) {
     const auto imu_data = imu_queue_.front();
@@ -43,7 +43,7 @@ std::shared_ptr<msensor::IMUData> SensorsRemoteClient::getImuData() {
     return imu_data;
   }
 
-  return nullptr;
+  return std::nullopt;
 }
 
 void SensorsRemoteClient::start() {

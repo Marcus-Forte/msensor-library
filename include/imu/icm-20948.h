@@ -33,7 +33,7 @@ public:
   // everytime. Calibration values are written to the IMU.
   bool calibrate() const;
 
-  std::shared_ptr<IMUData> getImuData() override;
+  std::optional<IMUData> getImuData() override;
 
 private:
   xyz_data_ get_acc_data() const;

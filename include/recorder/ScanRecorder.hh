@@ -34,7 +34,7 @@ public:
    * @brief Records an IMU data into scanfile. Thread-safe.
    *
    */
-  void record(const std::shared_ptr<IMUData> &imu);
+  void record(IMUData imu);
 
   /**
    * @brief Stops the recording.

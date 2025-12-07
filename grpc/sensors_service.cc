@@ -36,7 +36,7 @@ ScanService::getScan(::grpc::ServerContext *context,
   s_client_connected = true;
 
   // allocate queue
-  scan_queue_ = std::make_shared<QueueT<msensor::Scan3DI>>(queue_size);
+  scan_queue_ = std::make_shared<QueuePtrT<msensor::Scan3DI>>(queue_size);
 
   while (!context->IsCancelled()) {
 
@@ -93,13 +93,13 @@ ScanService::getImu(::grpc::ServerContext *context,
       const auto imu_data = imu_queue_->front();
 
       sensors::IMUData grpc_data;
-      grpc_data.set_ax(imu_data->ax);
-      grpc_data.set_ay(imu_data->ay);
-      grpc_data.set_az(imu_data->az);
-      grpc_data.set_gx(imu_data->gx);
-      grpc_data.set_gy(imu_data->gy);
-      grpc_data.set_gz(imu_data->gz);
-      grpc_data.set_timestamp(imu_data->timestamp);
+      grpc_data.set_ax(imu_data.ax);
+      grpc_data.set_ay(imu_data.ay);
+      grpc_data.set_az(imu_data.az);
+      grpc_data.set_gx(imu_data.gx);
+      grpc_data.set_gy(imu_data.gy);
+      grpc_data.set_gz(imu_data.gz);
+      grpc_data.set_timestamp(imu_data.timestamp);
       writer->Write(grpc_data);
       imu_queue_->pop();
     }
@@ -152,8 +152,7 @@ void ScanService::putScan(const std::shared_ptr<msensor::Scan3DI> &scan) {
   }
 }
 
-void ScanService::putImuData(
-    const std::shared_ptr<msensor::IMUData> &imu_data) {
+void ScanService::putImuData(msensor::IMUData imu_data) {
 
   if (!imu_queue_) {
     return;

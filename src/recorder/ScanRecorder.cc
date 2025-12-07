@@ -55,19 +55,19 @@ void ScanRecorder::record(const std::shared_ptr<Scan3DI> &scan) {
   }
 }
 
-void ScanRecorder::record(const std::shared_ptr<IMUData> &imu) {
+void ScanRecorder::record(msensor::IMUData imu) {
   if (!has_started_)
     return;
 
   sensors::RecordingEntry entry;
   auto *proto_msg = entry.mutable_imu();
-  proto_msg->set_ax(imu->ax);
-  proto_msg->set_ay(imu->ay);
-  proto_msg->set_az(imu->az);
-  proto_msg->set_gx(imu->gx);
-  proto_msg->set_gy(imu->gy);
-  proto_msg->set_gz(imu->gz);
-  proto_msg->set_timestamp(imu->timestamp);
+  proto_msg->set_ax(imu.ax);
+  proto_msg->set_ay(imu.ay);
+  proto_msg->set_az(imu.az);
+  proto_msg->set_gx(imu.gx);
+  proto_msg->set_gy(imu.gy);
+  proto_msg->set_gz(imu.gz);
+  proto_msg->set_timestamp(imu.timestamp);
 
   auto bytes = entry.ByteSizeLong();
 

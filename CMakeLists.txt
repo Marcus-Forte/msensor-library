@@ -23,6 +23,7 @@ add_subdirectory(src/timing)
 add_subdirectory(src/lidar)
 add_subdirectory(src/imu)
 add_subdirectory(src/recorder)
+add_subdirectory(src/adc)
 
 add_subdirectory(proto)
 add_subdirectory(grpc)

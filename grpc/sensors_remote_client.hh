@@ -26,7 +26,7 @@ public:
   void stopSampling() override;
 
   std::shared_ptr<msensor::Scan3DI> getScan() override;
-  std::shared_ptr<msensor::IMUData> getImuData() override;
+  std::optional<msensor::IMUData> getImuData() override;
 
 private:
   std::string remote_ip_;
@@ -38,5 +38,5 @@ private:
   std::unique_ptr<grpc::ClientContext> context_;
 
   boost::lockfree::spsc_queue<std::shared_ptr<msensor::Scan3DI>> scan_queue_;
-  boost::lockfree::spsc_queue<std::shared_ptr<msensor::IMUData>> imu_queue_;
+  boost::lockfree::spsc_queue<msensor::IMUData> imu_queue_;
 };

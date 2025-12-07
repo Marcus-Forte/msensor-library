@@ -204,17 +204,17 @@ bool ICM20948::calibrate() const {
   return true;
 }
 
-std::shared_ptr<IMUData> ICM20948::getImuData() {
+std::optional<IMUData> ICM20948::getImuData() {
   auto acc_data = get_acc_data();
   auto gyr_data = get_gyro_data();
   auto dbl_acc_data = convert_raw_data(acc_data, FACTOR_ACC_2G);
   auto dbl_gyr_data = convert_raw_data(gyr_data, FACTOR_GYRO_500DPS_RADS);
 
-  return std::make_shared<IMUData>(
+  return {IMUData{
       static_cast<float>(dbl_acc_data.x), static_cast<float>(dbl_acc_data.y),
       static_cast<float>(dbl_acc_data.z), static_cast<float>(dbl_gyr_data.x),
       static_cast<float>(dbl_gyr_data.y), static_cast<float>(dbl_gyr_data.z),
-      timing::getNowUs());
+      timing::getNowUs()}};
 }
 
 ICM20948::xyz_data_ ICM20948::get_acc_data() const {

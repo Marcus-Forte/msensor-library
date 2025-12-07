@@ -5,7 +5,7 @@
 namespace msensor {
 class SimImu : public IImu {
 public:
-  std::shared_ptr<IMUData> getImuData() override;
+  std::optional<IMUData> getImuData() override;
 };
 
 } // namespace msensor

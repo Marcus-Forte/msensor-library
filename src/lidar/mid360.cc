@@ -151,10 +151,9 @@ void Mid360::init() {
         auto *this_ = reinterpret_cast<decltype(this)>(client_data);
         auto *data_ = reinterpret_cast<LivoxLidarImuRawPoint *>(data->data);
 
-        auto imu_data = std::make_shared<IMUData>(
-            data_->acc_x, data_->acc_y, data_->acc_z, data_->gyro_x,
-            data_->gyro_y, data_->gyro_z,
-            *reinterpret_cast<uint64_t *>(data->timestamp));
+        auto imu_data = IMUData(data_->acc_x, data_->acc_y, data_->acc_z,
+                                data_->gyro_x, data_->gyro_y, data_->gyro_z,
+                                *reinterpret_cast<uint64_t *>(data->timestamp));
         this_->imu_queue_.push(imu_data);
       },
       this);
@@ -198,9 +197,9 @@ std::shared_ptr<Scan3DI> Mid360::getScan() {
   return last;
 }
 
-std::shared_ptr<IMUData> Mid360::getImuData() {
+std::optional<IMUData> Mid360::getImuData() {
   if (imu_queue_.empty()) {
-    return nullptr;
+    return std::nullopt;
   }
   const auto last = imu_queue_.front();
   imu_queue_.pop();

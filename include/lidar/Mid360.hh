@@ -36,7 +36,7 @@ public:
   Mid360(const std::string &&config, size_t accumulate_scan_count);
   void init() override;
   std::shared_ptr<Scan3DI> getScan() override;
-  std::shared_ptr<IMUData> getImuData() override;
+  std::optional<IMUData> getImuData() override;
   void startSampling() override;
   void stopSampling() override;
   void setMode(Mode mode);
@@ -48,7 +48,7 @@ private:
   std::shared_ptr<Scan3DI> accumulated_pointcloud_data_;
 
   boost::lockfree::spsc_queue<std::shared_ptr<Scan3DI>> scan_queue_;
-  boost::lockfree::spsc_queue<std::shared_ptr<IMUData>> imu_queue_;
+  boost::lockfree::spsc_queue<IMUData> imu_queue_;
 
   const size_t accumulate_scan_count_;
 

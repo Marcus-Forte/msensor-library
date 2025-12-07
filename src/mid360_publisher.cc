@@ -64,8 +64,8 @@ int main(int argc, char **argv) {
     if (imu) {
       // std::cout << "Imu time: " << imu->timestamp << std::endl;
       // std::cout << imu->az << "," << imu->timestamp << std::endl;
-      recorder.record(imu);
-      server.publishImu(imu);
+      recorder.record(imu.value());
+      server.publishImu(imu.value());
     }
     const auto cloud = lidar.getScan();
 

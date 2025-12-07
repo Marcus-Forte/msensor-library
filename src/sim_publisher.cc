@@ -45,9 +45,11 @@ int main(int argc, char **argv) {
     const auto imudata = simImu->getImuData();
 
     server.publishScan(scan);
-    server.publishImu(imudata);
     recorder.record(scan);
-    recorder.record(imudata);
+    if (imudata) {
+      server.publishImu(imudata.value());
+      recorder.record(imudata.value());
+    }
   }
 
   server.stop();

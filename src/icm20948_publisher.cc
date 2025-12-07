@@ -40,9 +40,11 @@ int main(int argc, char **argv) {
   while (true) {
     const auto now = timing::getNowUs();
 
-    auto data = icm20948.getImuData();
+    auto imu_data = icm20948.getImuData();
 
-    server.publishImu(data);
+    if (imu_data) {
+      server.publishImu(imu_data.value());
+    }
 
     const auto remaining_us = sample_period_us - (timing::getNowUs() - now);
     if (remaining_us > 0) {

@@ -6,4 +6,4 @@
 #include "sensors.pb.h"
 
 std::shared_ptr<msensor::Scan3DI> fromGRPC(const sensors::PointCloud3 &msg);
-std::shared_ptr<msensor::IMUData> fromGRPC(const sensors::IMUData &msg);
+msensor::IMUData fromGRPC(const sensors::IMUData &msg);

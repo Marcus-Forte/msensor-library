@@ -31,14 +31,14 @@ TEST_F(TestClientServer, DISABLED_TestServer) {
   auto imu_read = client->getImuData();
   // No data yet
   EXPECT_EQ(scan_read, nullptr);
-  EXPECT_EQ(imu_read, nullptr);
+  EXPECT_EQ(imu_read, std::nullopt);
 
   // Push data into the queues
   auto scan = std::make_shared<msensor::Scan3DI>();
   scan->points->emplace_back(1, 2, 3);
   scan->timestamp = 10;
 
-  auto imu = std::make_shared<msensor::IMUData>(1, 2, 3, 4, 5, 6, 7);
+  auto imu = msensor::IMUData(1, 2, 3, 4, 5, 6, 7);
   server->publishScan(scan);
   server->publishImu(imu);
 
@@ -48,7 +48,7 @@ TEST_F(TestClientServer, DISABLED_TestServer) {
   scan_read = client->getScan();
   imu_read = client->getImuData();
   ASSERT_NE(scan_read, nullptr);
-  ASSERT_NE(imu_read, nullptr);
+  ASSERT_NE(imu_read, std::nullopt);
 
   const auto &scan_points = *scan_read->points;
 

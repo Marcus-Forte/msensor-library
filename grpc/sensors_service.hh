@@ -45,12 +45,13 @@ public:
    *
    * @param imu_data
    */
-  void putImuData(const std::shared_ptr<msensor::IMUData> &imu_data);
+  void putImuData(msensor::IMUData imu_data);
 
 private:
   template <typename T>
-  using QueueT = boost::lockfree::spsc_queue<std::shared_ptr<T>>;
+  using QueuePtrT = boost::lockfree::spsc_queue<std::shared_ptr<T>>;
+  template <typename T> using QueueT = boost::lockfree::spsc_queue<T>;
 
-  std::shared_ptr<QueueT<msensor::Scan3DI>> scan_queue_;
+  std::shared_ptr<QueuePtrT<msensor::Scan3DI>> scan_queue_;
   std::shared_ptr<QueueT<msensor::IMUData>> imu_queue_;
 };

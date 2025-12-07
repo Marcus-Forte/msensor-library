@@ -21,7 +21,6 @@ void SensorsServer::stop() { server_->Shutdown(); }
 void SensorsServer::publishScan(const std::shared_ptr<msensor::Scan3DI> &scan) {
   scan_service_.putScan(scan);
 }
-void SensorsServer::publishImu(
-    const std::shared_ptr<msensor::IMUData> &imu_data) {
+void SensorsServer::publishImu(const msensor::IMUData imu_data) {
   scan_service_.putImuData(imu_data);
 }

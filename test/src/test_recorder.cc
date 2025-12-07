@@ -51,8 +51,8 @@ TEST_F(TestRecorder, record_imu) {
   // redirect to string stream
   std::stringstream stream;
   EXPECT_CALL(*file_mock_, ostream()).WillRepeatedly(Return(&stream));
-  const auto imu = std::make_shared<IMUData>(
-      1, 2, 3, 4, 5, 6, 10); // Add values. Zeros may not be serialized.
+  const auto imu =
+      IMUData(1, 2, 3, 4, 5, 6, 10); // Add values. Zeros may not be serialized.
 
   recorder_->start();
   recorder_->record(imu);
