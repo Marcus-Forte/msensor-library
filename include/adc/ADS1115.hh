@@ -30,41 +30,35 @@ public:
     SPS_860,
   };
 
-  ADS1115(int i2cBus = 1, uint8_t address = 0x48);
-  ~ADS1115() override;
-
-  bool open();
-  void close();
-  bool isReady() const;
-
-  void setGain(Gain gain);
-  void setDataRate(DataRate rate);
-
-  std::optional<AdcSample> readSingleEnded(AdcChannel channel) override;
-
-private:
-  enum class Multiplexer : uint16_t {
+  enum class Channel : uint16_t {
     SINGLE_0 = 4,
     SINGLE_1 = 5,
     SINGLE_2 = 6,
     SINGLE_3 = 7,
   };
 
-  static Multiplexer singleMux(AdcChannel channel);
+  ADS1115(int i2cBus = 1, uint8_t address = 0x48);
+  ~ADS1115() override;
+
+  bool init(Gain gain, DataRate rate, Channel channel);
+
+  std::optional<AdcSample> readSingleEnded(AdcChannel channel) override;
+
+private:
   static uint16_t gainBits(Gain gain);
   static double gainRange(Gain gain);
   static uint16_t dataRateBits(DataRate rate);
 
-  bool configureAndStart(Multiplexer mux);
-  bool waitForConversionComplete();
-  bool writeRegister(uint8_t reg, uint16_t value);
-  std::optional<uint16_t> readRegister(uint8_t reg);
+  uint8_t write_(uint8_t reg_address, uint8_t data) const;
+  uint8_t read_(uint8_t reg_address) const;
+  int16_t read_word_(uint8_t reg_address) const;
+
   std::optional<int16_t> readConversion();
   double convertRawToVoltage(int16_t raw) const;
 
-  int fileDescriptor_;
-  int i2cBus_;
-  uint8_t address_;
+  const int i2c_device_;
+  const int i2c_ads_address_;
+  int i2c_device_fd_;
   Gain gain_{Gain::PLUS_MINUS_2_048};
   DataRate dataRate_{DataRate::SPS_128};
 };

@@ -1,19 +1,17 @@
-#include "imu/icm-20948.h"
-#include "imu/icm-20948_defs.h"
-#include "timing/timing.hh"
-#include <stdexcept>
-
-extern "C" {
-#include <i2c/smbus.h>
-#include <linux/i2c-dev.h>
-}
 
 #include <fcntl.h>
+extern "C" {
+#include <i2c/smbus.h>
+}
+#include <linux/i2c-dev.h>
+#include <stdexcept>
+#include <string>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#include <memory>
-#include <string>
+#include "imu/icm-20948.h"
+#include "imu/icm-20948_defs.h"
+#include "timing/timing.hh"
 
 namespace msensor {
 

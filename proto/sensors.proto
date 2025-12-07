@@ -28,6 +28,15 @@ message IMUData {
     optional uint64 timestamp = 7;
 }
 
+message AdcDataRequest {
+    optional uint32 channel = 1;
+}
+
+message AdcData {
+    float sample = 1;
+    optional uint64 timestamp = 2;
+}
+
 message RecordingEntry {
     oneof entry {
      PointCloud3 scan = 1;
@@ -46,6 +55,7 @@ message SensorStreamRequest {
 service SensorService {
     rpc getScan(SensorStreamRequest) returns (stream PointCloud3);
     rpc getImu(SensorStreamRequest) returns (stream IMUData);
+    rpc GetAdc(AdcDataRequest) returns (AdcData);
     
     rpc savePLYScan(saveFileRequest) returns (google.protobuf.Empty);
 }
