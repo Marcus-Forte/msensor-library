@@ -44,8 +44,11 @@ target_link_libraries(mid360_publisher mid360 ${PROJECT_NAME})
 add_executable(sim_publisher src/sim_publisher.cc)
 target_link_libraries(sim_publisher ${PROJECT_NAME} sim_lidar sim_imu)
 
+add_executable(ads1115_publisher src/ads1115_publisher.cc)
+target_link_libraries(ads1115_publisher ads1115 ${PROJECT_NAME})
+
 include(GNUInstallDirs)
-install(TARGETS rplidar_publisher mid360_publisher sim_publisher icm20948_publisher
+install(TARGETS rplidar_publisher mid360_publisher sim_publisher icm20948_publisher ads1115_publisher
 DESTINATION ${CMAKE_INSTALL_BINDIR} RUNTIME_DEPENDENCY_SET runtime_targets)
 
 # Experimental - install (all, including system libraries) runtime dependencies together for a standalone container.

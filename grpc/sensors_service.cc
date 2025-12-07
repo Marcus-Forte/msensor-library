@@ -109,6 +109,15 @@ ScanService::getImu(::grpc::ServerContext *context,
   return ::grpc::Status::OK;
 }
 
+::grpc::Status ScanService::GetAdc(::grpc::ServerContext *context,
+                                   const ::sensors::AdcDataRequest *request,
+                                   ::sensors::AdcData *response) {
+
+  response->set_sample(adc_data_.voltage);
+  response->set_timestamp(adc_data_.timestamp);
+  return ::grpc::Status::OK;
+}
+
 ::grpc::Status
 ScanService::savePLYScan(::grpc::ServerContext *context,
                          const ::sensors::saveFileRequest *request,
@@ -166,4 +175,8 @@ void ScanService::putImuData(msensor::IMUData imu_data) {
   if (res == false) {
     std::cerr << "Imu queue is full. Dropping imu data." << std::endl;
   }
+}
+
+void ScanService::putAdcData(msensor::AdcSample adc_data) {
+  adc_data_ = adc_data;
 }

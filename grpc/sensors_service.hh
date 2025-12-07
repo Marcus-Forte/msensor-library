@@ -1,5 +1,6 @@
 #pragma once
 
+#include "interface/IAdc.hh"
 #include "interface/IImu.hh"
 #include "interface/ILidar.hh"
 #include "sensors.grpc.pb.h"
@@ -27,6 +28,10 @@ public:
          const ::sensors::SensorStreamRequest *request,
          ::grpc::ServerWriter<sensors::IMUData> *writer) override;
 
+  ::grpc::Status GetAdc(::grpc::ServerContext *context,
+                        const ::sensors::AdcDataRequest *request,
+                        ::sensors::AdcData *response) override;
+
   /**
    * @brief Saves the oldest scan in the queue to a PLY file.
    */
@@ -47,6 +52,13 @@ public:
    */
   void putImuData(msensor::IMUData imu_data);
 
+  /**
+   * @brief Puts (caches one sample) ADC data into the server.
+   *
+   * @param adc_data
+   */
+  void putAdcData(msensor::AdcSample adc_data);
+
 private:
   template <typename T>
   using QueuePtrT = boost::lockfree::spsc_queue<std::shared_ptr<T>>;
@@ -54,4 +66,6 @@ private:
 
   std::shared_ptr<QueuePtrT<msensor::Scan3DI>> scan_queue_;
   std::shared_ptr<QueueT<msensor::IMUData>> imu_queue_;
+
+  msensor::AdcSample adc_data_;
 };

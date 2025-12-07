@@ -31,36 +31,30 @@ public:
   };
 
   enum class Channel : uint16_t {
-    SINGLE_0 = 4,
-    SINGLE_1 = 5,
-    SINGLE_2 = 6,
-    SINGLE_3 = 7,
+    SINGLE_0 = 0,
+    SINGLE_1 = 1,
+    SINGLE_2 = 2,
+    SINGLE_3 = 3,
   };
 
   ADS1115(int i2cBus = 1, uint8_t address = 0x48);
-  ~ADS1115() override;
+  ~ADS1115() = default;
 
   bool init(Gain gain, DataRate rate, Channel channel);
 
-  std::optional<AdcSample> readSingleEnded(AdcChannel channel) override;
+  std::optional<AdcSample> readSingleEnded() const override;
 
 private:
-  static uint16_t gainBits(Gain gain);
-  static double gainRange(Gain gain);
-  static uint16_t dataRateBits(DataRate rate);
+  int16_t write_(uint8_t reg_address, uint16_t data) const;
+  int16_t read_(uint8_t reg_address) const;
 
-  uint8_t write_(uint8_t reg_address, uint8_t data) const;
-  uint8_t read_(uint8_t reg_address) const;
-  int16_t read_word_(uint8_t reg_address) const;
-
-  std::optional<int16_t> readConversion();
-  double convertRawToVoltage(int16_t raw) const;
+  int16_t readConversion() const;
+  float convertRawToVoltage(int16_t raw) const;
 
   const int i2c_device_;
   const int i2c_ads_address_;
   int i2c_device_fd_;
-  Gain gain_{Gain::PLUS_MINUS_2_048};
-  DataRate dataRate_{DataRate::SPS_128};
+  Gain gain_;
 };
 
 } // namespace msensor

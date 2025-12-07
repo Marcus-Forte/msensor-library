@@ -13,7 +13,7 @@ enum class AdcChannel : uint8_t {
 };
 
 struct AdcSample {
-  double voltage;
+  float voltage;
   uint64_t timestamp;
 };
 
@@ -23,7 +23,7 @@ public:
 
   /// Read a single-ended channel. Returns a sample with the voltage and the
   /// acquisition timestamp.
-  virtual std::optional<AdcSample> readSingleEnded(AdcChannel channel) = 0;
+  virtual std::optional<AdcSample> readSingleEnded() const = 0;
 };
 
 } // namespace msensor
