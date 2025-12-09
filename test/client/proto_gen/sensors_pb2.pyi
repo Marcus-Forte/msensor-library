@@ -50,6 +50,20 @@ class IMUData(_message.Message):
     timestamp: int
     def __init__(self, ax: _Optional[float] = ..., ay: _Optional[float] = ..., az: _Optional[float] = ..., gx: _Optional[float] = ..., gy: _Optional[float] = ..., gz: _Optional[float] = ..., timestamp: _Optional[int] = ...) -> None: ...
 
+class AdcDataRequest(_message.Message):
+    __slots__ = ("channel",)
+    CHANNEL_FIELD_NUMBER: _ClassVar[int]
+    channel: int
+    def __init__(self, channel: _Optional[int] = ...) -> None: ...
+
+class AdcData(_message.Message):
+    __slots__ = ("sample", "timestamp")
+    SAMPLE_FIELD_NUMBER: _ClassVar[int]
+    TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
+    sample: float
+    timestamp: int
+    def __init__(self, sample: _Optional[float] = ..., timestamp: _Optional[int] = ...) -> None: ...
+
 class RecordingEntry(_message.Message):
     __slots__ = ("scan", "imu")
     SCAN_FIELD_NUMBER: _ClassVar[int]

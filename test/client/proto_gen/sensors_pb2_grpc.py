@@ -45,6 +45,11 @@ class SensorServiceStub(object):
                 request_serializer=proto__gen_dot_sensors__pb2.SensorStreamRequest.SerializeToString,
                 response_deserializer=proto__gen_dot_sensors__pb2.IMUData.FromString,
                 _registered_method=True)
+        self.GetAdc = channel.unary_unary(
+                '/sensors.SensorService/GetAdc',
+                request_serializer=proto__gen_dot_sensors__pb2.AdcDataRequest.SerializeToString,
+                response_deserializer=proto__gen_dot_sensors__pb2.AdcData.FromString,
+                _registered_method=True)
         self.savePLYScan = channel.unary_unary(
                 '/sensors.SensorService/savePLYScan',
                 request_serializer=proto__gen_dot_sensors__pb2.saveFileRequest.SerializeToString,
@@ -62,6 +67,12 @@ class SensorServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def getImu(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetAdc(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -85,6 +96,11 @@ def add_SensorServiceServicer_to_server(servicer, server):
                     servicer.getImu,
                     request_deserializer=proto__gen_dot_sensors__pb2.SensorStreamRequest.FromString,
                     response_serializer=proto__gen_dot_sensors__pb2.IMUData.SerializeToString,
+            ),
+            'GetAdc': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetAdc,
+                    request_deserializer=proto__gen_dot_sensors__pb2.AdcDataRequest.FromString,
+                    response_serializer=proto__gen_dot_sensors__pb2.AdcData.SerializeToString,
             ),
             'savePLYScan': grpc.unary_unary_rpc_method_handler(
                     servicer.savePLYScan,
@@ -146,6 +162,33 @@ class SensorService(object):
             '/sensors.SensorService/getImu',
             proto__gen_dot_sensors__pb2.SensorStreamRequest.SerializeToString,
             proto__gen_dot_sensors__pb2.IMUData.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetAdc(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/sensors.SensorService/GetAdc',
+            proto__gen_dot_sensors__pb2.AdcDataRequest.SerializeToString,
+            proto__gen_dot_sensors__pb2.AdcData.FromString,
             options,
             channel_credentials,
             insecure,

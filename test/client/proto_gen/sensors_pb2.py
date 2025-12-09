@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x17proto_gen/sensors.proto\x12\x07sensors\x1a\x1bgoogle/protobuf/empty.proto\"\x91\x01\n\x06Point3\x12\t\n\x01x\x18\x01 \x01(\x02\x12\t\n\x01y\x18\x02 \x01(\x02\x12\t\n\x01z\x18\x03 \x01(\x02\x12\x0e\n\x01r\x18\x04 \x01(\x02H\x00\x88\x01\x01\x12\x0e\n\x01g\x18\x05 \x01(\x02H\x01\x88\x01\x01\x12\x0e\n\x01\x62\x18\x06 \x01(\x02H\x02\x88\x01\x01\x12\x16\n\tintensity\x18\x07 \x01(\rH\x03\x88\x01\x01\x42\x04\n\x02_rB\x04\n\x02_gB\x04\n\x02_bB\x0c\n\n_intensity\"T\n\x0bPointCloud3\x12\x1f\n\x06points\x18\x01 \x03(\x0b\x32\x0f.sensors.Point3\x12\x16\n\ttimestamp\x18\x02 \x01(\x04H\x00\x88\x01\x01\x42\x0c\n\n_timestamp\"w\n\x07IMUData\x12\n\n\x02\x61x\x18\x01 \x01(\x02\x12\n\n\x02\x61y\x18\x02 \x01(\x02\x12\n\n\x02\x61z\x18\x03 \x01(\x02\x12\n\n\x02gx\x18\x04 \x01(\x02\x12\n\n\x02gy\x18\x05 \x01(\x02\x12\n\n\x02gz\x18\x06 \x01(\x02\x12\x16\n\ttimestamp\x18\x07 \x01(\x04H\x00\x88\x01\x01\x42\x0c\n\n_timestamp\"`\n\x0eRecordingEntry\x12$\n\x04scan\x18\x01 \x01(\x0b\x32\x14.sensors.PointCloud3H\x00\x12\x1f\n\x03imu\x18\x02 \x01(\x0b\x32\x10.sensors.IMUDataH\x00\x42\x07\n\x05\x65ntry\"5\n\x0fsaveFileRequest\x12\x15\n\x08\x66ilename\x18\x01 \x01(\tH\x00\x88\x01\x01\x42\x0b\n\t_filename\"=\n\x13SensorStreamRequest\x12\x17\n\nqueue_size\x18\x01 \x01(\rH\x00\x88\x01\x01\x42\r\n\x0b_queue_size2\xcd\x01\n\rSensorService\x12?\n\x07getScan\x12\x1c.sensors.SensorStreamRequest\x1a\x14.sensors.PointCloud30\x01\x12:\n\x06getImu\x12\x1c.sensors.SensorStreamRequest\x1a\x10.sensors.IMUData0\x01\x12?\n\x0bsavePLYScan\x12\x18.sensors.saveFileRequest\x1a\x16.google.protobuf.Emptyb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x17proto_gen/sensors.proto\x12\x07sensors\x1a\x1bgoogle/protobuf/empty.proto\"\x91\x01\n\x06Point3\x12\t\n\x01x\x18\x01 \x01(\x02\x12\t\n\x01y\x18\x02 \x01(\x02\x12\t\n\x01z\x18\x03 \x01(\x02\x12\x0e\n\x01r\x18\x04 \x01(\x02H\x00\x88\x01\x01\x12\x0e\n\x01g\x18\x05 \x01(\x02H\x01\x88\x01\x01\x12\x0e\n\x01\x62\x18\x06 \x01(\x02H\x02\x88\x01\x01\x12\x16\n\tintensity\x18\x07 \x01(\rH\x03\x88\x01\x01\x42\x04\n\x02_rB\x04\n\x02_gB\x04\n\x02_bB\x0c\n\n_intensity\"T\n\x0bPointCloud3\x12\x1f\n\x06points\x18\x01 \x03(\x0b\x32\x0f.sensors.Point3\x12\x16\n\ttimestamp\x18\x02 \x01(\x04H\x00\x88\x01\x01\x42\x0c\n\n_timestamp\"w\n\x07IMUData\x12\n\n\x02\x61x\x18\x01 \x01(\x02\x12\n\n\x02\x61y\x18\x02 \x01(\x02\x12\n\n\x02\x61z\x18\x03 \x01(\x02\x12\n\n\x02gx\x18\x04 \x01(\x02\x12\n\n\x02gy\x18\x05 \x01(\x02\x12\n\n\x02gz\x18\x06 \x01(\x02\x12\x16\n\ttimestamp\x18\x07 \x01(\x04H\x00\x88\x01\x01\x42\x0c\n\n_timestamp\"2\n\x0e\x41\x64\x63\x44\x61taRequest\x12\x14\n\x07\x63hannel\x18\x01 \x01(\rH\x00\x88\x01\x01\x42\n\n\x08_channel\"?\n\x07\x41\x64\x63\x44\x61ta\x12\x0e\n\x06sample\x18\x01 \x01(\x02\x12\x16\n\ttimestamp\x18\x02 \x01(\x04H\x00\x88\x01\x01\x42\x0c\n\n_timestamp\"`\n\x0eRecordingEntry\x12$\n\x04scan\x18\x01 \x01(\x0b\x32\x14.sensors.PointCloud3H\x00\x12\x1f\n\x03imu\x18\x02 \x01(\x0b\x32\x10.sensors.IMUDataH\x00\x42\x07\n\x05\x65ntry\"5\n\x0fsaveFileRequest\x12\x15\n\x08\x66ilename\x18\x01 \x01(\tH\x00\x88\x01\x01\x42\x0b\n\t_filename\"=\n\x13SensorStreamRequest\x12\x17\n\nqueue_size\x18\x01 \x01(\rH\x00\x88\x01\x01\x42\r\n\x0b_queue_size2\x82\x02\n\rSensorService\x12?\n\x07getScan\x12\x1c.sensors.SensorStreamRequest\x1a\x14.sensors.PointCloud30\x01\x12:\n\x06getImu\x12\x1c.sensors.SensorStreamRequest\x1a\x10.sensors.IMUData0\x01\x12\x33\n\x06GetAdc\x12\x17.sensors.AdcDataRequest\x1a\x10.sensors.AdcData\x12?\n\x0bsavePLYScan\x12\x18.sensors.saveFileRequest\x1a\x16.google.protobuf.Emptyb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -38,12 +38,16 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_POINTCLOUD3']._serialized_end=297
   _globals['_IMUDATA']._serialized_start=299
   _globals['_IMUDATA']._serialized_end=418
-  _globals['_RECORDINGENTRY']._serialized_start=420
-  _globals['_RECORDINGENTRY']._serialized_end=516
-  _globals['_SAVEFILEREQUEST']._serialized_start=518
-  _globals['_SAVEFILEREQUEST']._serialized_end=571
-  _globals['_SENSORSTREAMREQUEST']._serialized_start=573
-  _globals['_SENSORSTREAMREQUEST']._serialized_end=634
-  _globals['_SENSORSERVICE']._serialized_start=637
-  _globals['_SENSORSERVICE']._serialized_end=842
+  _globals['_ADCDATAREQUEST']._serialized_start=420
+  _globals['_ADCDATAREQUEST']._serialized_end=470
+  _globals['_ADCDATA']._serialized_start=472
+  _globals['_ADCDATA']._serialized_end=535
+  _globals['_RECORDINGENTRY']._serialized_start=537
+  _globals['_RECORDINGENTRY']._serialized_end=633
+  _globals['_SAVEFILEREQUEST']._serialized_start=635
+  _globals['_SAVEFILEREQUEST']._serialized_end=688
+  _globals['_SENSORSTREAMREQUEST']._serialized_start=690
+  _globals['_SENSORSTREAMREQUEST']._serialized_end=751
+  _globals['_SENSORSERVICE']._serialized_start=754
+  _globals['_SENSORSERVICE']._serialized_end=1012
 # @@protoc_insertion_point(module_scope)
