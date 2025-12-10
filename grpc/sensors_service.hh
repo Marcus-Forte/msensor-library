@@ -18,16 +18,25 @@ public:
    */
   ScanService();
 
+    /**
+     * @brief Stream LiDAR scans to the requesting client.
+     */
   ::grpc::Status
   getScan(::grpc::ServerContext *context,
           const ::sensors::SensorStreamRequest *request,
           ::grpc::ServerWriter<sensors::PointCloud3> *writer) override;
 
+    /**
+     * @brief Stream IMU samples to the requesting client.
+     */
   ::grpc::Status
   getImu(::grpc::ServerContext *context,
          const ::sensors::SensorStreamRequest *request,
          ::grpc::ServerWriter<sensors::IMUData> *writer) override;
 
+    /**
+     * @brief Return the most recent ADC reading.
+     */
   ::grpc::Status GetAdc(::grpc::ServerContext *context,
                         const ::sensors::AdcDataRequest *request,
                         ::sensors::AdcData *response) override;

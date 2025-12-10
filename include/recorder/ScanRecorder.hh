@@ -6,8 +6,12 @@
 
 namespace msensor {
 
+/**
+ * @brief Thread-safe recorder for LiDAR scans and IMU samples.
+ */
 class ScanRecorder {
 public:
+  /// Create a recorder that writes into the provided file adapter.
   ScanRecorder(const std::shared_ptr<IFile> &file);
   ~ScanRecorder();
 

@@ -3,6 +3,7 @@
 
 using namespace msensor;
 
+/// GoogleMock-based mock for `IFile` used in unit tests.
 class IFileMock : public IFile {
 public:
   MOCK_METHOD(void, open, (const std::string &filename), (override));

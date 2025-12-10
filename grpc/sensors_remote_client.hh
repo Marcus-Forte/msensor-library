@@ -19,13 +19,18 @@ class SensorsRemoteClient : public msensor::ILidar, public msensor::IImu {
 public:
   SensorsRemoteClient(const std::string &remote_ip);
   virtual ~SensorsRemoteClient();
+    /// Establish the gRPC channel and prepare internal queues.
   void init() override;
+    /// Start background threads that pull data from the server.
   void start();
+    /// Stop background readers and tear down the connection.
   void stop();
   void startSampling() override;
   void stopSampling() override;
 
+    /// Pop the next LiDAR scan received over gRPC.
   std::shared_ptr<msensor::Scan3DI> getScan() override;
+    /// Pop the next IMU sample received over gRPC.
   std::optional<msensor::IMUData> getImuData() override;
 
 private:

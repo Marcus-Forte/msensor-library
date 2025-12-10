@@ -5,6 +5,9 @@
 
 namespace msensor {
 
+/**
+ * @brief Supported ADC single-ended channels.
+ */
 enum class AdcChannel : uint8_t {
   CHANNEL_0,
   CHANNEL_1,
@@ -12,11 +15,17 @@ enum class AdcChannel : uint8_t {
   CHANNEL_3,
 };
 
+/**
+ * @brief ADC measurement sample.
+ */
 struct AdcSample {
-  float voltage;
-  uint64_t timestamp;
+  float voltage;    ///< Measured voltage in volts.
+  uint64_t timestamp; ///< Acquisition time in nanoseconds.
 };
 
+/**
+ * @brief Interface for analog-to-digital converters.
+ */
 class IAdc {
 public:
   virtual ~IAdc() = default;

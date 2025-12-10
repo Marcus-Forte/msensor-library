@@ -35,12 +35,24 @@ struct Scan3DI {
   uint64_t timestamp;
 };
 
+/**
+ * @brief Interface for LiDAR devices producing point clouds.
+ */
 class ILidar {
 public:
   virtual ~ILidar() = default;
 
+  /**
+   * @brief Perform device setup (connection, configuration, etc.).
+   */
   virtual void init() = 0;
+  /**
+   * @brief Start the sampling loop.
+   */
   virtual void startSampling() = 0;
+  /**
+   * @brief Stop the sampling loop.
+   */
   virtual void stopSampling() = 0;
 
   /**

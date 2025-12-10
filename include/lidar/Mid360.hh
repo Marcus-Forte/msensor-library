@@ -34,13 +34,20 @@ public:
    * `accumulate_scan_count`.
    */
   Mid360(const std::string &&config, size_t accumulate_scan_count);
+  /// Initialize the Livox driver and connect to the device.
   void init() override;
+  /// Retrieve the next accumulated point cloud.
   std::shared_ptr<Scan3DI> getScan() override;
+  /// Retrieve the latest IMU sample from the embedded sensor.
   std::optional<IMUData> getImuData() override;
+  /// Start sampling LiDAR and IMU data.
   void startSampling() override;
+  /// Stop sampling operations.
   void stopSampling() override;
+  /// Switch power/normal operating mode.
   void setMode(Mode mode);
 
+  /// Configure point emission pattern.
   void setScanPattern(ScanPattern pattern) const;
 
 private:

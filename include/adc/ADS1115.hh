@@ -37,18 +37,34 @@ public:
     SINGLE_3 = 3,
   };
 
+  /**
+   * @brief Construct an ADS1115 wrapper.
+   *
+   * @param i2cBus Linux I2C bus index.
+   * @param address I2C address of the ADC.
+   */
   ADS1115(int i2cBus = 1, uint8_t address = 0x48);
   ~ADS1115() = default;
 
+  /**
+   * @brief Configure ADC gain, sampling rate and input channel.
+   *
+   * @return true on success, false otherwise.
+   */
   bool init(Gain gain, DataRate rate, Channel channel);
 
+  /// Read the configured channel as a single-ended voltage sample.
   std::optional<AdcSample> readSingleEnded() const override;
 
 private:
+  /// Write a 16-bit word to the given register address.
   int16_t write_(uint8_t reg_address, uint16_t data) const;
+  /// Read a 16-bit word from the given register address.
   int16_t read_(uint8_t reg_address) const;
 
+  /// Retrieve the latest conversion result.
   int16_t readConversion() const;
+  /// Convert raw ADC counts to volts according to configured gain.
   float convertRawToVoltage(int16_t raw) const;
 
   const int i2c_device_;
