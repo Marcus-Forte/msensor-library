@@ -10,6 +10,7 @@ Available apps (run as CMD/args):
   sim_publisher
   icm20948_publisher
   ads1115_publisher
+  all_publisher
 
 Example:
   docker run --rm <image> rplidar_publisher /dev/ttyUSB0
