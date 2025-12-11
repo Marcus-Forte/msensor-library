@@ -22,7 +22,7 @@ COPY --from=build --chmod=0755 /src/docker/entrypoint.sh /usr/local/bin/entrypoi
 RUN ldconfig
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-
+CMD []
 # One can use `scratch` as a base and manually call the copied `ld` binary.
 # Use -DIMPORT_ALL_RUNTIME=ON when building for scratch.
 # RUN chmod +x /app/lib/ld-linux-aarch64.so.1
