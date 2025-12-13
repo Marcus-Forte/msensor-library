@@ -1,0 +1,61 @@
+@startuml Architecture
+' !pragma layout smetana
+
+file "Proto Definitions \n(proto)" <<file>> {
+interface Services {
+    +getScan()
+    +getImu()
+    +getAdc()
+}
+}
+
+component "Sensor Server" as Server {
+ abstract SensorService <<generated>> {
+    +getScan()
+     +getImu()
+     +getAdc()
+
+ }
+
+ class SensorServiceImpl {
+     +getScan()
+     +getImu()
+     +getAdc()
+ }
+
+ class "SensorDriver" as SensorDriver {
+    +getScan()
+     +getImu()
+     +getAdc()
+ }
+
+ SensorDriver <- SensorServiceImpl: uses
+ SensorService <|.. SensorServiceImpl: implements
+ Services --> SensorService: generates
+}
+
+component "Client" as Client {
+    abstract "SensorService" as SensorServiceClient <<generated>> {
+    +getScan()
+    +getImu()
+    +getAdc()
+
+ }
+
+ class "SensorServiceImpl" as SensorServiceImplClient {
+     +getScan()
+     +getImu()
+     +getAdc()
+ }
+
+
+ SensorServiceClient <|.. SensorServiceImplClient: implements
+
+  Services --> SensorServiceClient: generates
+} 
+
+interface "gRPC" as gRPC
+
+Server -- gRPC
+gRPC - Client : "   "
+@enduml
