@@ -1,11 +1,21 @@
+import argparse
+
 import open3d as o3d
 import numpy as np
 import grpc
 
 from proto_gen import  sensors_pb2_grpc, sensors_pb2
 
+
+DEFAULT_SERVER_ADDR = "192.168.3.251:50053"
+
+
 def main():
-    with grpc.insecure_channel('192.168.3.251:50053') as channel:
+    parser = argparse.ArgumentParser(description="Visualize LiDAR scans over gRPC.")
+    parser.add_argument("--server", default=DEFAULT_SERVER_ADDR, help="gRPC target host:port")
+    args = parser.parse_args()
+
+    with grpc.insecure_channel(args.server) as channel:
         vis = o3d.visualization.Visualizer()
         vis.create_window()
         opt = vis.get_render_option()
@@ -17,7 +27,6 @@ def main():
         opt.background_color = np.array([0, 0, 0])
         pcd = o3d.geometry.PointCloud()
         pcd.points = o3d.utility.Vector3dVector(np.random.rand(2, 3))
-        # add a coordinate frame to visualize axes (adjust size as needed)
         coord_frame = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.1, origin=[0.0, 0.0, 0.0])
         vis.add_geometry(coord_frame)
         vis.add_geometry(pcd)
@@ -30,7 +39,6 @@ def main():
             
             # 1. Create the (N, 3) NumPy array for XYZ coordinates
             xyz_data = np.array([[p.x, p.y, p.z] for p in scan.points])
-            # Set all points to green
             colors = np.tile([0, 1, 0], (xyz_data.shape[0], 1))
             pcd.colors = o3d.utility.Vector3dVector(colors)
 
@@ -40,6 +48,7 @@ def main():
             vis.update_geometry(pcd)
             running = vis.poll_events()
             vis.update_renderer()
+
 
 if __name__ == "__main__":
     main()

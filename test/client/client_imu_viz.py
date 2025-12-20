@@ -1,3 +1,4 @@
+import argparse
 import grpc
 import math
 # gRPC stubs for your SENSOR server
@@ -5,8 +6,8 @@ from proto_gen import sensors_pb2_grpc, sensors_pb2, plot_pb2_grpc, plot_pb2
 from google.protobuf.empty_pb2 import Empty
 
 # --- Configuration ---
-SENSOR_SERVER_ADDR = '192.168.3.251:50052'
-PLOT_SERVER_ADDR = 'localhost:50052' # Assuming it's on the same machine
+DEFAULT_SENSOR_SERVER_ADDR = '192.168.3.251:50052'
+DEFAULT_PLOT_SERVER_ADDR = 'localhost:50052'  # Assuming it's on the same machine
 
 # --- Plot Configuration ---
 
@@ -123,9 +124,14 @@ def stream_adapter(sensor_stub):
         return # This will end the generator and close the stream to the plot server
 
 def main():
+    parser = argparse.ArgumentParser(description="Bridge IMU stream to plotting service.")
+    parser.add_argument("--sensor", default=DEFAULT_SENSOR_SERVER_ADDR, help="Sensor gRPC host:port")
+    parser.add_argument("--plot", default=DEFAULT_PLOT_SERVER_ADDR, help="Plot gRPC host:port")
+    args = parser.parse_args()
+
     # Open two channels simultaneously
-    with grpc.insecure_channel(SENSOR_SERVER_ADDR) as sensor_channel, \
-         grpc.insecure_channel(PLOT_SERVER_ADDR) as plot_channel:
+    with grpc.insecure_channel(args.sensor) as sensor_channel, \
+         grpc.insecure_channel(args.plot) as plot_channel:
         
         sensor_stub = sensors_pb2_grpc.SensorServiceStub(sensor_channel)
         plot_stub = plot_pb2_grpc.PlotServiceStub(plot_channel)
@@ -145,16 +151,16 @@ def main():
         plot_stub.AddSignal(plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_GYRO_Z, axis_id=AXIS_GYRO_ID, signal_name="Gyro Z"))
 
         try:
-            print(f"Connected to plot server at {PLOT_SERVER_ADDR}")
+            print(f"Connected to plot server at {args.plot}")
         except grpc.FutureTimeoutError:
-            print(f"!!! FAILED to connect to plot server at {PLOT_SERVER_ADDR} !!!")
+            print(f"!!! FAILED to connect to plot server at {args.plot} !!!")
             return
 
 
         try:
-            print(f"Connected to sensor server at {SENSOR_SERVER_ADDR}")
+            print(f"Connected to sensor server at {args.sensor}")
         except grpc.FutureTimeoutError:
-            print(f"!!! FAILED to connect to sensor server at {SENSOR_SERVER_ADDR} !!!")
+            print(f"!!! FAILED to connect to sensor server at {args.sensor} !!!")
             return
 
         # Start the streaming
