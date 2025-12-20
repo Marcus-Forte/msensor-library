@@ -1,0 +1,11 @@
+[project]
+name = "msensor_client"
+version = "0.1.0"
+description = "Msensor client library"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "grpcio-tools==1.71.0",
+    "matplotlib==3.10.7",
+    "open3d>=0.19.0",
+]

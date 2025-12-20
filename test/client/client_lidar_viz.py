@@ -2,8 +2,6 @@ import open3d as o3d
 import numpy as np
 import grpc
 
-# `pip install open3d` required! May be available only up to python 3.12
-
 from proto_gen import  sensors_pb2_grpc, sensors_pb2
 
 def main():
