@@ -1,13 +1,14 @@
 import argparse
 import grpc
 import math
+
 # gRPC stubs for your SENSOR server
 from proto_gen import sensors_pb2_grpc, sensors_pb2, plot_pb2_grpc, plot_pb2
 from google.protobuf.empty_pb2 import Empty
 
 # --- Configuration ---
-DEFAULT_SENSOR_SERVER_ADDR = '192.168.3.251:50052'
-DEFAULT_PLOT_SERVER_ADDR = 'localhost:50052'  # Assuming it's on the same machine
+DEFAULT_SENSOR_SERVER_ADDR = "192.168.3.251:50052"
+DEFAULT_PLOT_SERVER_ADDR = "localhost:50052"  # Assuming it's on the same machine
 
 # --- Plot Configuration ---
 
@@ -50,6 +51,7 @@ SIGNAL_ID_GYRO_ROLL = 41
 SIGNAL_ID_FUSED_PITCH = 50
 SIGNAL_ID_FUSED_ROLL = 51
 
+
 def stream_adapter(sensor_stub):
     """
     Generator function.
@@ -57,7 +59,7 @@ def stream_adapter(sensor_stub):
     2. Transforms it into a StreamPointsBatch.
     3. Yields the batch to be sent to the PLOT stream.
     """
-    
+
     # Start the sensor stream
     request = sensors_pb2.SensorStreamRequest(queue_size=100)
     try:
@@ -76,8 +78,8 @@ def stream_adapter(sensor_stub):
         fused_pitch = 0.0
         for sample in sensor_stream:
             # Filter sample time difference
-            dt = (sample.timestamp - last_timestamp) / 1000000 # in seconds
-            if(dt < 0 or dt > 1):
+            dt = (sample.timestamp - last_timestamp) / 1000000  # in seconds
+            if dt < 0 or dt > 1:
                 dt = 0.01  # Default to 10ms if invalid
             last_timestamp = sample.timestamp
 
@@ -85,13 +87,12 @@ def stream_adapter(sensor_stub):
             # Accelerometer-based angle estimation
             roll_angle_acc = math.atan2(sample.ay, sample.az) * (180.0 / math.pi)
             pitch_angle_acc = math.atan2(-sample.ax, math.sqrt(sample.ay**2 + sample.az**2)) * (180.0 / math.pi)
-            
 
             # Gyroscope-based angle estimation (not used in this example)
             gyro_roll += sample.gx * dt * (180.0 / math.pi)
             gyro_pitch += sample.gy * dt * (180.0 / math.pi)
             gyro_yaw += sample.gz * dt * (180.0 / math.pi)
-            
+
             # # Simple complementary filter for fused angle estimation
             # alpha = 0.98 # Closer to 1 means more gyro, closer to 0 means more acc
             # fused_roll = alpha * (fused_roll + sample.gx * dt * (180.0 / math.pi)) + (1 - alpha) * roll_angle_acc
@@ -114,14 +115,13 @@ def stream_adapter(sensor_stub):
                 ]
             )
 
-            
-            
             # Yield this batch to the plot server stream
             yield batch
-            
+
     except grpc.RpcError as e:
         print(f"!!! ERROR with sensor stream: {e.details()} !!!")
-        return # This will end the generator and close the stream to the plot server
+        return  # This will end the generator and close the stream to the plot server
+
 
 def main():
     parser = argparse.ArgumentParser(description="Bridge IMU stream to plotting service.")
@@ -130,9 +130,11 @@ def main():
     args = parser.parse_args()
 
     # Open two channels simultaneously
-    with grpc.insecure_channel(args.sensor) as sensor_channel, \
-         grpc.insecure_channel(args.plot) as plot_channel:
-        
+    with (
+        grpc.insecure_channel(args.sensor) as sensor_channel,
+        grpc.insecure_channel(args.plot) as plot_channel,
+    ):
+
         sensor_stub = sensors_pb2_grpc.SensorServiceStub(sensor_channel)
         plot_stub = plot_pb2_grpc.PlotServiceStub(plot_channel)
 
@@ -140,22 +142,32 @@ def main():
         plot_stub.clearAll(Empty())
         plot_stub.AddAxis(plot_pb2.AddAxisRequest(axis_id=AXIS_ACC_ID, number_of_samples=1000, plot_title="raw acc"))
         plot_stub.AddAxis(plot_pb2.AddAxisRequest(axis_id=AXIS_GYRO_ID, number_of_samples=1000, plot_title="raw gyro"))
-   
-        plot_stub.AddSignal(plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_ACC_X, axis_id=AXIS_ACC_ID, signal_name="Acc X"))
-        plot_stub.AddSignal(plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_ACC_Y, axis_id=AXIS_ACC_ID, signal_name="Acc Y"))
-        plot_stub.AddSignal(plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_ACC_Z, axis_id=AXIS_ACC_ID, signal_name="Acc Z"))
 
+        plot_stub.AddSignal(
+            plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_ACC_X, axis_id=AXIS_ACC_ID, signal_name="Acc X")
+        )
+        plot_stub.AddSignal(
+            plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_ACC_Y, axis_id=AXIS_ACC_ID, signal_name="Acc Y")
+        )
+        plot_stub.AddSignal(
+            plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_ACC_Z, axis_id=AXIS_ACC_ID, signal_name="Acc Z")
+        )
 
-        plot_stub.AddSignal(plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_GYRO_X, axis_id=AXIS_GYRO_ID, signal_name="Gyro X"))
-        plot_stub.AddSignal(plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_GYRO_Y, axis_id=AXIS_GYRO_ID, signal_name="Gyro Y"))
-        plot_stub.AddSignal(plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_GYRO_Z, axis_id=AXIS_GYRO_ID, signal_name="Gyro Z"))
+        plot_stub.AddSignal(
+            plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_GYRO_X, axis_id=AXIS_GYRO_ID, signal_name="Gyro X")
+        )
+        plot_stub.AddSignal(
+            plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_GYRO_Y, axis_id=AXIS_GYRO_ID, signal_name="Gyro Y")
+        )
+        plot_stub.AddSignal(
+            plot_pb2.AddSignalRequest(signal_id=SIGNAL_ID_GYRO_Z, axis_id=AXIS_GYRO_ID, signal_name="Gyro Z")
+        )
 
         try:
             print(f"Connected to plot server at {args.plot}")
         except grpc.FutureTimeoutError:
             print(f"!!! FAILED to connect to plot server at {args.plot} !!!")
             return
-
 
         try:
             print(f"Connected to sensor server at {args.sensor}")
@@ -171,7 +183,7 @@ def main():
         print("Starting stream... Press Ctrl+C to stop.")
         try:
             plot_stub.streamPlot(stream_adapter(sensor_stub))
-            
+
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.UNAVAILABLE:
                 print("Plot server disconnected. Exiting.")
@@ -183,4 +195,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
