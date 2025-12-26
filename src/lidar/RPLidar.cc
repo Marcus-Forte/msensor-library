@@ -81,12 +81,12 @@ std::shared_ptr<Scan3DI> RPLidar::getScan() {
   sl_lidar_response_measurement_node_hq_t nodes[8192];
   size_t count = sizeof(nodes) / sizeof(nodes[0]);
 
-  auto result = drv_->grabScanDataHq(nodes, count, 1000);
+  auto result = drv_->grabScanDataHq(nodes, count, 5);
   if (SL_IS_OK(result)) {
     drv_->ascendScanData(nodes, count); // AKA Reorder
     return toScan3D(nodes, count);
   } else {
-    return {};
+    return nullptr;
   }
 }
 

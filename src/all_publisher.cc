@@ -10,7 +10,8 @@
 
 constexpr int kDefaultI2cBus = 1;
 constexpr uint8_t kDefaultADSAddress = 0x48;
-constexpr int kLoopPeriodUs = 1000;
+constexpr const char *kDefaultLidarDevice = "/dev/ttyUSB0";
+constexpr uint64_t kLoopPeriodUs = 1000;
 
 static void print_usage() {
   std::cout
@@ -22,7 +23,7 @@ int main(int argc, char **argv) {
 
   int opt;
   int bus = kDefaultI2cBus;
-  std::filesystem::path lidar_device;
+  std::filesystem::path lidar_device(kDefaultLidarDevice);
 
   while ((opt = getopt(argc, argv, "b:l:h")) != -1) {
     switch (opt) {
@@ -52,6 +53,7 @@ int main(int argc, char **argv) {
 
   msensor::RPLidar rplidar(lidar_device);
   rplidar.setMotorRPM(360);
+  rplidar.init();
 
   msensor::ICM20948 icm20948(bus, ICM20948_ADDR0);
   icm20948.init();
@@ -73,6 +75,8 @@ int main(int argc, char **argv) {
 
     if (scan) {
       server.publishScan(scan);
+      std::cout << "New Scan @ " << scan->timestamp
+                << " Points: " << scan->points->size() << std::endl;
     }
     if (imudata) {
       server.publishImu(imudata.value());
@@ -81,7 +85,7 @@ int main(int argc, char **argv) {
       server.publishAdc(adc_data.value());
     }
 
-    const auto remaining_us = kLoopPeriodUs - (timing::getNowUs() - now);
+    const uint64_t remaining_us = kLoopPeriodUs - (timing::getNowUs() - now);
     if (remaining_us > 0) {
       std::this_thread::sleep_for(std::chrono::microseconds(remaining_us));
     } else {

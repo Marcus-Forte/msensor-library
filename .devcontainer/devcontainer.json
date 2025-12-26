@@ -1,6 +1,6 @@
 // devcontainer for development
 {
-	"name": "msensor-library",
+	"name": "msensor",
 	"image": "mdnf1992/cpp-dev",
 	
 	"customizations": {
@@ -22,10 +22,7 @@
 		}
 	},
 
-	"appPort": 
-	[
-		"50051:50051"
-	],
+	"appPort": ["50051:50051"],
 
 	"mounts": [
 		"source=msensor-app-cache,target=${containerWorkspaceFolder}/build,type=volume"

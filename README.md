@@ -1,25 +1,17 @@
-# The MSensor Library
+# The msensor
 
-This library serve as an experiment for writing generic LiDAR and IMU drivers based on a simple interface.
-It was inspired by ROS2, but with gRPC+Protobuf as message and service definition technologies
-and simplicity in mind.
+This library serves as an experiment for writing generic sensor drivers based on a simple interface.
 
 By inheriting these common interfaces, the driver benefit from:
 
-* Exposing your driver as an gRPC interface to be used remotely.
+* Exposing your driver as a unified gRPC interface to be consumed remotely.
 * Enabling your driver to serialize data to a file to be read back at a later time.
-
-## Development
-
-Two devcontainers are included. The `dev` is a normal devcontainer for development.
-The `envoy` is a special devcontainer that pulls envoy proxy that proxies grpc-web HTTP request to gRPC of the container.
 
 ## Usage
 
 ### As an interface
 
-* The interface at `include/lidar/ILidar` serves as a base for implementing new LiDAR drivers.
-* The interface at `include/imu/IImu` serves as a base for implementing new IMU drivers.
+You can inherit basic sensor interfaces located at `include/<sensor_type>/*.hh` and write your own corresponding driver. See `src/<sensor_type>/*.cc` for examples.
 
 ### Remote Driver
 
@@ -34,18 +26,6 @@ See `test/client` folder.
 
 ## Docker
 
-A `DockerfileRuntime` is provided to offer small footprint images that allows one to run the publisher applications from inside a container. Make sure the hardware is correctly mapped to the container (`--device /dev/ttyUSB*` or `--network=host`)
+A `DockerfileRuntime` is provided to offer small footprint images that allows one to run the sensor driver applications from inside a container. 
 
-Supported docker build targets are:
-* `rplidar`
-* `mid360`
-* `icm20948`
-
-Example with Mid360 LIDAR+IMU:
-* build: `docker build -f docker/DockerfileRuntime -t mid360 --target icm20948 .`
-* run: `docker run --network host --rm mid360 <nr samples>`
-
-Example ICM20948 IMU:
-* build: `docker build -f docker/DockerfileRuntime -t icm20948 --target icm20948 .`
-* run: `docker run --rm --init --device /dev/i2c-1 -p 50051:50051 icm20948`
-
+Make sure the hardware is correctly mapped to the container (e.g `--device /dev/i2c-1`, `--device /dev/ttyUSB*`,  `--network=host`, ...)

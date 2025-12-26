@@ -120,7 +120,6 @@ bool ADS1115::init(Gain gain, DataRate rate, Channel channel) {
 
 int16_t ADS1115::readConversion() const {
   const auto raw = read_(REG_CONVERSION);
-  std::cout << std::format("ADS1115 raw conversion (host): {}\n", raw);
   return raw;
 }
 

@@ -2,3 +2,4 @@
 - namespace for parent projects
 - separate thread for sensor recording?
 - Support more subscribers at once
+- Logging

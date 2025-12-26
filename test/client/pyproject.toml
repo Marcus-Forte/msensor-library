@@ -9,6 +9,7 @@ dependencies = [
     "grpcio-tools==1.71.0",
     "viser>=1.0.16",
 ]
+
 [tool.black]
 line-length = 120
 extend-exclude = '''
