@@ -1,7 +1,6 @@
 import argparse
 import threading
-import time
-from typing import Sequence
+from typing import Optional, Sequence
 
 import grpc
 import numpy as np
@@ -9,15 +8,12 @@ import viser
 import viser.uplot
 
 from proto_gen import sensors_pb2, sensors_pb2_grpc
+from robot_control import RobotControlHandle, start_robot_control
 
 
 DEFAULT_SERVER_ADDR = "localhost:50051"
 DEFAULT_ADC_CHANNEL = 0
 DEFAULT_ADC_PERIOD_SEC = 0.5
-
-
-def button_callback(event):
-    print(f"Button clicked! Event: {event}")
 
 
 def to_numpy(points: Sequence[sensors_pb2.Point3]) -> np.ndarray:
@@ -89,9 +85,6 @@ def setup_imu_plots(server: viser.ViserServer):
         )
     )
 
-    button = server.gui.add_button("button")
-    button.on_click(button_callback)
-
     return {
         "x_data": x_data,
         "y_acc": y_acc,
@@ -124,6 +117,14 @@ def stream_lidar(stub: sensors_pb2_grpc.SensorServiceStub, server: viser.ViserSe
     request = sensors_pb2.SensorStreamRequest(queue_size=100)
     last_timestamp = 0
 
+    cloud = server.scene.add_point_cloud(
+        name="/rplidar",
+        points=np.empty((0, 3), dtype=np.float32),
+        colors=(255, 0, 0),
+        point_size=0.05,
+        point_shape="rounded",
+    )
+
     try:
         for scan in stub.getScan(request):
             if stop_event.is_set():
@@ -132,14 +133,8 @@ def stream_lidar(stub: sensors_pb2_grpc.SensorServiceStub, server: viser.ViserSe
             delta_t = scan.timestamp - last_timestamp
             print(f" DeltaT: {delta_t} ms")
             last_timestamp = scan.timestamp
+            cloud.points = to_numpy(scan.points)
 
-            server.scene.add_point_cloud(
-                name="/lidar",
-                points=to_numpy(scan.points),
-                colors=(255, 0, 0),
-                point_size=0.05,
-                point_shape="rounded",
-            )
     except grpc.RpcError as exc:
         print(f"LiDAR stream error: {exc.code().name} - {exc.details()}")
 
@@ -149,6 +144,7 @@ def stream_adc(
     stop_event: threading.Event,
     channel: int,
     period_sec: float,
+    battery_level_handle: viser.GuiNumberHandle,
 ):
     request = sensors_pb2.AdcDataRequest(channel=channel)
 
@@ -157,6 +153,7 @@ def stream_adc(
         try:
             resp = stub.GetAdc(request)
             print(f"ADC{channel}: {resp.sample:.4f} V @ {resp.timestamp}")
+            battery_level_handle.value = resp.sample
         except grpc.RpcError as exc:
             print(f"ADC error: {exc.code().name} - {exc.details()}")
         stop_event.wait(period_sec)
@@ -165,6 +162,10 @@ def stream_adc(
 def parse_args():
     parser = argparse.ArgumentParser(description="Subscribe to multiple sensor streams over gRPC.")
     parser.add_argument("--server", default=DEFAULT_SERVER_ADDR, help="gRPC target host:port")
+    parser.add_argument(
+        "--robot-server",
+        help="gRPC target host:port for robot control (optional)",
+    )
     parser.add_argument("--imu", action="store_true", help="Subscribe to the IMU stream")
     parser.add_argument("--lidar", action="store_true", help="Subscribe to the LiDAR stream")
     parser.add_argument("--adc", action="store_true", help="Poll the ADC")
@@ -184,11 +185,19 @@ def main():
     if not any([args.imu, args.lidar, args.adc]):
         args.imu = args.lidar = args.adc = True
 
-    needs_visualization = args.imu or args.lidar
-    server = viser.ViserServer() if needs_visualization else None
+    server = viser.ViserServer()
+    server.scene.world_axes.visible = True
+    server.scene.world_axes.axes_length = 1
 
     stop_event = threading.Event()
     threads: list[threading.Thread] = []
+
+    battery_level_handle = server.gui.add_number("Battery Voltage (V)", initial_value=0.0, step=0.1, disabled=True)
+
+    robot_handle: Optional[RobotControlHandle] = None
+    if args.robot_server:
+        robot_handle = start_robot_control(server, args.robot_server, stop_event)
+        threads.append(robot_handle.thread)
 
     with grpc.insecure_channel(args.server) as channel:
         stub = sensors_pb2_grpc.SensorServiceStub(channel)
@@ -210,7 +219,7 @@ def main():
         if args.adc:
             t = threading.Thread(
                 target=stream_adc,
-                args=(stub, stop_event, args.adc_channel, args.adc_period),
+                args=(stub, stop_event, args.adc_channel, args.adc_period, battery_level_handle),
                 name="adc-thread",
             )
             t.start()
@@ -226,6 +235,9 @@ def main():
 
     for t in threads:
         t.join()
+
+    if robot_handle:
+        robot_handle.close()
 
 
 if __name__ == "__main__":

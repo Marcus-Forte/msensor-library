@@ -1,6 +1,13 @@
 # Python client
 
-Use `uv run python -m grpc_tools.protoc -Iproto_gen=../../proto --python_out=. --pyi_out=. --grpc_python_out=. ../../proto/sensors.proto` to generate proto and grpc code if they need to be update.
+Use the following command to generate proto and grpc code if they need to be updated. 
+
+```bash
+uv run python -m grpc_tools.protoc -Iproto_gen=../../proto --python_out=. --pyi_out=. --grpc_python_out=. ../../proto/sensors.proto
+```
+
+uv run python -m grpc_tools.protoc -Iproto_gen=. --python_out=. --pyi_out=. --grpc_python_out=. robot.proto
+
 
 Use `uv run python client.py` to call the client listener.
 
